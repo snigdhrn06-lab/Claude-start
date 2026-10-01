@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="390" height="682" viewBox="0 0 390 682" font-family="Helvetica, Arial, sans-serif">
+<metadata>Synthetic Sentinel demo screenshot — fictional data.</metadata>
+<rect width="390" height="682" fill="#0b0d10"/>
+<rect width="390" height="72" fill="#14171c"/>
+<circle cx="36" cy="38" r="16" fill="#2a2f38"/>
+<text x="31" y="43" font-size="14" fill="#c9ced6" class="ui">S</text>
+<text x="62" y="34" font-size="15" fill="#f1f3f5" font-weight="600" class="ui">ShopKart Support</text>
+<text x="62" y="52" font-size="11" fill="#7d8592" class="ui">Phone call → UPI</text>
+<g class="msg" data-sender="ShopKart Support">
+<rect x="16" y="96" width="260.8" height="88" rx="12" fill="#1d2026"/>
+<text x="28" y="118" font-size="13" fill="#e9edf1">Hello, this is ShopKart customer</text>
+<text x="28" y="136" font-size="13" fill="#e9edf1">care. Your order #SK-48213 (boAt</text>
+<text x="28" y="154" font-size="13" fill="#e9edf1">earbuds, ₹12,999) was cancelled</text>
+<text x="28" y="172" font-size="13" fill="#e9edf1">and a refund was initiated.</text>
+</g>
+<g class="msg" data-sender="You">
+<rect x="135.39999999999998" y="194" width="238.60000000000002" height="34" rx="12" fill="#1f6f5c"/>
+<text x="147.39999999999998" y="216" font-size="13" fill="#e9edf1">Okay. When will I receive it?</text>
+</g>
+<g class="msg" data-sender="ShopKart Support">
+<rect x="16" y="238" width="268.20000000000005" height="106" rx="12" fill="#1d2026"/>
+<text x="28" y="260" font-size="13" fill="#e9edf1">The refund failed because of a</text>
+<text x="28" y="278" font-size="13" fill="#e9edf1">bank mismatch. To process it</text>
+<text x="28" y="296" font-size="13" fill="#e9edf1">manually, our system needs a</text>
+<text x="28" y="314" font-size="13" fill="#e9edf1">verification transfer of the same</text>
+<text x="28" y="332" font-size="13" fill="#e9edf1">amount.</text>
+</g>
+<g class="msg" data-sender="ShopKart Support">
+<rect x="16" y="354" width="260.8" height="88" rx="12" fill="#1d2026"/>
+<text x="28" y="376" font-size="13" fill="#e9edf1">Please send ₹12,999 to</text>
+<text x="28" y="394" font-size="13" fill="#e9edf1">refunds.shopkart@ybl. The total</text>
+<text x="28" y="412" font-size="13" fill="#e9edf1">₹25,998 will be credited back to</text>
+<text x="28" y="430" font-size="13" fill="#e9edf1">your account within 15 minutes.</text>
+</g>
+<g class="msg" data-sender="You">
+<rect x="135.39999999999998" y="452" width="238.60000000000002" height="52" rx="12" fill="#1f6f5c"/>
+<text x="147.39999999999998" y="474" font-size="13" fill="#e9edf1">Why do I need to pay to get a</text>
+<text x="147.39999999999998" y="492" font-size="13" fill="#e9edf1">refund?</text>
+</g>
+<g class="msg" data-sender="ShopKart Support">
+<rect x="16" y="514" width="275.6" height="88" rx="12" fill="#1d2026"/>
+<text x="28" y="536" font-size="13" fill="#e9edf1">This is the standard reversal</text>
+<text x="28" y="554" font-size="13" fill="#e9edf1">procedure. Please complete it in</text>
+<text x="28" y="572" font-size="13" fill="#e9edf1">the next 20 minutes, otherwise the</text>
+<text x="28" y="590" font-size="13" fill="#e9edf1">refund request will lapse.</text>
+</g>
+<rect y="628" width="390" height="54" fill="#14171c"/>
+<rect x="14" y="640" width="362" height="30" rx="15" fill="#22262d"/>
+<text x="30" y="660" font-size="12" fill="#6b7280" class="ui">Message</text>
+</svg>
