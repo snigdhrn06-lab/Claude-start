@@ -47,3 +47,11 @@ src/app/             Home, Scan, Analysis, Attack Chain, Firewall, Counterfactua
 ```
 
 Perception and scoring are separate stages. The LLM, when it's enabled, only reports which signals are present, and it must quote the exact text for each one. A quote that can't be found in the conversation is discarded. The deterministic engine then computes every score, so identical signals always produce identical scores. `npm run calibrate` prints scenario scores.
+
+## Deploy to Render
+
+1. Render dashboard → **New → Blueprint** → select this repo and branch. `render.yaml` configures everything.
+2. When prompted for `ANTHROPIC_API_KEY`, leave it blank to run on the local engine, or paste a key.
+3. Wait for the deploy to go live. Your URL is `https://<service-name>.onrender.com`.
+
+Manual setup (New → Web Service) uses the same values: build `npm ci --include=dev && npm run build`, start `npm start`, environment variable `NODE_VERSION=22`.
