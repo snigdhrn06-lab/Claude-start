@@ -5,7 +5,7 @@ import { z } from "zod/v4";
 import { SIGNAL_IDS, SIGNALS } from "../engine/catalog";
 import { analyzeLocal, buildResult } from "../engine/analyze";
 import { detectLocal, type DetectedSignal } from "../engine/detect";
-import { locateQuote } from "../engine/parse";
+import { locateQuote, parseConversation } from "../engine/parse";
 import type { AnalysisResult, EntityType, ExtractedEntity, ScanInput, SignalId } from "../types";
 
 /**
@@ -77,15 +77,45 @@ ${SIGNAL_IDS.map((id) => `- ${id} — ${SIGNALS[id].label}: ${SIGNALS[id].explan
 "verification" is a mitigating signal: report it when the sender points the user to official, independently verifiable channels.
 Confidence reflects how clearly the text supports the signal (50 = ambiguous, 95 = explicit).`;
 
+/**
+ * Only accept evidence that occurs inside a message from the other party.
+ * A quote copied from a user's own message must not substantiate a scam signal.
+ * Search all occurrences so an earlier user quote does not hide a later inbound
+ * occurrence of the same text.
+ */
+function locateInboundQuotes(raw: string, quote: string) {
+  const q = quote.trim().replace(/^["'“]|["'”]$/g, "");
+  if (!q) return [];
+  const inbound = parseConversation(raw).filter((message) => !message.self);
+  const matches: NonNullable<ReturnType<typeof locateQuote>>[] = [];
+  const lowerRaw = raw.toLowerCase();
+  const lowerQuote = q.toLowerCase();
+  let from = 0;
+  while (from <= raw.length - q.length) {
+    const idx = lowerRaw.indexOf(lowerQuote, from);
+    if (idx < 0) break;
+    const end = idx + q.length;
+    if (inbound.some((message) => idx >= message.offset && end <= message.offset + message.text.length)) {
+      matches.push({ text: raw.slice(idx, end), start: idx, end, source: "conversation" });
+    }
+    from = idx + Math.max(q.length, 1);
+  }
+  return matches;
+}
+
 function grounded(input: ScanInput, perceived: z.infer<typeof PerceptionSchema>["signals"]): DetectedSignal[] {
   const out: DetectedSignal[] = [];
   for (const s of perceived) {
     if (!SIGNALS[s.id]) continue;
-    const evidence = s.quotes.map((q) => locateQuote(input.conversation, q)).filter((e): e is NonNullable<typeof e> => !!e);
-    if (!evidence.length) continue; // no grounding → discard (prevents hallucinated signals)
+    const evidence = s.quotes.flatMap((q) => locateInboundQuotes(input.conversation, q));
+    if (!evidence.length) continue; // no inbound-message grounding → discard
     const prev = out.find((o) => o.id === s.id);
     if (prev) {
-      prev.evidence.push(...evidence);
+      for (const ev of evidence) {
+        if (!prev.evidence.some((existing) => existing.start === ev.start && existing.end === ev.end)) {
+          prev.evidence.push(ev);
+        }
+      }
       continue;
     }
     out.push({
