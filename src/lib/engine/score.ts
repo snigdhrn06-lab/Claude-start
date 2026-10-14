@@ -10,7 +10,7 @@ export interface ScoreResult {
 
 /** Calibration constants (tuned with scripts/calibrate.ts). */
 export const TUNING = {
-  dimWeight: { context: 0.63, pressure: 0.62, transaction: 0.2, recipient: 0 } as Record<Dimension, number>,
+  dimWeight: { context: 0.63, pressure: 0.62, transaction: 0.2, recipient: 0.25 } as Record<Dimension, number>,
   synergy: 0.6,
   pretextAsk: 0.88,
   noAskDamping: 0.9,
