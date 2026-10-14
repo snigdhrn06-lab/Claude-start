@@ -8,9 +8,9 @@ export interface ScoreResult {
   breakdown: { label: string; value: number }[];
 }
 
-/** Calibration constants (tuned with scripts/calibrate.ts). */
+/** Initial scoring weights. Treat these as hypotheses until benchmark calibration is run. */
 export const TUNING = {
-  dimWeight: { context: 0.63, pressure: 0.62, transaction: 0.2, recipient: 0.25 } as Record<Dimension, number>,
+  // Recipient risk now contributes conservatively; calibrate against false positives/negatives.\n  dimWeight: { context: 0.63, pressure: 0.62, transaction: 0.2, recipient: 0.25 } as Record<Dimension, number>,
   synergy: 0.6,
   pretextAsk: 0.88,
   noAskDamping: 0.9,
