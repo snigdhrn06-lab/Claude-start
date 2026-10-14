@@ -128,6 +128,26 @@ function grounded(input: ScanInput, perceived: z.infer<typeof PerceptionSchema>[
   return out;
 }
 
+/** Keep model-extracted entities only when their value is present in supplied input. */
+function groundedEntities(input: ScanInput, perceived: z.infer<typeof PerceptionSchema>["entities"], local: ExtractedEntity[]) {
+  const source = [
+    input.conversation,
+    input.payment?.recipient ?? "",
+    input.payment?.amount.toString() ?? "",
+    input.payment?.method ?? "",
+    input.payment?.reason ?? "",
+  ].join("\\n").toLowerCase();
+  const entities = perceived
+    .map((entity) => ({ ...entity, value: entity.value.trim() }))
+    .filter((entity) => entity.value.length > 0 && source.includes(entity.value.toLowerCase()));
+  for (const entity of local) {
+    if (!entities.some((candidate) => candidate.type === entity.type && candidate.value.toLowerCase() === entity.value.toLowerCase())) {
+      entities.push(entity);
+    }
+  }
+  return entities;
+}
+
 /** Account-history signals the model cannot know: always come from the ledger rules. */
 const LEDGER_SIGNALS: SignalId[] = ["new_beneficiary", "amount_anomaly", "unofficial_channel"];
 
@@ -152,9 +172,9 @@ export async function analyzeWithAI(input: ScanInput): Promise<{ result: Analysi
     const local = detectLocal(input.conversation, input.payment);
     const signals = grounded(input, p.signals).filter((s) => !LEDGER_SIGNALS.includes(s.id));
     for (const ls of local.signals) if (LEDGER_SIGNALS.includes(ls.id)) signals.push(ls);
-    const entities: ExtractedEntity[] = p.entities.length ? p.entities.map((e) => ({ ...e })) : local.entities;
-    // Keep ledger notes (e.g. "Never paid before") from the local layer.
-    for (const e of local.entities) if (e.type === "recipient" && !entities.some((x) => x.value === e.value)) entities.push(e);
+    // Model entities are advisory: reject values absent from the supplied input,
+    // then preserve deterministic ledger/parser entities and their notes.
+    const entities: ExtractedEntity[] = groundedEntities(input, p.entities, local.entities);
     return { result: buildResult(input, signals, entities, { engine: "llm", model: cfg.model, explanation: p.explanation }) };
   } catch (err) {
     const msg = err instanceof Anthropic.APIError ? `${err.status ?? ""} ${err.name}` : (err as Error).message;
