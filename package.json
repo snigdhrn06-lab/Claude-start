@@ -2,7 +2,7 @@
   "name": "sentinel",
   "version": "1.0.0",
   "private": true,
-  "description": "Sentinel \u2014 the AI financial decision firewall",
+  "description": "Sentinel — the AI financial decision firewall",
   "scripts": {
     "dev": "next dev -p 3000",
     "build": "next build",
@@ -10,7 +10,8 @@
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
     "calibrate": "tsx scripts/calibrate.ts",
-    "samples": "tsx scripts/make-samples.ts"
+    "samples": "tsx scripts/make-samples.ts",
+    "validate": "tsx scripts/validate.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.131.0",
