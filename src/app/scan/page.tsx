@@ -1,7 +1,7 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import { ClipboardPaste, CreditCard, FileImage, ImageUp, Loader2, ScanLine, ShieldOff, Upload, X } from "lucide-react";
+import { ClipboardPaste, CreditCard, Database, FileImage, ImageUp, Loader2, ScanLine, ShieldOff, Upload, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useCallback, useRef, useState } from "react";
 import { DemoScenarioSelector } from "@/components/DemoScenarioSelector";
@@ -10,7 +10,8 @@ import { ErrorState, PageHeader, cn } from "@/components/ui";
 import { SCENARIOS, type Scenario } from "@/lib/scenarios";
 import { parseSvgScreenshot, readFile } from "@/lib/screenshot";
 import { useSentinel } from "@/lib/store";
-import type { AnalysisResult, PaymentDetails, ScanInput } from "@/lib/types";
+import { DEMO_PROFILE } from "@/lib/engine/context";
+import type { AccountContextInput, AnalysisResult, PaymentDetails, ScanInput } from "@/lib/types";
 
 type Tab = "text" | "image" | "payment";
 type Phase = "input" | "scanning" | "error";
@@ -25,7 +26,11 @@ const EMPTY_PAYMENT: PaymentDetails = { recipient: "", amount: 0, method: "UPI",
 
 export default function ScanPage() {
   const router = useRouter();
-  const { runScan } = useSentinel();
+  const { runScan, aiStatus } = useSentinel();
+  const [ctxMode, setCtxMode] = useState<AccountContextInput["mode"]>("none");
+  const [savedList, setSavedList] = useState("");
+  const [typical, setTypical] = useState(0);
+  const [elapsed, setElapsed] = useState<number | undefined>();
   const [tab, setTab] = useState<Tab>("text");
   const [conversation, setConversation] = useState("");
   const [payment, setPayment] = useState<PaymentDetails>(EMPTY_PAYMENT);
@@ -46,8 +51,14 @@ export default function ScanPage() {
     setScenarioId(s.id);
     setConversation(s.conversation);
     setPayment(s.payment);
+    setCtxMode(s.accountContext.mode);
     if (tab === "image") setTab("text");
   };
+
+  const accountContext = (): AccountContextInput =>
+    ctxMode === "user"
+      ? { mode: "user", knownBeneficiaries: savedList.split(/[\n,]+/).map((x) => x.trim()).filter(Boolean).slice(0, 200), typicalOutgoing: typical || undefined }
+      : { mode: ctxMode };
 
   const start = useCallback(
     async (input: ScanInput, stepList = TEXT_STEPS, textForLog?: string) => {
@@ -57,8 +68,11 @@ export default function ScanPage() {
       setSteps(stepList);
       setScanInputText(textForLog ?? input.conversation);
       setPhase("scanning");
+      setElapsed(undefined);
+      const t0 = performance.now();
       try {
-        const out = await runScan(input);
+        const out = await runScan({ ...input, accountContext: input.accountContext ?? accountContext() });
+        setElapsed(Math.round(performance.now() - t0));
         setNotice(out.notice);
         setResult(out.result);
       } catch (e) {
@@ -66,7 +80,8 @@ export default function ScanPage() {
         setError({ title: "Analysis failed", message: (e as Error).message });
       }
     },
-    [runScan],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [runScan, ctxMode, savedList, typical],
   );
 
   const scanText = () => {
@@ -148,6 +163,8 @@ export default function ScanPage() {
               steps={steps}
               result={result}
               input={scanInputText || "…"}
+              elapsedMs={elapsed}
+              engine={result?.engine}
               onComplete={() => router.push("/analysis")}
             />
             {notice && <p className="mt-3 text-center font-mono text-[11px] uppercase tracking-wider text-caution">{notice}</p>}
@@ -316,6 +333,44 @@ export default function ScanPage() {
                   <p className="text-[11.5px] text-fg-dim sm:col-span-2">Sentinel never asks for passwords, OTPs, PINs or CVVs. Don&apos;t enter them anywhere in this demo.</p>
                 </div>
               )}
+
+              <fieldset className="panel mt-4 p-4">
+                <legend className="label flex items-center gap-1.5 px-1">
+                  <Database className="h-3 w-3" /> Account context
+                </legend>
+                <div className="flex flex-wrap gap-2" role="radiogroup" aria-label="Account context">
+                  {(
+                    [
+                      ["none", "No history (default)"],
+                      ["demo", "Synthetic demo profile"],
+                      ["user", "My saved recipients"],
+                    ] as const
+                  ).map(([m, label]) => (
+                    <button key={m} type="button" role="radio" aria-checked={ctxMode === m} onClick={() => setCtxMode(m)} className={cn("chip cursor-pointer normal-case tracking-normal", ctxMode === m && "border-white/30 text-fg")}>
+                      {label}
+                    </button>
+                  ))}
+                </div>
+                <p className="mt-2 text-[11.5px] leading-relaxed text-fg-dim">
+                  {ctxMode === "none" && "Sentinel will not guess whether a recipient or amount is unusual for you; it will say that this is unknown."}
+                  {ctxMode === "demo" && `Uses the fictional profile of ${DEMO_PROFILE.holder}: ${DEMO_PROFILE.knownBeneficiaries.length} saved recipients, typical payment ₹${DEMO_PROFILE.typicalOutgoing.toLocaleString("en-IN")}. For demos only — results will be labelled synthetic.`}
+                  {ctxMode === "user" && "Type the UPI IDs or account numbers you have paid before. They are used for this analysis only and kept in this browser's history, not on a server."}
+                </p>
+                {ctxMode === "user" && (
+                  <div className="mt-3 grid gap-3 sm:grid-cols-[minmax(0,1fr)_160px]">
+                    <textarea aria-label="Saved recipients" rows={2} className="input resize-y font-mono text-[12.5px]" placeholder="landlord@okhdfc, mom@oksbi" value={savedList} onChange={(e) => setSavedList(e.target.value)} />
+                    <input aria-label="Typical payment amount" inputMode="numeric" className="input font-mono text-[12.5px]" placeholder="Typical payment ₹" value={typical ? typical.toLocaleString("en-IN") : ""} onChange={(e) => setTypical(Number(e.target.value.replace(/[^\d]/g, "")) || 0)} />
+                  </div>
+                )}
+              </fieldset>
+
+              <p className="mt-3 rounded-md border border-white/[0.06] bg-black/20 px-3 py-2 text-[11.5px] leading-relaxed text-fg-dim">
+                <span className="text-fg-muted">Where your text goes: </span>
+                {aiStatus.ai
+                  ? `AI perception is on — the conversation and payment details are sent to Anthropic's API (${aiStatus.model}) to extract signals; scoring runs on the Sentinel server.`
+                  : "AI perception is off — the conversation is analysed by the local engine on the Sentinel server (or in your browser if the server is unreachable) and is not sent to any AI provider."}{" "}
+                Sentinel keeps no server-side copy. Your scan history stays in this browser for up to 7 days.
+              </p>
 
               <div className="mt-4 flex flex-wrap items-center gap-3">
                 {tab === "image" ? (

@@ -1,6 +1,6 @@
 # Sentinel benchmark results
 
-Generated 2026-10-18T20:44:25.369Z · dataset v1.0.0 · engine v2.0.0 · policy v2.0.0 · catalog v2.0.0
+Generated 2026-10-18T20:58:45.038Z · dataset v1.0.0 · engine v2.0.0 · policy v2.0.0 · catalog v2.0.0
 
 Cases: 124 (66 scam, 53 legitimate, 5 ambiguous). Synthetic, author-written; see docs/EVALUATION.md for limitations. Not an estimate of real-world performance.
 

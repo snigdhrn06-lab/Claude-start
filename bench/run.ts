@@ -8,7 +8,7 @@
  * Writes bench/results/<name>.json and .md. Live assessors that are not
  * available are reported as skipped; no results are fabricated.
  */
-import { mkdirSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { analyzeLocal, ENGINE_VERSION } from "../src/lib/engine/analyze";
 import { CATALOG_VERSION } from "../src/lib/engine/catalog";
@@ -146,6 +146,37 @@ async function main() {
   mkdirSync(dir, { recursive: true });
   writeFileSync(join(dir, `${outName}.json`), JSON.stringify(json, null, 2));
   writeFileSync(join(dir, `${outName}.md`), toMarkdown(meta, reports, sweepAll, comparisons));
+  // Summary for the in-app Evaluation page (offline full runs only).
+  if (split === "all" && !compare.some((c) => ASSESSORS[c]?.live)) {
+    const first = join(dir, "first-heldout-test.json");
+    const firstHeldOut = existsSync(first) ? (JSON.parse(readFileSync(first, "utf8")) as { meta: unknown; sentinel: Record<string, SentinelReport> }) : null;
+    const headline = (r: SentinelReport) => ({
+      n: r.n,
+      recall: r.binaryAtElevated.recall,
+      precision: r.binaryAtElevated.precision,
+      fpr: r.binaryAtElevated.fpr,
+      f1: r.binaryAtElevated.f1,
+      recallHigh: r.binaryAtHigh.recall,
+      fprHigh: r.binaryAtHigh.fpr,
+      bandAccuracy: r.bandAccuracy,
+      quoteIntegrity: r.quoteIntegrity,
+      speakerAttribution: r.speakerAttributionAccuracy,
+      userLeaks: r.userAuthoredEvidenceLeaks,
+      entityPrecision: r.entityGroundedPrecision,
+      determinism: r.deterministicRepeatability,
+      legitUrgentFlagRate: r.legitUrgentFlagRate,
+    });
+    const summary = {
+      meta,
+      splits: Object.fromEntries(Object.entries(reports).map(([k, r]) => [k, headline(r)])),
+      firstHeldOut: firstHeldOut?.sentinel.test ? { meta: firstHeldOut.meta, test: headline(firstHeldOut.sentinel.test) } : null,
+      perCategory: reports.all.perCategory,
+      sweep: sweepAll,
+      comparisons: comparisons.map((c) => ({ assessor: c.assessor, status: c.status, reason: c.reason, recall: c.detection?.recall, fpr: c.detection?.fpr, precision: c.detection?.precision, grounding: c.grounding, userTextQuoted: c.userTextQuoted, transparentScore: c.transparentScore })),
+      misses: reports.all.outcomes.filter((o) => !o.bandOk).map((o) => ({ id: o.id, category: o.category, label: o.label, score: o.score, band: o.band })),
+    };
+    writeFileSync(join(__dirname, "..", "src", "data", "benchmark-summary.json"), JSON.stringify(summary, null, 2) + "\n");
+  }
   console.log(toMarkdown(meta, reports, sweepAll, comparisons).split("\n## Failures")[0]);
   console.log(`\nWrote bench/results/${outName}.json and .md`);
 }

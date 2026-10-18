@@ -53,7 +53,7 @@ export function ScoreCounter({
     const start = performance.now();
     const tick = (now: number) => {
       const t = now - start;
-      let i = bounds.findIndex((b) => t < b);
+      const i = bounds.findIndex((b) => t < b);
       if (i === -1) {
         setShown(value);
         done.current?.();

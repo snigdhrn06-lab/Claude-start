@@ -6,6 +6,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import {
   Clock3,
   FileSearch,
+  FlaskConical,
   GitBranch,
   Home,
   LayoutDashboard,
@@ -31,7 +32,7 @@ const NAV = [
       { href: "/scan", label: "Live Scan", icon: ScanLine },
       { href: "/analysis", label: "Analysis Result", icon: Radar },
       { href: "/attack-chain", label: "Attack Chain", icon: GitBranch },
-      { href: "/firewall", label: "Payment Firewall", icon: ShieldHalf },
+      { href: "/firewall", label: "Payment Check", icon: ShieldHalf },
       { href: "/counterfactual", label: "Counterfactual Lab", icon: SlidersHorizontal },
     ],
   },
@@ -41,7 +42,13 @@ const NAV = [
       { href: "/autopsy", label: "Money Autopsy", icon: FileSearch },
       { href: "/circle", label: "Sentinel Circle", icon: Users },
       { href: "/history", label: "Scan History", icon: Clock3 },
-      { href: "/threats", label: "Threat Center", icon: LayoutDashboard },
+    ],
+  },
+  {
+    group: "Evidence",
+    items: [
+      { href: "/evaluation", label: "Evaluation", icon: FlaskConical },
+      { href: "/threats", label: "Threat Center (mock-up)", icon: LayoutDashboard },
     ],
   },
 ];

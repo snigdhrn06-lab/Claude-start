@@ -1,0 +1,780 @@
+{
+  "meta": {
+    "generatedAt": "2026-10-18T20:58:45.038Z",
+    "datasetVersion": "1.0.0",
+    "engineVersion": "2.0.0",
+    "policyVersion": "2.0.0",
+    "catalogVersion": "2.0.0",
+    "bands": {
+      "caution": 25,
+      "elevated": 50,
+      "high": 75
+    },
+    "split": "all",
+    "cases": 124,
+    "repeats": 1,
+    "counts": {
+      "scam": 66,
+      "legitimate": 53,
+      "ambiguous": 5
+    }
+  },
+  "splits": {
+    "dev": {
+      "n": 62,
+      "recall": {
+        "num": 31,
+        "den": 33,
+        "value": 0.939
+      },
+      "precision": {
+        "num": 31,
+        "den": 31,
+        "value": 1
+      },
+      "fpr": {
+        "num": 0,
+        "den": 27,
+        "value": 0
+      },
+      "f1": 0.969,
+      "recallHigh": {
+        "num": 26,
+        "den": 33,
+        "value": 0.788
+      },
+      "fprHigh": {
+        "num": 0,
+        "den": 27,
+        "value": 0
+      },
+      "bandAccuracy": {
+        "num": 61,
+        "den": 62,
+        "value": 0.984
+      },
+      "quoteIntegrity": {
+        "num": 165,
+        "den": 165,
+        "value": 1
+      },
+      "speakerAttribution": {
+        "num": 6,
+        "den": 6,
+        "value": 1
+      },
+      "userLeaks": 0,
+      "entityPrecision": {
+        "num": 160,
+        "den": 161,
+        "value": 0.994
+      },
+      "determinism": {
+        "num": 62,
+        "den": 62,
+        "value": 1
+      },
+      "legitUrgentFlagRate": {
+        "num": 0,
+        "den": 4,
+        "value": 0
+      }
+    },
+    "test": {
+      "n": 62,
+      "recall": {
+        "num": 30,
+        "den": 33,
+        "value": 0.909
+      },
+      "precision": {
+        "num": 30,
+        "den": 30,
+        "value": 1
+      },
+      "fpr": {
+        "num": 0,
+        "den": 26,
+        "value": 0
+      },
+      "f1": 0.952,
+      "recallHigh": {
+        "num": 27,
+        "den": 33,
+        "value": 0.818
+      },
+      "fprHigh": {
+        "num": 0,
+        "den": 26,
+        "value": 0
+      },
+      "bandAccuracy": {
+        "num": 58,
+        "den": 62,
+        "value": 0.935
+      },
+      "quoteIntegrity": {
+        "num": 144,
+        "den": 144,
+        "value": 1
+      },
+      "speakerAttribution": {
+        "num": 1,
+        "den": 1,
+        "value": 1
+      },
+      "userLeaks": 0,
+      "entityPrecision": {
+        "num": 149,
+        "den": 150,
+        "value": 0.993
+      },
+      "determinism": {
+        "num": 62,
+        "den": 62,
+        "value": 1
+      },
+      "legitUrgentFlagRate": {
+        "num": 0,
+        "den": 4,
+        "value": 0
+      }
+    },
+    "all": {
+      "n": 124,
+      "recall": {
+        "num": 61,
+        "den": 66,
+        "value": 0.924
+      },
+      "precision": {
+        "num": 61,
+        "den": 61,
+        "value": 1
+      },
+      "fpr": {
+        "num": 0,
+        "den": 53,
+        "value": 0
+      },
+      "f1": 0.96,
+      "recallHigh": {
+        "num": 53,
+        "den": 66,
+        "value": 0.803
+      },
+      "fprHigh": {
+        "num": 0,
+        "den": 53,
+        "value": 0
+      },
+      "bandAccuracy": {
+        "num": 119,
+        "den": 124,
+        "value": 0.96
+      },
+      "quoteIntegrity": {
+        "num": 309,
+        "den": 309,
+        "value": 1
+      },
+      "speakerAttribution": {
+        "num": 7,
+        "den": 7,
+        "value": 1
+      },
+      "userLeaks": 0,
+      "entityPrecision": {
+        "num": 309,
+        "den": 311,
+        "value": 0.994
+      },
+      "determinism": {
+        "num": 124,
+        "den": 124,
+        "value": 1
+      },
+      "legitUrgentFlagRate": {
+        "num": 0,
+        "den": 8,
+        "value": 0
+      }
+    }
+  },
+  "firstHeldOut": {
+    "meta": {
+      "generatedAt": "2026-10-18T20:40:37.528Z",
+      "datasetVersion": "1.0.0",
+      "engineVersion": "2.0.0",
+      "policyVersion": "2.0.0",
+      "catalogVersion": "2.0.0",
+      "bands": {
+        "caution": 25,
+        "elevated": 50,
+        "high": 75
+      },
+      "split": "test",
+      "cases": 62,
+      "repeats": 1,
+      "counts": {
+        "scam": 33,
+        "legitimate": 26,
+        "ambiguous": 3
+      }
+    },
+    "test": {
+      "n": 62,
+      "recall": {
+        "num": 24,
+        "den": 33,
+        "value": 0.727
+      },
+      "precision": {
+        "num": 24,
+        "den": 24,
+        "value": 1
+      },
+      "fpr": {
+        "num": 0,
+        "den": 26,
+        "value": 0
+      },
+      "f1": 0.842,
+      "recallHigh": {
+        "num": 21,
+        "den": 33,
+        "value": 0.636
+      },
+      "fprHigh": {
+        "num": 0,
+        "den": 26,
+        "value": 0
+      },
+      "bandAccuracy": {
+        "num": 52,
+        "den": 62,
+        "value": 0.839
+      },
+      "quoteIntegrity": {
+        "num": 135,
+        "den": 135,
+        "value": 1
+      },
+      "speakerAttribution": {
+        "num": 1,
+        "den": 1,
+        "value": 1
+      },
+      "userLeaks": 0,
+      "entityPrecision": {
+        "num": 149,
+        "den": 150,
+        "value": 0.993
+      },
+      "determinism": {
+        "num": 62,
+        "den": 62,
+        "value": 1
+      },
+      "legitUrgentFlagRate": {
+        "num": 0,
+        "den": 4,
+        "value": 0
+      }
+    }
+  },
+  "perCategory": {
+    "scam_kyc": {
+      "n": 6,
+      "bandAccuracy": {
+        "num": 6,
+        "den": 6,
+        "value": 1
+      },
+      "flagRate": {
+        "num": 6,
+        "den": 6,
+        "value": 1
+      }
+    },
+    "scam_impersonation": {
+      "n": 6,
+      "bandAccuracy": {
+        "num": 6,
+        "den": 6,
+        "value": 1
+      },
+      "flagRate": {
+        "num": 5,
+        "den": 6,
+        "value": 0.833
+      }
+    },
+    "scam_refund": {
+      "n": 6,
+      "bandAccuracy": {
+        "num": 6,
+        "den": 6,
+        "value": 1
+      },
+      "flagRate": {
+        "num": 6,
+        "den": 6,
+        "value": 1
+      }
+    },
+    "scam_credentials": {
+      "n": 6,
+      "bandAccuracy": {
+        "num": 6,
+        "den": 6,
+        "value": 1
+      },
+      "flagRate": {
+        "num": 6,
+        "den": 6,
+        "value": 1
+      }
+    },
+    "scam_investment": {
+      "n": 6,
+      "bandAccuracy": {
+        "num": 6,
+        "den": 6,
+        "value": 1
+      },
+      "flagRate": {
+        "num": 6,
+        "den": 6,
+        "value": 1
+      }
+    },
+    "scam_advance_fee": {
+      "n": 6,
+      "bandAccuracy": {
+        "num": 6,
+        "den": 6,
+        "value": 1
+      },
+      "flagRate": {
+        "num": 6,
+        "den": 6,
+        "value": 1
+      }
+    },
+    "scam_remote_access": {
+      "n": 6,
+      "bandAccuracy": {
+        "num": 6,
+        "den": 6,
+        "value": 1
+      },
+      "flagRate": {
+        "num": 6,
+        "den": 6,
+        "value": 1
+      }
+    },
+    "scam_secrecy_threat": {
+      "n": 6,
+      "bandAccuracy": {
+        "num": 6,
+        "den": 6,
+        "value": 1
+      },
+      "flagRate": {
+        "num": 6,
+        "den": 6,
+        "value": 1
+      }
+    },
+    "legit_urgent": {
+      "n": 8,
+      "bandAccuracy": {
+        "num": 8,
+        "den": 8,
+        "value": 1
+      },
+      "flagRate": {
+        "num": 0,
+        "den": 8,
+        "value": 0
+      }
+    },
+    "legit_refund": {
+      "n": 6,
+      "bandAccuracy": {
+        "num": 6,
+        "den": 6,
+        "value": 1
+      },
+      "flagRate": {
+        "num": 0,
+        "den": 6,
+        "value": 0
+      }
+    },
+    "legit_familiar": {
+      "n": 6,
+      "bandAccuracy": {
+        "num": 6,
+        "den": 6,
+        "value": 1
+      },
+      "flagRate": {
+        "num": 0,
+        "den": 6,
+        "value": 0
+      }
+    },
+    "legit_unusual_amount": {
+      "n": 6,
+      "bandAccuracy": {
+        "num": 6,
+        "den": 6,
+        "value": 1
+      },
+      "flagRate": {
+        "num": 0,
+        "den": 6,
+        "value": 0
+      }
+    },
+    "legit_support": {
+      "n": 6,
+      "bandAccuracy": {
+        "num": 6,
+        "den": 6,
+        "value": 1
+      },
+      "flagRate": {
+        "num": 0,
+        "den": 6,
+        "value": 0
+      }
+    },
+    "legit_deadline": {
+      "n": 6,
+      "bandAccuracy": {
+        "num": 6,
+        "den": 6,
+        "value": 1
+      },
+      "flagRate": {
+        "num": 0,
+        "den": 6,
+        "value": 0
+      }
+    },
+    "adv_missing_details": {
+      "n": 4,
+      "bandAccuracy": {
+        "num": 4,
+        "den": 4,
+        "value": 1
+      },
+      "flagRate": {
+        "num": 1,
+        "den": 4,
+        "value": 0.25
+      }
+    },
+    "adv_unfamiliar_legit": {
+      "n": 4,
+      "bandAccuracy": {
+        "num": 4,
+        "den": 4,
+        "value": 1
+      },
+      "flagRate": {
+        "num": 0,
+        "den": 4,
+        "value": 0
+      }
+    },
+    "adv_conflicting": {
+      "n": 4,
+      "bandAccuracy": {
+        "num": 3,
+        "den": 4,
+        "value": 0.75
+      },
+      "flagRate": {
+        "num": 2,
+        "den": 4,
+        "value": 0.5
+      }
+    },
+    "adv_user_quote": {
+      "n": 4,
+      "bandAccuracy": {
+        "num": 4,
+        "den": 4,
+        "value": 1
+      },
+      "flagRate": {
+        "num": 2,
+        "den": 4,
+        "value": 0.5
+      }
+    },
+    "adv_malformed": {
+      "n": 6,
+      "bandAccuracy": {
+        "num": 6,
+        "den": 6,
+        "value": 1
+      },
+      "flagRate": {
+        "num": 4,
+        "den": 6,
+        "value": 0.667
+      }
+    },
+    "adv_prompt_injection": {
+      "n": 4,
+      "bandAccuracy": {
+        "num": 4,
+        "den": 4,
+        "value": 1
+      },
+      "flagRate": {
+        "num": 3,
+        "den": 4,
+        "value": 0.75
+      }
+    },
+    "adv_benign_lookalike": {
+      "n": 6,
+      "bandAccuracy": {
+        "num": 6,
+        "den": 6,
+        "value": 1
+      },
+      "flagRate": {
+        "num": 0,
+        "den": 6,
+        "value": 0
+      }
+    },
+    "adv_novel_scam": {
+      "n": 6,
+      "bandAccuracy": {
+        "num": 2,
+        "den": 6,
+        "value": 0.333
+      },
+      "flagRate": {
+        "num": 2,
+        "den": 6,
+        "value": 0.333
+      }
+    }
+  },
+  "sweep": [
+    {
+      "threshold": 20,
+      "recall": 0.97,
+      "fpr": 0.074,
+      "precision": 0.941,
+      "f1": 0.955
+    },
+    {
+      "threshold": 25,
+      "recall": 0.97,
+      "fpr": 0,
+      "precision": 1,
+      "f1": 0.985
+    },
+    {
+      "threshold": 30,
+      "recall": 0.939,
+      "fpr": 0,
+      "precision": 1,
+      "f1": 0.969
+    },
+    {
+      "threshold": 35,
+      "recall": 0.939,
+      "fpr": 0,
+      "precision": 1,
+      "f1": 0.969
+    },
+    {
+      "threshold": 40,
+      "recall": 0.939,
+      "fpr": 0,
+      "precision": 1,
+      "f1": 0.969
+    },
+    {
+      "threshold": 45,
+      "recall": 0.939,
+      "fpr": 0,
+      "precision": 1,
+      "f1": 0.969
+    },
+    {
+      "threshold": 50,
+      "recall": 0.939,
+      "fpr": 0,
+      "precision": 1,
+      "f1": 0.969
+    },
+    {
+      "threshold": 55,
+      "recall": 0.939,
+      "fpr": 0,
+      "precision": 1,
+      "f1": 0.969
+    },
+    {
+      "threshold": 60,
+      "recall": 0.848,
+      "fpr": 0,
+      "precision": 1,
+      "f1": 0.918
+    },
+    {
+      "threshold": 65,
+      "recall": 0.818,
+      "fpr": 0,
+      "precision": 1,
+      "f1": 0.9
+    },
+    {
+      "threshold": 70,
+      "recall": 0.788,
+      "fpr": 0,
+      "precision": 1,
+      "f1": 0.881
+    },
+    {
+      "threshold": 75,
+      "recall": 0.788,
+      "fpr": 0,
+      "precision": 1,
+      "f1": 0.881
+    },
+    {
+      "threshold": 80,
+      "recall": 0.697,
+      "fpr": 0,
+      "precision": 1,
+      "f1": 0.821
+    },
+    {
+      "threshold": 85,
+      "recall": 0.394,
+      "fpr": 0,
+      "precision": 1,
+      "f1": 0.565
+    },
+    {
+      "threshold": 90,
+      "recall": 0.303,
+      "fpr": 0,
+      "precision": 1,
+      "f1": 0.465
+    }
+  ],
+  "comparisons": [
+    {
+      "assessor": "sentinel-local",
+      "status": "ran",
+      "recall": {
+        "num": 61,
+        "den": 66,
+        "value": 0.924
+      },
+      "fpr": {
+        "num": 0,
+        "den": 53,
+        "value": 0
+      },
+      "precision": {
+        "num": 61,
+        "den": 61,
+        "value": 1
+      },
+      "grounding": {
+        "num": 291,
+        "den": 291,
+        "value": 1
+      },
+      "userTextQuoted": {
+        "num": 0,
+        "den": 291,
+        "value": 0
+      },
+      "transparentScore": true
+    },
+    {
+      "assessor": "keyword",
+      "status": "ran",
+      "recall": {
+        "num": 46,
+        "den": 66,
+        "value": 0.697
+      },
+      "fpr": {
+        "num": 18,
+        "den": 53,
+        "value": 0.34
+      },
+      "precision": {
+        "num": 46,
+        "den": 64,
+        "value": 0.719
+      },
+      "grounding": {
+        "num": 83,
+        "den": 86,
+        "value": 0.965
+      },
+      "userTextQuoted": {
+        "num": 5,
+        "den": 83,
+        "value": 0.06
+      },
+      "transparentScore": false
+    }
+  ],
+  "misses": [
+    {
+      "id": "ac-04",
+      "category": "adv_conflicting",
+      "label": "ambiguous",
+      "score": 14,
+      "band": "low"
+    },
+    {
+      "id": "an-02",
+      "category": "adv_novel_scam",
+      "label": "scam",
+      "score": 11,
+      "band": "low"
+    },
+    {
+      "id": "an-03",
+      "category": "adv_novel_scam",
+      "label": "scam",
+      "score": 12,
+      "band": "low"
+    },
+    {
+      "id": "an-04",
+      "category": "adv_novel_scam",
+      "label": "scam",
+      "score": 4,
+      "band": "low"
+    },
+    {
+      "id": "an-06",
+      "category": "adv_novel_scam",
+      "label": "scam",
+      "score": 11,
+      "band": "low"
+    }
+  ]
+}

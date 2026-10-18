@@ -30,24 +30,28 @@ function logLines(result: AnalysisResult | null | undefined, input: string) {
   const lines: { k: string; v: string; tone?: "risk" | "safe" | "dim" }[] = [];
   const words = input.split(/\s+/).filter(Boolean);
   lines.push({ k: "ingest.bytes", v: String(new TextEncoder().encode(input).length), tone: "dim" });
-  lines.push({ k: "ingest.tokens", v: String(words.length), tone: "dim" });
+  lines.push({ k: "ingest.words", v: String(words.length), tone: "dim" });
   if (!result) return lines;
+  lines.push({ k: "parse.format", v: `${result.parse.format} · ${result.parse.messageCount} msgs`, tone: "dim" });
+  lines.push({ k: "context.mode", v: result.context.mode, tone: "dim" });
   for (const e of result.extractedEntities.slice(0, 7)) {
     lines.push({ k: `entity.${e.type}`, v: `"${e.value}"`, tone: e.flagged ? "risk" : undefined });
   }
   for (const s of result.signals.slice(0, 8)) {
     lines.push({
       k: `signal.${s.id}`,
-      v: `${(s.confidence / 100).toFixed(2)}  ${s.evidence[0] ? `"${s.evidence[0].text.slice(0, 46)}${s.evidence[0].text.length > 46 ? "…" : ""}"` : ""}`,
+      v: `strength ${s.confidence}  ${s.evidence[0] ? `"${s.evidence[0].text.slice(0, 46)}${s.evidence[0].text.length > 46 ? "…" : ""}"` : ""}`,
       tone: SIGNALS[s.id].mitigating ? "safe" : "risk",
     });
   }
+  if (result.rejectedEvidence.length) lines.push({ k: "evidence.rejected", v: String(result.rejectedEvidence.length), tone: "dim" });
   lines.push({ k: "chain.nodes", v: String(result.attackChain.length) });
   lines.push({ k: "risk.context", v: String(result.contextRisk) });
   lines.push({ k: "risk.pressure", v: String(result.pressureRisk) });
   lines.push({ k: "risk.transaction", v: String(result.transactionRisk) });
   lines.push({ k: "risk.recipient", v: String(result.recipientRisk) });
-  lines.push({ k: "risk.score", v: `${result.riskScore}/100`, tone: result.riskScore >= 55 ? "risk" : "safe" });
+  lines.push({ k: "risk.score", v: `${result.riskScore}/100 (${result.band})`, tone: result.band === "high" || result.band === "elevated" ? "risk" : "safe" });
+  lines.push({ k: "decision", v: result.decision.action, tone: result.band === "high" || result.band === "elevated" ? "risk" : "safe" });
   return lines;
 }
 
@@ -55,10 +59,15 @@ export function ScanProgress({
   steps = TEXT_STEPS,
   result,
   input,
-  stepMs = 430,
+  stepMs = 220,
   onComplete,
   className,
+  elapsedMs,
+  engine,
 }: {
+  /** Measured wall-clock time of the real analysis request. */
+  elapsedMs?: number;
+  engine?: AnalysisResult["engine"];
   steps?: string[];
   result?: AnalysisResult | null;
   input: string;
@@ -98,7 +107,12 @@ export function ScanProgress({
       <div className="flex items-center justify-between border-b border-white/[0.06] px-5 py-3">
         <div className="flex items-center gap-2.5">
           <span className={cn("h-2 w-2 rounded-full", done ? "bg-safe" : "animate-pulseDot bg-risk")} />
-          <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-fg">{done ? "Analysis complete" : "Sentinel scanning"}</span>
+          <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-fg">{done ? "Analysis complete" : result ? "Replaying pipeline stages" : "Analysing"}</span>
+          {result && elapsedMs !== undefined && (
+            <span className="font-mono text-[10.5px] text-fg-dim">
+              computed in {elapsedMs} ms · {engine === "llm" ? "AI perception + deterministic score" : "local engine"}
+            </span>
+          )}
         </div>
         <span className="num font-mono text-[11px] text-fg-muted">{pct.toString().padStart(3, "0")}%</span>
       </div>

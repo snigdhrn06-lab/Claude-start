@@ -1,5 +1,5 @@
-// Synthetic metrics for the Threat Center. Deterministic so the demo never changes between runs.
-// These are NOT real Sentinel users.
+// Placeholder data for the Threat Center design mock-up. Generated, deterministic,
+// and NOT measurements of anything: Sentinel has no users or deployment.
 
 function rng(seed: number) {
   let s = seed;
@@ -42,16 +42,13 @@ const totalHigh = DAILY.reduce((a, d) => a + d.high, 0);
 export const KPIS = {
   scans: totalScans,
   highRisk: totalHigh,
-  prevented: 4_812_400,
   avgRisk: Math.round(DAILY.reduce((a, d) => a + d.avgRisk, 0) / DAYS),
-  protection: 92,
-  holdRate: 71,
 };
 
 export const ALERTS = [
-  { t: "2m", title: "KYC impersonation · ₹18,500 held", score: 94, channel: "SMS → call" },
-  { t: "11m", title: "Refund reversal · ₹12,999 held", score: 92, channel: "Phone → UPI" },
-  { t: "26m", title: "Investment pitch · ₹75,000 held", score: 92, channel: "Telegram" },
+  { t: "2m", title: "KYC impersonation · ₹18,500", score: 94, channel: "SMS → call" },
+  { t: "11m", title: "Refund reversal · ₹12,999", score: 92, channel: "Phone → UPI" },
+  { t: "26m", title: "Investment pitch · ₹75,000", score: 92, channel: "Telegram" },
   { t: "48m", title: "New-number family emergency · ₹9,000", score: 77, channel: "WhatsApp" },
   { t: "1h", title: "Electricity disconnection notice · ₹4,890", score: 81, channel: "SMS" },
   { t: "2h", title: "Collect request disguised as refund · ₹2,499", score: 64, channel: "UPI" },

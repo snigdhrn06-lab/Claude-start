@@ -7,14 +7,14 @@
     "dev": "next dev -p 3000",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint",
+    "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "calibrate": "tsx scripts/calibrate.ts",
     "samples": "tsx scripts/make-samples.ts",
     "test": "node --import tsx --test tests/*.test.ts",
     "bench": "tsx bench/run.ts",
     "bench:live": "tsx bench/run.ts --compare=keyword,generic-llm,sentinel-llm",
-    "check": "npm run typecheck && npm run test && npm run bench"
+    "check": "npm run typecheck && npm run lint && npm run test && npm run bench"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.131.0",
@@ -31,10 +31,13 @@
     "zod": "^4.6.5"
   },
   "devDependencies": {
+    "@eslint/eslintrc": "^3.3.7",
     "@types/node": "^22.20.4",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
     "autoprefixer": "^10.6.1",
+    "eslint": "^9.39.5",
+    "eslint-config-next": "^15.5.27",
     "postcss": "^8.5.28",
     "tailwindcss": "^3.4.19",
     "tsx": "^4.23.15",

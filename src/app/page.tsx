@@ -5,15 +5,22 @@ import { ArrowRight, Brain, GitBranch, Gauge, MessageSquareText, Play, ScanLine,
 import Link from "next/link";
 import { HeroField } from "@/components/HeroField";
 import { RiskGauge } from "@/components/RiskGauge";
+import { bandTone } from "@/components/ui";
+import { analyzeLocal } from "@/lib/engine/analyze";
+import { ACTION_LABEL } from "@/lib/engine/decision";
+import { getScenario, scenarioInput } from "@/lib/scenarios";
 import { useSentinel } from "@/lib/store";
+
+// The specimen on the home page is computed, not typed in.
+const SPECIMEN = analyzeLocal(scenarioInput(getScenario("kyc")!), { id: "home-specimen", createdAt: "2026-01-01T00:00:00.000Z" });
 
 const PIPELINE = [
   { icon: MessageSquareText, label: "Message", sub: "Text, screenshot or payment" },
   { icon: Waypoints, label: "Context", sub: "Who, what, how much, how fast" },
-  { icon: Brain, label: "AI Analysis", sub: "Manipulation signals + evidence" },
-  { icon: GitBranch, label: "Attack Path", sub: "Reconstructed kill chain" },
-  { icon: Gauge, label: "Risk", sub: "Transparent 0–100 score" },
-  { icon: ShieldCheck, label: "Safe Decision", sub: "Pause, verify, decide" },
+  { icon: Brain, label: "Signals", sub: "Patterns (+ optional AI), every quote checked" },
+  { icon: GitBranch, label: "Attack Path", sub: "Observed vs hypothetical stages" },
+  { icon: Gauge, label: "Risk", sub: "Versioned, traceable 0–100 score" },
+  { icon: ShieldCheck, label: "Safe Decision", sub: "Proportionate: verify, don't panic" },
 ];
 
 const ease = [0.22, 1, 0.36, 1] as const;
@@ -34,7 +41,7 @@ export default function HomePage() {
               className="chip mb-6 border-risk/25 text-fg"
             >
               <span className="h-1.5 w-1.5 animate-pulseDot rounded-full bg-risk" />
-              The AI financial decision firewall
+              Financial decision protection
             </motion.div>
             <motion.h1
               initial={{ opacity: 0, y: 14 }}
@@ -52,7 +59,7 @@ export default function HomePage() {
               transition={{ duration: 0.6, ease, delay: 0.15 }}
               className="mt-6 max-w-xl text-[16px] leading-relaxed text-fg-muted"
             >
-              An AI financial decision firewall that detects the manipulation behind suspicious payments — before money leaves your account.
+              Decision support that checks the conversation behind a payment for social engineering — with every reason tied to quoted evidence — before you authorise it.
             </motion.p>
             <motion.div
               initial={{ opacity: 0, y: 10 }}
@@ -82,15 +89,15 @@ export default function HomePage() {
             className="panel-raised relative overflow-hidden"
           >
             <div className="flex items-center justify-between border-b border-white/[0.06] px-4 py-2.5">
-              <span className="label">Intercepted · specimen</span>
-              <span className="chip border-risk/30 text-risk-soft">Held</span>
+              <span className="label">Live specimen · synthetic</span>
+              <span className={`chip ${bandTone(SPECIMEN.band).text}`}>{ACTION_LABEL[SPECIMEN.decision.action]}</span>
             </div>
             <div className="grid gap-4 p-5 sm:grid-cols-[auto_1fr] sm:items-center">
-              <RiskGauge value={94} size={132} stroke={7} center={<span className="num text-4xl font-semibold text-risk">94</span>} label="risk" />
+              <RiskGauge value={SPECIMEN.riskScore} size={132} stroke={7} center={<span className={`num text-4xl font-semibold ${bandTone(SPECIMEN.band).text}`}>{SPECIMEN.riskScore}</span>} label="risk" />
               <div className="min-w-0">
                 <div className="font-mono text-[11px] text-fg-dim">UPI · verify-kyc@upi</div>
                 <div className="num mt-0.5 text-2xl font-semibold">₹18,500</div>
-                <div className="mt-1 text-[12.5px] text-fg-muted">Bank check: <span className="text-safe">pass</span> · Sentinel: <span className="text-risk-soft">manipulated decision</span></div>
+                <div className="mt-1 text-[12.5px] text-fg-muted">The payment looks ordinary · the conversation does not</div>
               </div>
             </div>
             <div className="border-t border-white/[0.06] px-5 py-4">
@@ -99,7 +106,7 @@ export default function HomePage() {
                 <mark className="evidence">Transfer ₹18,500 immediately</mark> to verify-kyc@upi.”
               </div>
               <div className="mt-3 flex flex-wrap gap-1.5">
-                {["Authority impersonation", "Artificial urgency", "Financial threat", "New beneficiary"].map((s) => (
+                {SPECIMEN.signals.filter((x) => !x.mitigating).slice(0, 4).map((x) => x.label).map((s) => (
                   <span key={s} className="chip border-risk/20 text-fg-muted">
                     {s}
                   </span>
@@ -145,7 +152,7 @@ export default function HomePage() {
           {[
             { k: "What banks see", v: "A valid UPI ID, an amount under the limit, an authenticated user.", tone: "text-fg-muted" },
             { k: "What actually happened", v: "A fake KYC cell manufactured a 30-minute deadline and a threat to freeze the account.", tone: "text-fg" },
-            { k: "What Sentinel does", v: "Holds the payment, shows the evidence, and routes the decision through verification.", tone: "text-safe" },
+            { k: "What Sentinel does", v: "Shows the evidence behind the risk, says what it cannot know, and recommends a proportionate verification step before you pay.", tone: "text-safe" },
           ].map((c) => (
             <div key={c.k} className="panel p-5">
               <div className="label mb-2">{c.k}</div>
@@ -157,7 +164,7 @@ export default function HomePage() {
         {latest && (
           <div className="mt-10 flex flex-col items-start justify-between gap-4 border-t border-white/[0.06] pt-8 md:flex-row md:items-center">
             <p className="max-w-xl text-sm text-fg-muted">
-              Synthetic demo environment. No real transactions are executed, and Sentinel never asks for passwords, OTPs, PINs or CVVs.
+              Prototype on synthetic data. Sentinel is not connected to any bank or UPI app, executes no transactions, and never asks for passwords, OTPs, PINs or CVVs.
             </p>
             <Link href="/history" className="btn-ghost">
               View scan history <ArrowRight className="h-3.5 w-3.5" />

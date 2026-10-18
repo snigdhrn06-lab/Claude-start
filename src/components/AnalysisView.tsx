@@ -252,7 +252,7 @@ function ContextPanel({ result }: { result: AnalysisResult }) {
       </dl>
       <p className="mt-3 text-[12px] leading-snug text-fg-dim">{result.context.description}</p>
       <div className="mt-4">
-        <DimensionGrid result={result} play={false} />
+        <DimensionGrid result={result} />
       </div>
     </div>
   );
