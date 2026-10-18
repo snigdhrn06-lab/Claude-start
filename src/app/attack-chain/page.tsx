@@ -21,7 +21,7 @@ export default function AttackChainPage() {
         <PageHeader
           eyebrow="Attack chain"
           title="How the attack works."
-          description="Sentinel reconstructs the manipulation as a chain: who claims what, how pressure is applied, and where the money is meant to go."
+          description="Each stage is marked as observed (quoted from the other party), inferred (from payment details or context) or hypothetical (a possible consequence). Stages without evidence are left out."
           actions={
             <>
               <AnalysisPicker />
@@ -46,14 +46,14 @@ export default function AttackChainPage() {
       </div>
 
       <div>
-        <SectionLabel>What happens next? · Predicted attack path</SectionLabel>
+        <SectionLabel>If this is fraud · how this pattern commonly develops (hypothetical)</SectionLabel>
         <PredictedPath key={`${current.id}-p-${run}`} root={current.hypotheticalNextSteps} />
       </div>
 
       <div className="panel flex flex-col items-start justify-between gap-4 p-5 md:flex-row md:items-center">
-        <p className="text-sm text-fg-muted">The chain only works if the payment goes through. That&apos;s where Sentinel steps in.</p>
+        <p className="text-sm text-fg-muted">The chain only completes if the payment goes through. See the decision check (simulation).</p>
         <Link href="/firewall" className="btn-risk">
-          Open payment firewall <ArrowRight className="h-3.5 w-3.5" />
+          Payment check <ArrowRight className="h-3.5 w-3.5" />
         </Link>
       </div>
     </div>

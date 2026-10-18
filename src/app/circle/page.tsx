@@ -96,7 +96,7 @@ function RequestCard({ req }: { req: ReviewRequest }) {
             animate={{ opacity: 1, height: "auto" }}
             className={cn("border-t px-4 py-3 text-[13px] font-medium", stops ? "border-risk/25 bg-risk/[0.06] text-risk-soft" : "border-safe/25 bg-safe/[0.06] text-safe")}
           >
-            {stops ? `${stops} of ${req.responses.length} reviewers advise you not to pay. Payment stays on hold.` : "Your circle sees no problem with this payment."}
+            {stops ? `${stops} of ${req.responses.length} (simulated) reviewers advise checking before you pay.` : "Your (simulated) circle sees no problem with this payment."}
           </motion.div>
         )}
       </AnimatePresence>
@@ -109,7 +109,7 @@ export default function CirclePage() {
   const [name, setName] = useState("");
   const [relation, setRelation] = useState("");
   const amt = amountAtStake(current.input.conversation, current.input.payment);
-  const defaultMsg = `Sentinel detected a high-risk financial request (${current.riskScore}/100 — ${current.classification}). Can you review this before I proceed${amt ? ` with ${formatINR(amt)}` : ""}?`;
+  const defaultMsg = `Sentinel rated this request ${current.riskScore}/100 (${riskTone(current.riskScore).label.toLowerCase()}: ${current.classification}). Can you look at it before I proceed${amt ? ` with ${formatINR(amt)}` : ""}?`;
   const [message, setMessage] = useState(defaultMsg);
   useEffect(() => setMessage(defaultMsg), [defaultMsg]);
 
@@ -118,7 +118,7 @@ export default function CirclePage() {
       <PageHeader
         eyebrow="Sentinel circle"
         title="A second opinion before money moves."
-        description="Scammers isolate. Sentinel does the opposite: high-risk payments can be routed to people you trust. Requests and replies here are simulated — nothing is sent."
+        description="Scammers isolate. Sentinel does the opposite: a risky payment can be shared with people you trust. In this prototype nothing is sent — replies are simulated and follow the analysis you share."
       />
       <div className="grid gap-6 xl:grid-cols-[minmax(0,380px)_minmax(0,1fr)]">
         <div className="flex flex-col gap-4">

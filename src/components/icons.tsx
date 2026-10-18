@@ -1,5 +1,8 @@
 import {
   Activity,
+  BookUser,
+  Gift,
+  Smartphone,
   ArrowLeftRight,
   BadgePercent,
   Banknote,
@@ -38,6 +41,9 @@ export const SIGNAL_ICONS: Record<SignalId, LucideIcon> = {
   unofficial_channel: Link2Off,
   amount_anomaly: Activity,
   verification: ShieldCheck,
+  known_beneficiary: BookUser,
+  identity_change: Smartphone,
+  windfall: Gift,
 };
 
 /** Sentinel mark: an aperture closing over a vertical "pause" bar. */

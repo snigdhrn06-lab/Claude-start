@@ -2,6 +2,7 @@
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { analyzeLocal } from "./engine/analyze";
+import { SIGNALS } from "./engine/catalog";
 import { HISTORY_SEEDS } from "./scenarios";
 import type { AnalysisResult, ScanInput } from "./types";
 
@@ -38,6 +39,17 @@ export interface ScanOutcome {
   notice?: string;
 }
 
+/**
+ * What the user later says about an analysis. Stored only in this browser.
+ * It is an unverified self-report: useful for product feedback, never treated
+ * as ground truth for evaluation.
+ */
+export interface Feedback {
+  useful?: boolean;
+  outcome?: "was_scam" | "was_legitimate" | "unsure";
+  at: string;
+}
+
 interface Store {
   history: AnalysisResult[];
   current: AnalysisResult;
@@ -51,13 +63,19 @@ interface Store {
   requests: ReviewRequest[];
   askCircle: (analysis: AnalysisResult, message: string) => ReviewRequest;
   clearHistory: () => void;
+  feedback: Record<string, Feedback>;
+  setFeedback: (analysisId: string, f: Omit<Feedback, "at">) => void;
 }
 
 const Ctx = createContext<Store | null>(null);
 
-const HISTORY_KEY = "sentinel.history.v1";
+// v2: analysis records gained score traces, provenance and context. v1 records are not loaded.
+const HISTORY_KEY = "sentinel.history.v2";
 const CIRCLE_KEY = "sentinel.circle.v1";
-const REQUESTS_KEY = "sentinel.requests.v1";
+const REQUESTS_KEY = "sentinel.requests.v2";
+const FEEDBACK_KEY = "sentinel.feedback.v1";
+/** User scans contain conversations; keep them on this device for at most 7 days. */
+const RETENTION_MS = 7 * 24 * 3600 * 1000;
 
 function seedHistory(): AnalysisResult[] {
   const now = new Date();
@@ -67,7 +85,7 @@ function seedHistory(): AnalysisResult[] {
     d.setHours(s.hour, 12, 0, 0);
     if (d > now) d.setTime(now.getTime() - (s.hour + 1) * 60_000);
     return analyzeLocal(
-      { conversation: s.conversation, payment: s.payment, source: "scenario", title: s.title },
+      { conversation: s.conversation, payment: s.payment, source: "scenario", title: s.title, accountContext: s.accountContext },
       { id: s.id, createdAt: d.toISOString() },
     );
   });
@@ -79,11 +97,19 @@ const DEFAULT_CONTACTS: Contact[] = [
   { id: "c-meera", name: "Meera Iyer", relation: "Financial Advisor" },
 ];
 
-const SIM_REPLIES: Record<string, { verdict: Verdict; note: string }[]> = {
-  "c-mom": [{ verdict: "stop", note: "Don't send anything. Call the bank on the number on your card — I'll wait." }],
-  "c-rahul": [{ verdict: "stop", note: "This is the exact KYC scam from the news. Banks never ask for a transfer. Block the number." }],
-  "c-meera": [{ verdict: "verify", note: "Hold the payment. No regulated entity collects fees to a personal UPI ID. Verify via the official app first." }],
-};
+/**
+ * Simulated reviewer replies (demo only — nothing is sent). They follow the
+ * analysis that was shared rather than a fixed script, so a low-risk payment
+ * gets a "looks fine" and a high-risk one a "stop".
+ */
+function simulatedReply(analysis: AnalysisResult): { verdict: Verdict; note: string } {
+  const top = analysis.signals.find((s) => !SIGNALS[s.id].mitigating);
+  const why = top ? ` The ${top.label.toLowerCase()} worries me.` : "";
+  if (analysis.decision.action === "stop") return { verdict: "stop", note: `Please don't pay or share anything yet.${why} Let's verify it together first.` };
+  if (analysis.decision.action === "verify_first") return { verdict: "verify", note: `Hold on until you've checked it independently.${why}` };
+  if (analysis.decision.action === "proceed_with_care") return { verdict: "verify", note: "Probably fine, but a quick call to confirm wouldn't hurt." };
+  return { verdict: "ok", note: "Looks fine to me." };
+}
 
 function read<T>(key: string): T | null {
   try {
@@ -108,24 +134,20 @@ export function SentinelProvider({ children }: { children: React.ReactNode }) {
   const [aiStatus, setAiStatus] = useState<AIStatus>({ checked: false, ai: false, model: null });
   const [contacts, setContacts] = useState<Contact[]>(DEFAULT_CONTACTS);
   const [requests, setRequests] = useState<ReviewRequest[]>([]);
+  const [feedback, setFeedbackState] = useState<Record<string, Feedback>>({});
   const loaded = useRef(false);
   const timers = useRef<number[]>([]);
 
   useEffect(() => {
     const h = read<AnalysisResult[]>(HISTORY_KEY);
-    if (h?.length) setUserScans(h);
+    const cutoff = Date.now() - RETENTION_MS;
+    if (h?.length) setUserScans(h.filter((x) => x.scoreTrace && Date.parse(x.createdAt) > cutoff));
+    const f = read<Record<string, Feedback>>(FEEDBACK_KEY);
+    if (f) setFeedbackState(f);
     const c = read<Contact[]>(CIRCLE_KEY);
     if (c?.length) setContacts(c);
     const r = read<ReviewRequest[]>(REQUESTS_KEY);
-    if (r?.length)
-      setRequests(
-        r.map((req) => ({
-          ...req,
-          responses: req.responses.map((x) =>
-            x.status === "replied" ? x : { ...x, status: "replied" as const, ...(SIM_REPLIES[x.contactId]?.[0] ?? { verdict: "verify" as Verdict, note: "Let's talk before you pay." }) },
-          ),
-        })),
-      );
+    if (r?.length) setRequests(r.map((req) => ({ ...req, responses: req.responses.filter((x) => x.status === "replied") })));
     loaded.current = true;
     fetch("/api/status")
       .then((res) => (res.ok ? res.json() : Promise.reject()))
@@ -144,6 +166,9 @@ export function SentinelProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (loaded.current) write(REQUESTS_KEY, requests.slice(0, 20));
   }, [requests]);
+  useEffect(() => {
+    if (loaded.current) write(FEEDBACK_KEY, feedback);
+  }, [feedback]);
 
   const history = useMemo(
     () => [...userScans, ...seeds].sort((a, b) => b.createdAt.localeCompare(a.createdAt)),
@@ -169,7 +194,7 @@ export function SentinelProvider({ children }: { children: React.ReactNode }) {
         if (!res.ok) throw new Error(data.error || `Request failed (${res.status})`);
         outcome = { result: data.result, notice: data.notice };
       } catch (err) {
-        if (err instanceof Error && /Provide a conversation|too long/.test(err.message)) throw err;
+        if (err instanceof Error && /Provide a conversation|too long|too large|Invalid request|Too many/.test(err.message)) throw err;
         // Network or server failure: the engine also runs in the browser.
         outcome = { result: analyzeLocal(input), notice: "Server unreachable — analysed on-device." };
       }
@@ -198,10 +223,7 @@ export function SentinelProvider({ children }: { children: React.ReactNode }) {
       contacts.forEach((c, i) => {
         const seenAt = 900 + i * 700;
         const replyAt = 2600 + i * 1500;
-        const reply = SIM_REPLIES[c.id]?.[0] ?? {
-          verdict: analysis.riskScore >= 55 ? ("stop" as Verdict) : ("ok" as Verdict),
-          note: analysis.riskScore >= 55 ? "Looks like a scam to me. Please don't pay until we talk." : "Looks fine to me.",
-        };
+        const reply = simulatedReply(analysis);
         const update = (patch: Partial<CircleResponse>) =>
           setRequests((prev) =>
             prev.map((r) =>
@@ -220,7 +242,13 @@ export function SentinelProvider({ children }: { children: React.ReactNode }) {
 
   const clearHistory = useCallback(() => {
     setUserScans([]);
+    setRequests([]);
+    setFeedbackState({});
     setCurrentId("seed-kyc");
+  }, []);
+
+  const setFeedback = useCallback((analysisId: string, f: Omit<Feedback, "at">) => {
+    setFeedbackState((prev) => ({ ...prev, [analysisId]: { ...prev[analysisId], ...f, at: new Date().toISOString() } }));
   }, []);
 
   const value: Store = {
@@ -236,6 +264,8 @@ export function SentinelProvider({ children }: { children: React.ReactNode }) {
     requests,
     askCircle,
     clearHistory,
+    feedback,
+    setFeedback,
   };
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }

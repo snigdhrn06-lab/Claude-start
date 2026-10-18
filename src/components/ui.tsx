@@ -4,17 +4,27 @@ import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 import { AlertTriangle, RotateCw } from "lucide-react";
 import { useEffect, useState } from "react";
-import type { Severity } from "@/lib/types";
+import { bandFor } from "@/lib/engine/score";
+import type { RiskBand, Severity } from "@/lib/types";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
+const BAND_TONE: Record<RiskBand, { text: string; bg: string; hex: string; label: string }> = {
+  high: { text: "text-risk", bg: "bg-risk", hex: "#ff4a3d", label: "High risk" },
+  elevated: { text: "text-warn", bg: "bg-warn", hex: "#ff8c42", label: "Elevated" },
+  caution: { text: "text-caution", bg: "bg-caution", hex: "#f2c14e", label: "Caution" },
+  low: { text: "text-safe", bg: "bg-safe", hex: "#33d69f", label: "Low risk" },
+};
+
+/** Colour and label for a score, using the same band thresholds as the scoring policy. */
 export function riskTone(score: number) {
-  if (score >= 80) return { text: "text-risk", bg: "bg-risk", hex: "#ff4a3d", label: "High risk" };
-  if (score >= 55) return { text: "text-warn", bg: "bg-warn", hex: "#ff8c42", label: "Elevated" };
-  if (score >= 25) return { text: "text-caution", bg: "bg-caution", hex: "#f2c14e", label: "Caution" };
-  return { text: "text-safe", bg: "bg-safe", hex: "#33d69f", label: "Low risk" };
+  return BAND_TONE[bandFor(score)];
+}
+
+export function bandTone(band: RiskBand) {
+  return BAND_TONE[band];
 }
 
 export function PageHeader({

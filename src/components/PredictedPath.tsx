@@ -81,7 +81,7 @@ function Branch({ node, order, play, step }: { node: PathNode; order: Map<string
             {kids.map((k) => (
               <div key={k.id} className="flex flex-col items-center">
                 <div className="mb-1 font-mono text-[10px] uppercase tracking-wider" style={{ color: TONE[k.tone].c }}>
-                  {k.tone === "safe" ? "If you verify" : "If you pay"}
+                  {k.tone === "safe" ? "If you verify" : k.tone === "neutral" ? "Otherwise" : "If you pay and it is fraud"}
                 </div>
                 <Branch node={k} order={order} play={play} step={step} />
               </div>
@@ -103,7 +103,7 @@ export function PredictedPath({ root, play = true, step = 0.32 }: { root: PathNo
           Hypothetical risk scenario
         </div>
         <p className="max-w-md text-[12px] leading-snug text-fg-dim">
-          How this pattern commonly escalates. Sentinel does not know what this sender will do — this shows why the first payment is rarely the last.
+          How this pattern commonly develops if the request is fraudulent. Sentinel does not know what this sender will do; these are possibilities, not predictions.
         </p>
       </div>
       <div className="mx-auto max-w-3xl">

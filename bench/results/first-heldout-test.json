@@ -1,0 +1,1381 @@
+{
+  "meta": {
+    "generatedAt": "2026-10-18T20:40:37.528Z",
+    "datasetVersion": "1.0.0",
+    "engineVersion": "2.0.0",
+    "policyVersion": "2.0.0",
+    "catalogVersion": "2.0.0",
+    "bands": {
+      "caution": 25,
+      "elevated": 50,
+      "high": 75
+    },
+    "split": "test",
+    "cases": 62,
+    "repeats": 1,
+    "counts": {
+      "scam": 33,
+      "legitimate": 26,
+      "ambiguous": 3
+    }
+  },
+  "sentinel": {
+    "test": {
+      "n": 62,
+      "binaryAtElevated": {
+        "tp": 24,
+        "fp": 0,
+        "tn": 26,
+        "fn": 9,
+        "precision": {
+          "num": 24,
+          "den": 24,
+          "value": 1
+        },
+        "recall": {
+          "num": 24,
+          "den": 33,
+          "value": 0.727
+        },
+        "f1": 0.842,
+        "fpr": {
+          "num": 0,
+          "den": 26,
+          "value": 0
+        },
+        "fnr": {
+          "num": 9,
+          "den": 33,
+          "value": 0.273
+        }
+      },
+      "binaryAtHigh": {
+        "tp": 21,
+        "fp": 0,
+        "tn": 26,
+        "fn": 12,
+        "precision": {
+          "num": 21,
+          "den": 21,
+          "value": 1
+        },
+        "recall": {
+          "num": 21,
+          "den": 33,
+          "value": 0.636
+        },
+        "f1": 0.778,
+        "fpr": {
+          "num": 0,
+          "den": 26,
+          "value": 0
+        },
+        "fnr": {
+          "num": 12,
+          "den": 33,
+          "value": 0.364
+        }
+      },
+      "bandAccuracy": {
+        "num": 52,
+        "den": 62,
+        "value": 0.839
+      },
+      "requiredSignalRecall": {
+        "num": 61,
+        "den": 66,
+        "value": 0.924
+      },
+      "forbiddenSignalViolations": {
+        "num": 0,
+        "den": 43,
+        "value": 0
+      },
+      "quoteIntegrity": {
+        "num": 135,
+        "den": 135,
+        "value": 1
+      },
+      "annotatedEvidenceRecall": {
+        "num": 1,
+        "den": 1,
+        "value": 1
+      },
+      "speakerAttributionAccuracy": {
+        "num": 1,
+        "den": 1,
+        "value": 1
+      },
+      "userAuthoredEvidenceLeaks": 0,
+      "entityGroundedPrecision": {
+        "num": 149,
+        "den": 150,
+        "value": 0.993
+      },
+      "annotatedEntityRecall": {
+        "num": 2,
+        "den": 2,
+        "value": 1
+      },
+      "deterministicRepeatability": {
+        "num": 62,
+        "den": 62,
+        "value": 1
+      },
+      "traceConsistency": {
+        "num": 62,
+        "den": 62,
+        "value": 1
+      },
+      "legitUrgentFlagRate": {
+        "num": 0,
+        "den": 4,
+        "value": 0
+      },
+      "perCategory": {
+        "scam_kyc": {
+          "n": 3,
+          "bandAccuracy": {
+            "num": 3,
+            "den": 3,
+            "value": 1
+          },
+          "flagRate": {
+            "num": 3,
+            "den": 3,
+            "value": 1
+          }
+        },
+        "scam_impersonation": {
+          "n": 3,
+          "bandAccuracy": {
+            "num": 2,
+            "den": 3,
+            "value": 0.667
+          },
+          "flagRate": {
+            "num": 2,
+            "den": 3,
+            "value": 0.667
+          }
+        },
+        "scam_refund": {
+          "n": 3,
+          "bandAccuracy": {
+            "num": 3,
+            "den": 3,
+            "value": 1
+          },
+          "flagRate": {
+            "num": 3,
+            "den": 3,
+            "value": 1
+          }
+        },
+        "scam_credentials": {
+          "n": 3,
+          "bandAccuracy": {
+            "num": 3,
+            "den": 3,
+            "value": 1
+          },
+          "flagRate": {
+            "num": 3,
+            "den": 3,
+            "value": 1
+          }
+        },
+        "scam_investment": {
+          "n": 3,
+          "bandAccuracy": {
+            "num": 1,
+            "den": 3,
+            "value": 0.333
+          },
+          "flagRate": {
+            "num": 1,
+            "den": 3,
+            "value": 0.333
+          }
+        },
+        "scam_advance_fee": {
+          "n": 3,
+          "bandAccuracy": {
+            "num": 2,
+            "den": 3,
+            "value": 0.667
+          },
+          "flagRate": {
+            "num": 2,
+            "den": 3,
+            "value": 0.667
+          }
+        },
+        "scam_remote_access": {
+          "n": 3,
+          "bandAccuracy": {
+            "num": 3,
+            "den": 3,
+            "value": 1
+          },
+          "flagRate": {
+            "num": 3,
+            "den": 3,
+            "value": 1
+          }
+        },
+        "scam_secrecy_threat": {
+          "n": 3,
+          "bandAccuracy": {
+            "num": 2,
+            "den": 3,
+            "value": 0.667
+          },
+          "flagRate": {
+            "num": 2,
+            "den": 3,
+            "value": 0.667
+          }
+        },
+        "legit_urgent": {
+          "n": 4,
+          "bandAccuracy": {
+            "num": 4,
+            "den": 4,
+            "value": 1
+          },
+          "flagRate": {
+            "num": 0,
+            "den": 4,
+            "value": 0
+          }
+        },
+        "legit_refund": {
+          "n": 3,
+          "bandAccuracy": {
+            "num": 3,
+            "den": 3,
+            "value": 1
+          },
+          "flagRate": {
+            "num": 0,
+            "den": 3,
+            "value": 0
+          }
+        },
+        "legit_familiar": {
+          "n": 3,
+          "bandAccuracy": {
+            "num": 3,
+            "den": 3,
+            "value": 1
+          },
+          "flagRate": {
+            "num": 0,
+            "den": 3,
+            "value": 0
+          }
+        },
+        "legit_unusual_amount": {
+          "n": 3,
+          "bandAccuracy": {
+            "num": 3,
+            "den": 3,
+            "value": 1
+          },
+          "flagRate": {
+            "num": 0,
+            "den": 3,
+            "value": 0
+          }
+        },
+        "legit_support": {
+          "n": 3,
+          "bandAccuracy": {
+            "num": 3,
+            "den": 3,
+            "value": 1
+          },
+          "flagRate": {
+            "num": 0,
+            "den": 3,
+            "value": 0
+          }
+        },
+        "legit_deadline": {
+          "n": 3,
+          "bandAccuracy": {
+            "num": 3,
+            "den": 3,
+            "value": 1
+          },
+          "flagRate": {
+            "num": 0,
+            "den": 3,
+            "value": 0
+          }
+        },
+        "adv_missing_details": {
+          "n": 2,
+          "bandAccuracy": {
+            "num": 2,
+            "den": 2,
+            "value": 1
+          },
+          "flagRate": {
+            "num": 0,
+            "den": 2,
+            "value": 0
+          }
+        },
+        "adv_unfamiliar_legit": {
+          "n": 2,
+          "bandAccuracy": {
+            "num": 2,
+            "den": 2,
+            "value": 1
+          },
+          "flagRate": {
+            "num": 0,
+            "den": 2,
+            "value": 0
+          }
+        },
+        "adv_conflicting": {
+          "n": 2,
+          "bandAccuracy": {
+            "num": 1,
+            "den": 2,
+            "value": 0.5
+          },
+          "flagRate": {
+            "num": 1,
+            "den": 2,
+            "value": 0.5
+          }
+        },
+        "adv_user_quote": {
+          "n": 2,
+          "bandAccuracy": {
+            "num": 1,
+            "den": 2,
+            "value": 0.5
+          },
+          "flagRate": {
+            "num": 0,
+            "den": 2,
+            "value": 0
+          }
+        },
+        "adv_malformed": {
+          "n": 3,
+          "bandAccuracy": {
+            "num": 3,
+            "den": 3,
+            "value": 1
+          },
+          "flagRate": {
+            "num": 2,
+            "den": 3,
+            "value": 0.667
+          }
+        },
+        "adv_prompt_injection": {
+          "n": 2,
+          "bandAccuracy": {
+            "num": 2,
+            "den": 2,
+            "value": 1
+          },
+          "flagRate": {
+            "num": 2,
+            "den": 2,
+            "value": 1
+          }
+        },
+        "adv_benign_lookalike": {
+          "n": 3,
+          "bandAccuracy": {
+            "num": 3,
+            "den": 3,
+            "value": 1
+          },
+          "flagRate": {
+            "num": 0,
+            "den": 3,
+            "value": 0
+          }
+        },
+        "adv_novel_scam": {
+          "n": 3,
+          "bandAccuracy": {
+            "num": 0,
+            "den": 3,
+            "value": 0
+          },
+          "flagRate": {
+            "num": 0,
+            "den": 3,
+            "value": 0
+          }
+        }
+      },
+      "outcomes": [
+        {
+          "id": "kyc-02",
+          "category": "scam_kyc",
+          "split": "test",
+          "label": "scam",
+          "score": 99,
+          "band": "high",
+          "action": "stop",
+          "bandOk": true,
+          "missingSignals": [],
+          "forbiddenSignals": [],
+          "deterministic": true
+        },
+        {
+          "id": "kyc-04",
+          "category": "scam_kyc",
+          "split": "test",
+          "label": "scam",
+          "score": 96,
+          "band": "high",
+          "action": "stop",
+          "bandOk": true,
+          "missingSignals": [],
+          "forbiddenSignals": [],
+          "deterministic": true
+        },
+        {
+          "id": "kyc-06",
+          "category": "scam_kyc",
+          "split": "test",
+          "label": "scam",
+          "score": 80,
+          "band": "high",
+          "action": "stop",
+          "bandOk": true,
+          "missingSignals": [],
+          "forbiddenSignals": [],
+          "deterministic": true
+        },
+        {
+          "id": "imp-02",
+          "category": "scam_impersonation",
+          "split": "test",
+          "label": "scam",
+          "score": 97,
+          "band": "high",
+          "action": "stop",
+          "bandOk": true,
+          "missingSignals": [],
+          "forbiddenSignals": [],
+          "deterministic": true
+        },
+        {
+          "id": "imp-04",
+          "category": "scam_impersonation",
+          "split": "test",
+          "label": "scam",
+          "score": 30,
+          "band": "caution",
+          "action": "proceed_with_care",
+          "bandOk": false,
+          "missingSignals": [
+            "payment_request"
+          ],
+          "forbiddenSignals": [],
+          "deterministic": true
+        },
+        {
+          "id": "imp-06",
+          "category": "scam_impersonation",
+          "split": "test",
+          "label": "scam",
+          "score": 87,
+          "band": "high",
+          "action": "stop",
+          "bandOk": true,
+          "missingSignals": [],
+          "forbiddenSignals": [],
+          "deterministic": true
+        },
+        {
+          "id": "ref-02",
+          "category": "scam_refund",
+          "split": "test",
+          "label": "scam",
+          "score": 89,
+          "band": "high",
+          "action": "stop",
+          "bandOk": true,
+          "missingSignals": [],
+          "forbiddenSignals": [],
+          "deterministic": true
+        },
+        {
+          "id": "ref-04",
+          "category": "scam_refund",
+          "split": "test",
+          "label": "scam",
+          "score": 94,
+          "band": "high",
+          "action": "stop",
+          "bandOk": true,
+          "missingSignals": [],
+          "forbiddenSignals": [],
+          "deterministic": true
+        },
+        {
+          "id": "ref-06",
+          "category": "scam_refund",
+          "split": "test",
+          "label": "scam",
+          "score": 97,
+          "band": "high",
+          "action": "stop",
+          "bandOk": true,
+          "missingSignals": [],
+          "forbiddenSignals": [],
+          "deterministic": true
+        },
+        {
+          "id": "cred-02",
+          "category": "scam_credentials",
+          "split": "test",
+          "label": "scam",
+          "score": 80,
+          "band": "high",
+          "action": "stop",
+          "bandOk": true,
+          "missingSignals": [],
+          "forbiddenSignals": [],
+          "deterministic": true
+        },
+        {
+          "id": "cred-04",
+          "category": "scam_credentials",
+          "split": "test",
+          "label": "scam",
+          "score": 80,
+          "band": "high",
+          "action": "stop",
+          "bandOk": true,
+          "missingSignals": [],
+          "forbiddenSignals": [],
+          "deterministic": true
+        },
+        {
+          "id": "cred-06",
+          "category": "scam_credentials",
+          "split": "test",
+          "label": "scam",
+          "score": 80,
+          "band": "high",
+          "action": "stop",
+          "bandOk": true,
+          "missingSignals": [],
+          "forbiddenSignals": [],
+          "deterministic": true
+        },
+        {
+          "id": "inv-02",
+          "category": "scam_investment",
+          "split": "test",
+          "label": "scam",
+          "score": 81,
+          "band": "high",
+          "action": "stop",
+          "bandOk": true,
+          "missingSignals": [],
+          "forbiddenSignals": [],
+          "deterministic": true
+        },
+        {
+          "id": "inv-04",
+          "category": "scam_investment",
+          "split": "test",
+          "label": "scam",
+          "score": 19,
+          "band": "low",
+          "action": "proceed",
+          "bandOk": false,
+          "missingSignals": [],
+          "forbiddenSignals": [],
+          "deterministic": true
+        },
+        {
+          "id": "inv-06",
+          "category": "scam_investment",
+          "split": "test",
+          "label": "scam",
+          "score": 48,
+          "band": "caution",
+          "action": "proceed_with_care",
+          "bandOk": false,
+          "missingSignals": [],
+          "forbiddenSignals": [],
+          "deterministic": true
+        },
+        {
+          "id": "adv-02",
+          "category": "scam_advance_fee",
+          "split": "test",
+          "label": "scam",
+          "score": 82,
+          "band": "high",
+          "action": "stop",
+          "bandOk": true,
+          "missingSignals": [],
+          "forbiddenSignals": [],
+          "deterministic": true
+        },
+        {
+          "id": "adv-04",
+          "category": "scam_advance_fee",
+          "split": "test",
+          "label": "scam",
+          "score": 36,
+          "band": "caution",
+          "action": "proceed_with_care",
+          "bandOk": false,
+          "missingSignals": [
+            "payment_request"
+          ],
+          "forbiddenSignals": [],
+          "deterministic": true
+        },
+        {
+          "id": "adv-06",
+          "category": "scam_advance_fee",
+          "split": "test",
+          "label": "scam",
+          "score": 59,
+          "band": "elevated",
+          "action": "verify_first",
+          "bandOk": true,
+          "missingSignals": [],
+          "forbiddenSignals": [],
+          "deterministic": true
+        },
+        {
+          "id": "rem-02",
+          "category": "scam_remote_access",
+          "split": "test",
+          "label": "scam",
+          "score": 80,
+          "band": "high",
+          "action": "stop",
+          "bandOk": true,
+          "missingSignals": [],
+          "forbiddenSignals": [],
+          "deterministic": true
+        },
+        {
+          "id": "rem-04",
+          "category": "scam_remote_access",
+          "split": "test",
+          "label": "scam",
+          "score": 80,
+          "band": "high",
+          "action": "stop",
+          "bandOk": true,
+          "missingSignals": [],
+          "forbiddenSignals": [],
+          "deterministic": true
+        },
+        {
+          "id": "rem-06",
+          "category": "scam_remote_access",
+          "split": "test",
+          "label": "scam",
+          "score": 83,
+          "band": "high",
+          "action": "stop",
+          "bandOk": true,
+          "missingSignals": [],
+          "forbiddenSignals": [],
+          "deterministic": true
+        },
+        {
+          "id": "thr-02",
+          "category": "scam_secrecy_threat",
+          "split": "test",
+          "label": "scam",
+          "score": 62,
+          "band": "elevated",
+          "action": "verify_first",
+          "bandOk": true,
+          "missingSignals": [],
+          "forbiddenSignals": [],
+          "deterministic": true
+        },
+        {
+          "id": "thr-04",
+          "category": "scam_secrecy_threat",
+          "split": "test",
+          "label": "scam",
+          "score": 97,
+          "band": "high",
+          "action": "stop",
+          "bandOk": true,
+          "missingSignals": [],
+          "forbiddenSignals": [],
+          "deterministic": true
+        },
+        {
+          "id": "thr-06",
+          "category": "scam_secrecy_threat",
+          "split": "test",
+          "label": "scam",
+          "score": 24,
+          "band": "low",
+          "action": "proceed",
+          "bandOk": false,
+          "missingSignals": [
+            "isolation",
+            "payment_request"
+          ],
+          "forbiddenSignals": [],
+          "deterministic": true
+        },
+        {
+          "id": "lu-02",
+          "category": "legit_urgent",
+          "split": "test",
+          "label": "legitimate",
+          "score": 15,
+          "band": "low",
+          "action": "proceed",
+          "bandOk": true,
+          "missingSignals": [],
+          "forbiddenSignals": [],
+          "deterministic": true
+        },
+        {
+          "id": "lu-04",
+          "category": "legit_urgent",
+          "split": "test",
+          "label": "legitimate",
+          "score": 26,
+          "band": "caution",
+          "action": "proceed_with_care",
+          "bandOk": true,
+          "missingSignals": [],
+          "forbiddenSignals": [],
+          "deterministic": true
+        },
+        {
+          "id": "lu-06",
+          "category": "legit_urgent",
+          "split": "test",
+          "label": "legitimate",
+          "score": 30,
+          "band": "caution",
+          "action": "proceed_with_care",
+          "bandOk": true,
+          "missingSignals": [],
+          "forbiddenSignals": [],
+          "deterministic": true
+        },
+        {
+          "id": "lu-08",
+          "category": "legit_urgent",
+          "split": "test",
+          "label": "legitimate",
+          "score": 4,
+          "band": "low",
+          "action": "proceed",
+          "bandOk": true,
+          "missingSignals": [],
+          "forbiddenSignals": [],
+          "deterministic": true
+        },
+        {
+          "id": "lr-02",
+          "category": "legit_refund",
+          "split": "test",
+          "label": "legitimate",
+          "score": 4,
+          "band": "low",
+          "action": "proceed",
+          "bandOk": true,
+          "missingSignals": [],
+          "forbiddenSignals": [],
+          "deterministic": true
+        },
+        {
+          "id": "lr-04",
+          "category": "legit_refund",
+          "split": "test",
+          "label": "legitimate",
+          "score": 4,
+          "band": "low",
+          "action": "proceed",
+          "bandOk": true,
+          "missingSignals": [],
+          "forbiddenSignals": [],
+          "deterministic": true
+        },
+        {
+          "id": "lr-06",
+          "category": "legit_refund",
+          "split": "test",
+          "label": "legitimate",
+          "score": 8,
+          "band": "low",
+          "action": "proceed",
+          "bandOk": true,
+          "missingSignals": [],
+          "forbiddenSignals": [],
+          "deterministic": true
+        },
+        {
+          "id": "lf-02",
+          "category": "legit_familiar",
+          "split": "test",
+          "label": "legitimate",
+          "score": 4,
+          "band": "low",
+          "action": "proceed",
+          "bandOk": true,
+          "missingSignals": [],
+          "forbiddenSignals": [],
+          "deterministic": true
+        },
+        {
+          "id": "lf-04",
+          "category": "legit_familiar",
+          "split": "test",
+          "label": "legitimate",
+          "score": 4,
+          "band": "low",
+          "action": "proceed",
+          "bandOk": true,
+          "missingSignals": [],
+          "forbiddenSignals": [],
+          "deterministic": true
+        },
+        {
+          "id": "lf-06",
+          "category": "legit_familiar",
+          "split": "test",
+          "label": "legitimate",
+          "score": 14,
+          "band": "low",
+          "action": "proceed",
+          "bandOk": true,
+          "missingSignals": [],
+          "forbiddenSignals": [],
+          "deterministic": true
+        },
+        {
+          "id": "la-02",
+          "category": "legit_unusual_amount",
+          "split": "test",
+          "label": "legitimate",
+          "score": 4,
+          "band": "low",
+          "action": "proceed",
+          "bandOk": true,
+          "missingSignals": [],
+          "forbiddenSignals": [],
+          "deterministic": true
+        },
+        {
+          "id": "la-04",
+          "category": "legit_unusual_amount",
+          "split": "test",
+          "label": "legitimate",
+          "score": 5,
+          "band": "low",
+          "action": "proceed",
+          "bandOk": true,
+          "missingSignals": [],
+          "forbiddenSignals": [],
+          "deterministic": true
+        },
+        {
+          "id": "la-06",
+          "category": "legit_unusual_amount",
+          "split": "test",
+          "label": "legitimate",
+          "score": 10,
+          "band": "low",
+          "action": "proceed",
+          "bandOk": true,
+          "missingSignals": [],
+          "forbiddenSignals": [],
+          "deterministic": true
+        },
+        {
+          "id": "ls-02",
+          "category": "legit_support",
+          "split": "test",
+          "label": "legitimate",
+          "score": 8,
+          "band": "low",
+          "action": "proceed",
+          "bandOk": true,
+          "missingSignals": [],
+          "forbiddenSignals": [],
+          "deterministic": true
+        },
+        {
+          "id": "ls-04",
+          "category": "legit_support",
+          "split": "test",
+          "label": "legitimate",
+          "score": 8,
+          "band": "low",
+          "action": "proceed",
+          "bandOk": true,
+          "missingSignals": [],
+          "forbiddenSignals": [],
+          "deterministic": true
+        },
+        {
+          "id": "ls-06",
+          "category": "legit_support",
+          "split": "test",
+          "label": "legitimate",
+          "score": 8,
+          "band": "low",
+          "action": "proceed",
+          "bandOk": true,
+          "missingSignals": [],
+          "forbiddenSignals": [],
+          "deterministic": true
+        },
+        {
+          "id": "ld-02",
+          "category": "legit_deadline",
+          "split": "test",
+          "label": "legitimate",
+          "score": 12,
+          "band": "low",
+          "action": "proceed",
+          "bandOk": true,
+          "missingSignals": [],
+          "forbiddenSignals": [],
+          "deterministic": true
+        },
+        {
+          "id": "ld-04",
+          "category": "legit_deadline",
+          "split": "test",
+          "label": "legitimate",
+          "score": 4,
+          "band": "low",
+          "action": "proceed",
+          "bandOk": true,
+          "missingSignals": [],
+          "forbiddenSignals": [],
+          "deterministic": true
+        },
+        {
+          "id": "ld-06",
+          "category": "legit_deadline",
+          "split": "test",
+          "label": "legitimate",
+          "score": 29,
+          "band": "caution",
+          "action": "proceed_with_care",
+          "bandOk": true,
+          "missingSignals": [],
+          "forbiddenSignals": [],
+          "deterministic": true
+        },
+        {
+          "id": "am-02",
+          "category": "adv_missing_details",
+          "split": "test",
+          "label": "ambiguous",
+          "score": 4,
+          "band": "low",
+          "action": "proceed",
+          "bandOk": true,
+          "missingSignals": [],
+          "forbiddenSignals": [],
+          "deterministic": true
+        },
+        {
+          "id": "am-04",
+          "category": "adv_missing_details",
+          "split": "test",
+          "label": "ambiguous",
+          "score": 13,
+          "band": "low",
+          "action": "proceed",
+          "bandOk": true,
+          "missingSignals": [],
+          "forbiddenSignals": [],
+          "deterministic": true
+        },
+        {
+          "id": "au-02",
+          "category": "adv_unfamiliar_legit",
+          "split": "test",
+          "label": "legitimate",
+          "score": 27,
+          "band": "caution",
+          "action": "proceed_with_care",
+          "bandOk": true,
+          "missingSignals": [],
+          "forbiddenSignals": [],
+          "deterministic": true
+        },
+        {
+          "id": "au-04",
+          "category": "adv_unfamiliar_legit",
+          "split": "test",
+          "label": "legitimate",
+          "score": 23,
+          "band": "low",
+          "action": "proceed",
+          "bandOk": true,
+          "missingSignals": [],
+          "forbiddenSignals": [],
+          "deterministic": true
+        },
+        {
+          "id": "ac-02",
+          "category": "adv_conflicting",
+          "split": "test",
+          "label": "scam",
+          "score": 65,
+          "band": "elevated",
+          "action": "verify_first",
+          "bandOk": true,
+          "missingSignals": [],
+          "forbiddenSignals": [],
+          "deterministic": true
+        },
+        {
+          "id": "ac-04",
+          "category": "adv_conflicting",
+          "split": "test",
+          "label": "ambiguous",
+          "score": 14,
+          "band": "low",
+          "action": "proceed",
+          "bandOk": false,
+          "missingSignals": [],
+          "forbiddenSignals": [],
+          "deterministic": true
+        },
+        {
+          "id": "aq-02",
+          "category": "adv_user_quote",
+          "split": "test",
+          "label": "legitimate",
+          "score": 4,
+          "band": "low",
+          "action": "proceed",
+          "bandOk": true,
+          "missingSignals": [],
+          "forbiddenSignals": [],
+          "deterministic": true
+        },
+        {
+          "id": "aq-04",
+          "category": "adv_user_quote",
+          "split": "test",
+          "label": "scam",
+          "score": 22,
+          "band": "low",
+          "action": "proceed_with_care",
+          "bandOk": false,
+          "missingSignals": [],
+          "forbiddenSignals": [],
+          "deterministic": true
+        },
+        {
+          "id": "al-02",
+          "category": "adv_malformed",
+          "split": "test",
+          "label": "scam",
+          "score": 82,
+          "band": "high",
+          "action": "stop",
+          "bandOk": true,
+          "missingSignals": [
+            "urgency"
+          ],
+          "forbiddenSignals": [],
+          "deterministic": true
+        },
+        {
+          "id": "al-04",
+          "category": "adv_malformed",
+          "split": "test",
+          "label": "legitimate",
+          "score": 4,
+          "band": "low",
+          "action": "proceed",
+          "bandOk": true,
+          "missingSignals": [],
+          "forbiddenSignals": [],
+          "deterministic": true
+        },
+        {
+          "id": "al-06",
+          "category": "adv_malformed",
+          "split": "test",
+          "label": "scam",
+          "score": 80,
+          "band": "high",
+          "action": "stop",
+          "bandOk": true,
+          "missingSignals": [],
+          "forbiddenSignals": [],
+          "deterministic": true
+        },
+        {
+          "id": "ap-02",
+          "category": "adv_prompt_injection",
+          "split": "test",
+          "label": "scam",
+          "score": 80,
+          "band": "high",
+          "action": "stop",
+          "bandOk": true,
+          "missingSignals": [],
+          "forbiddenSignals": [],
+          "deterministic": true
+        },
+        {
+          "id": "ap-04",
+          "category": "adv_prompt_injection",
+          "split": "test",
+          "label": "scam",
+          "score": 82,
+          "band": "high",
+          "action": "stop",
+          "bandOk": true,
+          "missingSignals": [],
+          "forbiddenSignals": [],
+          "deterministic": true
+        },
+        {
+          "id": "ab-02",
+          "category": "adv_benign_lookalike",
+          "split": "test",
+          "label": "legitimate",
+          "score": 4,
+          "band": "low",
+          "action": "proceed",
+          "bandOk": true,
+          "missingSignals": [],
+          "forbiddenSignals": [],
+          "deterministic": true
+        },
+        {
+          "id": "ab-04",
+          "category": "adv_benign_lookalike",
+          "split": "test",
+          "label": "legitimate",
+          "score": 9,
+          "band": "low",
+          "action": "proceed",
+          "bandOk": true,
+          "missingSignals": [],
+          "forbiddenSignals": [],
+          "deterministic": true
+        },
+        {
+          "id": "ab-06",
+          "category": "adv_benign_lookalike",
+          "split": "test",
+          "label": "legitimate",
+          "score": 6,
+          "band": "low",
+          "action": "proceed",
+          "bandOk": true,
+          "missingSignals": [],
+          "forbiddenSignals": [],
+          "deterministic": true
+        },
+        {
+          "id": "an-02",
+          "category": "adv_novel_scam",
+          "split": "test",
+          "label": "scam",
+          "score": 11,
+          "band": "low",
+          "action": "proceed",
+          "bandOk": false,
+          "missingSignals": [],
+          "forbiddenSignals": [],
+          "deterministic": true
+        },
+        {
+          "id": "an-04",
+          "category": "adv_novel_scam",
+          "split": "test",
+          "label": "scam",
+          "score": 4,
+          "band": "low",
+          "action": "proceed",
+          "bandOk": false,
+          "missingSignals": [],
+          "forbiddenSignals": [],
+          "deterministic": true
+        },
+        {
+          "id": "an-06",
+          "category": "adv_novel_scam",
+          "split": "test",
+          "label": "scam",
+          "score": 11,
+          "band": "low",
+          "action": "proceed",
+          "bandOk": false,
+          "missingSignals": [],
+          "forbiddenSignals": [],
+          "deterministic": true
+        }
+      ]
+    }
+  },
+  "thresholdSweepDev": [],
+  "comparisons": [
+    {
+      "assessor": "sentinel-local",
+      "status": "ran",
+      "detection": {
+        "tp": 24,
+        "fp": 0,
+        "tn": 26,
+        "fn": 9,
+        "precision": {
+          "num": 24,
+          "den": 24,
+          "value": 1
+        },
+        "recall": {
+          "num": 24,
+          "den": 33,
+          "value": 0.727
+        },
+        "f1": 0.842,
+        "fpr": {
+          "num": 0,
+          "den": 26,
+          "value": 0
+        },
+        "fnr": {
+          "num": 9,
+          "den": 33,
+          "value": 0.273
+        }
+      },
+      "noVerdict": {
+        "num": 0,
+        "den": 62,
+        "value": 0
+      },
+      "grounding": {
+        "num": 128,
+        "den": 128,
+        "value": 1
+      },
+      "attribution": {
+        "num": 128,
+        "den": 128,
+        "value": 1
+      },
+      "userTextQuoted": {
+        "num": 0,
+        "den": 128,
+        "value": 0
+      },
+      "consistency": {
+        "num": 62,
+        "den": 62,
+        "value": 1
+      },
+      "concreteActions": {
+        "num": 24,
+        "den": 24,
+        "value": 1
+      },
+      "caseSpecificRecs": {
+        "num": 8,
+        "den": 24,
+        "value": 0.333
+      },
+      "transparentScore": true,
+      "errors": 0
+    },
+    {
+      "assessor": "keyword",
+      "status": "ran",
+      "detection": {
+        "tp": 23,
+        "fp": 7,
+        "tn": 19,
+        "fn": 10,
+        "precision": {
+          "num": 23,
+          "den": 30,
+          "value": 0.767
+        },
+        "recall": {
+          "num": 23,
+          "den": 33,
+          "value": 0.697
+        },
+        "f1": 0.73,
+        "fpr": {
+          "num": 7,
+          "den": 26,
+          "value": 0.269
+        },
+        "fnr": {
+          "num": 10,
+          "den": 33,
+          "value": 0.303
+        }
+      },
+      "noVerdict": {
+        "num": 0,
+        "den": 62,
+        "value": 0
+      },
+      "grounding": {
+        "num": 37,
+        "den": 39,
+        "value": 0.949
+      },
+      "attribution": {
+        "num": 0,
+        "den": 0,
+        "value": null
+      },
+      "userTextQuoted": {
+        "num": 3,
+        "den": 37,
+        "value": 0.081
+      },
+      "consistency": {
+        "num": 62,
+        "den": 62,
+        "value": 1
+      },
+      "concreteActions": {
+        "num": 0,
+        "den": 31,
+        "value": 0
+      },
+      "caseSpecificRecs": {
+        "num": 0,
+        "den": 31,
+        "value": 0
+      },
+      "transparentScore": false,
+      "errors": 0
+    }
+  ]
+}

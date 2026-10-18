@@ -10,9 +10,9 @@ export default function FirewallPage() {
   return (
     <div>
       <PageHeader
-        eyebrow="Payment firewall"
+        eyebrow="Payment check · simulation"
         title="Banks protect transactions. Sentinel protects decisions."
-        description="A simulated payment screen with Sentinel in the loop. Press pay to see the decision firewall intercept a manipulated transfer."
+        description="A simulated payment screen with Sentinel in the loop. The assessment is real; the hold and the payment are not — Sentinel has no bank or UPI connection."
         actions={<AnalysisPicker />}
       />
       <PaymentFirewall analysis={current} />

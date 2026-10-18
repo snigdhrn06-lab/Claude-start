@@ -2,9 +2,31 @@
 
 import { motion } from "framer-motion";
 import { Quote } from "lucide-react";
-import type { RiskSignal } from "@/lib/types";
+import type { Evidence, RiskSignal } from "@/lib/types";
 import { SIGNAL_ICONS } from "./icons";
 import { SeverityBadge, cn } from "./ui";
+
+const BASIS: Record<RiskSignal["basis"], { label: string; cls: string; title: string }> = {
+  observed: { label: "Observed", cls: "border-white/15 text-fg-muted", title: "Quoted from a message attributed to the other party." },
+  context: { label: "From context", cls: "border-info/30 text-info", title: "Derived from payment details or account context, not quoted text." },
+  uncertain: { label: "Attribution uncertain", cls: "border-caution/30 text-caution", title: "The text has no clear sender label, or was quoted by you from someone else." },
+};
+
+export function BasisBadge({ basis }: { basis: RiskSignal["basis"] }) {
+  const b = BASIS[basis];
+  return (
+    <span title={b.title} className={cn("inline-flex items-center rounded border px-1.5 py-px font-mono text-[9.5px] uppercase tracking-wider", b.cls)}>
+      {b.label}
+    </span>
+  );
+}
+
+export function speakerLabel(e: Evidence) {
+  if (e.kind === "context") return e.source === "account_context" ? "Account context" : "Payment details";
+  if (e.speakerRole === "reported") return "Quoted by you";
+  if (e.speakerRole === "unknown") return "Unlabelled text";
+  return e.speaker ?? "Other party";
+}
 
 export function RiskSignalCard({
   signal,
@@ -24,13 +46,15 @@ export function RiskSignalCard({
   const Icon = SIGNAL_ICONS[signal.id];
   const mitigating = !!signal.mitigating;
   const accent = mitigating ? "#33d69f" : signal.severity === "critical" ? "#ff4a3d" : signal.severity === "high" ? "#ff8c42" : "#f2c14e";
+  const first = signal.evidence[0];
+  const modelOnly = signal.evidence.every((e) => e.support === "model-only");
   return (
     <motion.button
       type="button"
       onClick={onClick}
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: lit ? 1 : 0.28, y: 0 }}
-      transition={{ delay: index * 0.06, duration: 0.3 }}
+      transition={{ delay: index * 0.05, duration: 0.3 }}
       whileHover={{ y: -2 }}
       whileTap={{ scale: 0.99 }}
       className={cn(
@@ -39,6 +63,7 @@ export function RiskSignalCard({
       )}
       style={active ? { boxShadow: `0 0 0 1px ${accent}55, 0 0 32px -8px ${accent}66` } : undefined}
       aria-pressed={active}
+      aria-label={`${signal.label}: show evidence`}
     >
       <span className="absolute left-0 top-0 h-full w-[2px]" style={{ background: lit ? accent : "transparent", boxShadow: lit ? `0 0 12px ${accent}` : undefined }} />
       <div className="flex items-start gap-3">
@@ -52,24 +77,33 @@ export function RiskSignalCard({
           <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
             <span className="text-[13px] font-semibold uppercase tracking-wide">{signal.label}</span>
             <SeverityBadge severity={signal.severity}>{mitigating ? "mitigating" : signal.severity}</SeverityBadge>
+            <BasisBadge basis={signal.basis} />
+            {modelOnly && (
+              <span title="Only the AI model asserted this; no local pattern corroborates it. Its strength is capped." className="rounded border border-caution/30 px-1.5 py-px font-mono text-[9.5px] uppercase tracking-wider text-caution">
+                Model-only
+              </span>
+            )}
           </div>
-          <div className="mt-1 flex items-center gap-2">
+          <div className="mt-1 flex items-center gap-2" title="Evidence strength: how clearly the text shows this signal. Not a probability of fraud.">
             <div className="h-1 w-20 overflow-hidden rounded-full bg-white/[0.06]">
               <motion.div
                 className="h-full rounded-full"
                 style={{ background: accent }}
                 initial={{ width: 0 }}
                 animate={{ width: lit ? `${signal.confidence}%` : 0 }}
-                transition={{ delay: 0.15 + index * 0.06, duration: 0.7 }}
+                transition={{ delay: 0.15 + index * 0.05, duration: 0.7 }}
               />
             </div>
-            <span className="num font-mono text-[11px] text-fg-muted">{signal.confidence}% confidence</span>
+            <span className="num font-mono text-[11px] text-fg-muted">evidence strength {signal.confidence}</span>
           </div>
           <p className="mt-2 text-[13px] leading-snug text-fg-muted">{signal.explanation}</p>
-          {!compact && signal.evidence[0] && (
-            <div className="mt-2.5 flex gap-2 rounded border border-white/[0.05] bg-black/20 px-2.5 py-2">
-              <Quote className="mt-0.5 h-3 w-3 shrink-0 text-fg-dim" />
-              <p className="line-clamp-2 font-mono text-[11.5px] leading-relaxed text-fg/80">{signal.evidence[0].text}</p>
+          {!compact && first && (
+            <div className="mt-2.5 rounded border border-white/[0.05] bg-black/20 px-2.5 py-2">
+              <div className="mb-1 font-mono text-[9.5px] uppercase tracking-wider text-fg-dim">{speakerLabel(first)}</div>
+              <div className="flex gap-2">
+                {first.kind !== "context" && <Quote className="mt-0.5 h-3 w-3 shrink-0 text-fg-dim" />}
+                <p className={cn("line-clamp-2 text-[11.5px] leading-relaxed", first.kind === "context" ? "text-fg-muted" : "font-mono text-fg/80")}>{first.text}</p>
+              </div>
             </div>
           )}
           {!compact && signal.evidence.length > 1 && (

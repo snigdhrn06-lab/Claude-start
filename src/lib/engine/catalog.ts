@@ -1,5 +1,11 @@
 import type { Dimension, Severity, SignalCategory, SignalId } from "../types";
 
+/**
+ * Versioned signal catalogue. Bump CATALOG_VERSION whenever a signal's meaning,
+ * weight or detector changes, so stored analyses remain reproducible.
+ */
+export const CATALOG_VERSION = "2.0.0";
+
 export interface SignalSpec {
   id: SignalId;
   label: string;
@@ -7,6 +13,7 @@ export interface SignalSpec {
   dimension: Dimension;
   /** Contribution weight (0–1) inside its dimension's noisy-OR. */
   weight: number;
+  /** Default evidence strength for a single pattern match (0–1). */
   baseConfidence: number;
   severity: Severity;
   explanation: string;
@@ -57,7 +64,7 @@ export const SIGNALS: Record<SignalId, SignalSpec> = {
     weight: 0.88,
     baseConfidence: 0.87,
     severity: "critical",
-    explanation: "Promises fixed or risk-free returns. Legitimate investments never guarantee profit.",
+    explanation: "Promises fixed or risk-free returns. Market-linked investments cannot guarantee profit.",
     shortName: "Guarantee",
   },
   scarcity: {
@@ -101,7 +108,7 @@ export const SIGNALS: Record<SignalId, SignalSpec> = {
     weight: 0.64,
     baseConfidence: 0.86,
     severity: "critical",
-    explanation: "User is asked to send money in order to receive money. Real refunds never require a payment.",
+    explanation: "User is asked to send money (or approve a collect request) in order to receive money. Genuine refunds go back to the original payment method.",
     shortName: "Pay-to-receive",
   },
   payment_request: {
@@ -112,7 +119,7 @@ export const SIGNALS: Record<SignalId, SignalSpec> = {
     weight: 0.7,
     baseConfidence: 0.85,
     severity: "high",
-    explanation: "The conversation ends in an instruction to move money.",
+    explanation: "The other party gives a concrete instruction to move money.",
     shortName: "Payment instruction",
   },
   isolation: {
@@ -134,7 +141,7 @@ export const SIGNALS: Record<SignalId, SignalSpec> = {
     weight: 0.95,
     baseConfidence: 0.9,
     severity: "critical",
-    explanation: "Requests OTP, PIN, passwords or remote access — no institution ever needs these.",
+    explanation: "Asks for an OTP, PIN, CVV, password or a remote-access / screen-sharing app. Banks and payment apps consistently tell customers never to share these.",
     shortName: "Credential request",
   },
   escalation: {
@@ -167,7 +174,7 @@ export const SIGNALS: Record<SignalId, SignalSpec> = {
     weight: 0.62,
     baseConfidence: 0.86,
     severity: "high",
-    explanation: "Payment is requested to a previously unknown recipient.",
+    explanation: "Recipient is not in the saved-recipient list of the account context in use. A risk indicator, not proof of fraud.",
     shortName: "Unknown recipient",
   },
   unofficial_channel: {
@@ -175,10 +182,10 @@ export const SIGNALS: Record<SignalId, SignalSpec> = {
     label: "Unofficial Payment Channel",
     category: "context",
     dimension: "recipient",
-    weight: 0.45,
+    weight: 0.6,
     baseConfidence: 0.8,
     severity: "high",
-    explanation: "Money is routed to a personal handle or account, not an institution's verified channel.",
+    explanation: "Money is routed to a personal handle, private account or sender-supplied link while the sender claims to act for an institution.",
     shortName: "Unofficial channel",
   },
   amount_anomaly: {
@@ -189,7 +196,7 @@ export const SIGNALS: Record<SignalId, SignalSpec> = {
     weight: 0.3,
     baseConfidence: 0.75,
     severity: "medium",
-    explanation: "Amount is well above this account's typical outgoing payment.",
+    explanation: "Amount is well above the typical outgoing payment in the account context in use.",
     shortName: "Unusual amount",
   },
   verification: {
@@ -204,19 +211,50 @@ export const SIGNALS: Record<SignalId, SignalSpec> = {
     shortName: "Verification path",
     mitigating: true,
   },
+  identity_change: {
+    id: "identity_change",
+    label: "Unverified Identity Change",
+    category: "context",
+    dimension: "context",
+    weight: 0.72,
+    baseConfidence: 0.82,
+    severity: "high",
+    explanation: "Sender says they are someone you know writing from a new number or account. The identity cannot be confirmed from the message itself.",
+    shortName: "New-number claim",
+  },
+  windfall: {
+    id: "windfall",
+    label: "Unexpected Reward or Offer",
+    category: "context",
+    dimension: "context",
+    weight: 0.7,
+    baseConfidence: 0.82,
+    severity: "high",
+    explanation: "Announces a prize, loan, job, bonus or parcel the user did not seek. Advance-fee schemes use the promised benefit to justify a fee.",
+    shortName: "Windfall claim",
+  },
+  known_beneficiary: {
+    id: "known_beneficiary",
+    label: "Saved Recipient",
+    category: "transaction",
+    dimension: "recipient",
+    weight: 0.6,
+    baseConfidence: 0.9,
+    severity: "info",
+    explanation: "Recipient is in the saved-recipient list of the account context in use. Lowers recipient risk only; it does not rule out a compromised or impersonated contact.",
+    shortName: "Saved recipient",
+    mitigating: true,
+  },
 };
 
 export const SIGNAL_IDS = Object.keys(SIGNALS) as SignalId[];
 
-/** Demo account profile used for transaction context. Synthetic. */
-export const ACCOUNT_PROFILE = {
-  holder: "Ananya Rao",
-  typicalOutgoing: 2400,
-  knownBeneficiaries: [
-    "landlord.sharma@okhdfc",
-    "mom.rao@oksbi",
-    "rahul.k@okicici",
-    "bescom@billdesk",
-    "swiggy@icici",
-  ],
-};
+/** Signals the LLM may report. Account-context signals always come from the context provider. */
+export const CONTEXT_SIGNALS: SignalId[] = ["new_beneficiary", "amount_anomaly", "known_beneficiary"];
+export const PERCEIVABLE_SIGNALS = SIGNAL_IDS.filter((id) => !CONTEXT_SIGNALS.includes(id));
+
+/** Signals that represent a concrete ask (money or secrets). Escalation is, by definition, a request for more money. */
+export const ASK_SIGNALS: SignalId[] = ["payment_request", "reversal", "credentials", "escalation"];
+
+export { ACCOUNT_PROFILE, DEMO_PROFILE } from "./context";
+

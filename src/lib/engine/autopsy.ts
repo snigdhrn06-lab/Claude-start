@@ -4,6 +4,12 @@ import { detectLocal } from "./detect";
 import { formatINR, parseConversation } from "./parse";
 import { scoreSignals } from "./score";
 
+/** Cumulative score of a conversation prefix, using the same pipeline as a live analysis (no account context). */
+function riskOf(conversation: string, payment?: Parameters<typeof detectLocal>[1]) {
+  const d = detectLocal(conversation, payment);
+  return { d, risk: scoreSignals(d.signals, { paymentIntent: !!payment?.amount }).riskScore };
+}
+
 export interface AutopsyInput {
   amount: number;
   recipient: string;
@@ -69,11 +75,10 @@ export function runAutopsy(input: AutopsyInput): AutopsyReport {
   let safeExitIndex = -1;
   let safeExitReason = "";
 
-  messages.forEach((msg, i) => {
+  messages.filter((m) => m.role !== "reported").forEach((msg, i) => {
     const end = msg.offset + msg.text.length;
     const prefix = input.conversation.slice(0, end);
-    const d = detectLocal(prefix);
-    const risk = scoreSignals(d.signals).riskScore;
+    const { d, risk } = riskOf(prefix);
     const ids = d.signals.map((s) => s.id).filter((id) => !seen.has(id));
     ids.forEach((id) => seen.add(id));
     const ev: AutopsyEvent = {
@@ -97,13 +102,12 @@ export function runAutopsy(input: AutopsyInput): AutopsyReport {
     events.push(ev);
   });
 
-  const base = detectLocal(input.conversation, {
+  const { d: base, risk: paidRisk } = riskOf(input.conversation, {
     recipient: input.recipient,
     amount: input.amount,
     method: "UPI",
     reason: input.reason,
   });
-  const paidRisk = scoreSignals(base.signals).riskScore;
   events.push({
     id: "payment",
     stage: "PAYMENT",
@@ -144,19 +148,18 @@ export function runAutopsy(input: AutopsyInput): AutopsyReport {
   if (all.has("refund") || all.has("reversal")) whatWentWrong.push("Money was sent in order to receive money — the defining move of a refund-reversal scam.");
   if (all.has("urgency") || all.has("threat")) whatWentWrong.push("A deadline and a threat compressed the decision into minutes, leaving no time to check.");
   if (all.has("isolation")) whatWentWrong.push("The sender discouraged speaking to anyone, removing the people who could have stopped it.");
-  if (all.has("new_beneficiary")) whatWentWrong.push(`${input.recipient || "The recipient"} had never been paid before and was not a verified merchant.`);
+  if (all.has("unofficial_channel")) whatWentWrong.push(`${input.recipient || "The recipient"} was a handle or account supplied in the conversation, not one found independently.`);
   if (!whatWentWrong.length) whatWentWrong.push("No strong manipulation pattern was found in the conversation provided. The loss may involve information not included here.");
 
   const prevention = [
     "Hang up and call the institution using the number printed on your card or its official app.",
     "Pause for 30 minutes on any payment that arrives with a deadline. Real deadlines survive a pause.",
-    "Ask one person in your Sentinel Circle to review before sending money to a new beneficiary.",
+    "Ask someone you trust to review before sending money to a recipient you have not paid before.",
     "Treat any request to pay in order to receive money as fraud, without exception.",
   ];
   const recovery = [
-    "Call 1930 (National Cyber Crime Helpline) immediately — the first hours matter most for freezing funds.",
-    "File a complaint at cybercrime.gov.in with the transaction reference and screenshots.",
-    "Ask your bank to raise a fraud dispute and block further debits to this beneficiary.",
+    "Contact your bank immediately using the number on your card or in its official app, and ask it to raise a fraud dispute.",
+    "In India, report cyber fraud on the national helpline 1930 or at cybercrime.gov.in, with the transaction reference and screenshots. Early reports give the best chance of funds being held.",
     "Do not pay any 'recovery', 'penalty' or 'release' fee — recovery scams target recent victims.",
     "Change UPI PIN and net-banking passwords if any credential or screen-share was involved.",
   ];

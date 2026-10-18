@@ -57,7 +57,8 @@ export function ConversationView({
   maxHeight?: number;
   title?: React.ReactNode;
 }) {
-  const messages = useMemo(() => parseConversation(conversation), [conversation]);
+  // Reported quotes overlap the user's own bubble; their highlights render inside it.
+  const messages = useMemo(() => parseConversation(conversation).filter((m) => m.role !== "reported"), [conversation]);
   const ranges: Range[] = useMemo(() => {
     const key = (e: Evidence) => `${e.start}:${e.end}`;
     const activeKeys = new Set(active.map(key));
@@ -83,6 +84,7 @@ export function ConversationView({
 
   const shown = reveal === undefined ? messages : messages.slice(0, reveal);
   const sender = messages.find((m) => !m.self)?.sender ?? "Unknown";
+  const unlabelled = messages.length > 0 && messages.every((m) => !m.labelled);
 
   return (
     <div className={cn("panel flex flex-col overflow-hidden", className)}>
@@ -93,7 +95,7 @@ export function ConversationView({
           </div>
           <div className="min-w-0">
             <div className="truncate text-[13px] font-medium">{title ?? sender}</div>
-            <div className="font-mono text-[10px] uppercase tracking-wider text-fg-dim">Unverified sender · inbound</div>
+            <div className="font-mono text-[10px] uppercase tracking-wider text-fg-dim">{unlabelled ? "No sender labels · attribution uncertain" : "Identity unverified · as labelled in the input"}</div>
           </div>
         </div>
         <span className="chip shrink-0">{messages.length} msgs</span>
@@ -109,7 +111,7 @@ export function ConversationView({
               className={cn("flex flex-col", m.self ? "items-end" : "items-start")}
             >
               {!m.self && (i === 0 || shown[i - 1]?.sender !== m.sender) && (
-                <div className="mb-1 font-mono text-[10px] uppercase tracking-wider text-fg-dim">{m.sender}</div>
+                <div className="mb-1 font-mono text-[10px] uppercase tracking-wider text-fg-dim">{m.labelled ? m.sender : "No sender label"}{m.duplicateOf !== undefined ? " · duplicate (ignored)" : ""}</div>
               )}
               <div
                 className={cn(

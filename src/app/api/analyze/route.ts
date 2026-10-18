@@ -1,25 +1,27 @@
 import { NextResponse } from "next/server";
 import { analyzeWithAI } from "@/lib/ai/provider";
+import { createLimiter, clientKey } from "@/lib/api/rateLimit";
+import { LIMITS, parseAnalyzeBody, readJsonLimited } from "@/lib/api/validate";
 import { analyzeLocal } from "@/lib/engine/analyze";
-import type { ScanInput } from "@/lib/types";
 
 export const runtime = "nodejs";
 
+// 30 analyses per minute per client; generous for people, limiting for scripts.
+const limiter = createLimiter({ capacity: 30, refillPerMinute: 30 });
+
 export async function POST(req: Request) {
-  let body: { input?: ScanInput; mode?: "auto" | "local" };
+  const rl = limiter.take(clientKey(req));
+  if (!rl.ok) return NextResponse.json({ error: "Too many requests. Try again shortly." }, { status: 429, headers: { "retry-after": String(rl.retryAfterSec) } });
+  const body = await readJsonLimited(req, LIMITS.analyzeBodyBytes);
+  if (!body.ok) return NextResponse.json({ error: body.error }, { status: body.status });
+  const parsed = parseAnalyzeBody(body.body);
+  if (!parsed.ok) return NextResponse.json({ error: parsed.error }, { status: parsed.status });
   try {
-    body = await req.json();
-  } catch {
-    return NextResponse.json({ error: "Invalid JSON body." }, { status: 400 });
+    if (parsed.mode === "local") return NextResponse.json({ result: analyzeLocal(parsed.input) });
+    const { result, notice } = await analyzeWithAI(parsed.input);
+    return NextResponse.json({ result, notice });
+  } catch (err) {
+    console.warn("[sentinel] analysis error:", (err as Error).name);
+    return NextResponse.json({ error: "Analysis failed. Please try again." }, { status: 500 });
   }
-  const input = body.input;
-  if (!input || typeof input.conversation !== "string" || (!input.conversation.trim() && !input.payment)) {
-    return NextResponse.json({ error: "Provide a conversation or payment details." }, { status: 400 });
-  }
-  if (input.conversation.length > 20_000) {
-    return NextResponse.json({ error: "Conversation is too long (20,000 characters max)." }, { status: 413 });
-  }
-  if (body.mode === "local") return NextResponse.json({ result: analyzeLocal(input) });
-  const { result, notice } = await analyzeWithAI(input);
-  return NextResponse.json({ result, notice });
 }

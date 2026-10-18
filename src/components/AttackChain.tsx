@@ -5,6 +5,7 @@ import { IndianRupee, MousePointerClick, Quote, UserX } from "lucide-react";
 import { useEffect, useState } from "react";
 import type { AttackNode, Evidence } from "@/lib/types";
 import { SIGNAL_ICONS } from "./icons";
+import { speakerLabel } from "./RiskSignalCard";
 import { cn } from "./ui";
 
 const STAGE_CODE: Record<AttackNode["stage"], string> = {
@@ -17,7 +18,14 @@ const STAGE_CODE: Record<AttackNode["stage"], string> = {
   impact: "Impact",
 };
 
+const STATUS: Record<AttackNode["status"], { label: string; help: string }> = {
+  observed: { label: "Observed", help: "Supported by quoted text from the other party." },
+  inferred: { label: "Inferred", help: "Derived from payment details, account context or text with uncertain attribution." },
+  hypothetical: { label: "Hypothetical", help: "A possible consequence if the payment proceeds and this is fraud. Not something that happened." },
+};
+
 function nodeColor(node: AttackNode, i: number, n: number) {
+  if (node.status === "hypothetical") return "#9aa1ad";
   if (node.stage === "impact") return "#ff4a3d";
   if (node.stage === "actor") return "#c9ced6";
   const t = i / Math.max(1, n - 1);
@@ -60,7 +68,8 @@ export function ThreatNode({
       className={cn(
         "group relative z-10 flex w-full flex-col items-start rounded-lg border px-3.5 py-3 text-left transition-colors lg:h-full lg:min-h-[148px]",
         selected ? "bg-ink-700" : "bg-ink-800/90 hover:bg-ink-750",
-        impact && "bg-risk/[0.09]",
+        impact && node.status !== "hypothetical" && "bg-risk/[0.09]",
+        node.status === "hypothetical" && "border-dashed",
       )}
       style={{
         borderColor: selected ? color : `${color}${impact ? "80" : "33"}`,
@@ -69,8 +78,8 @@ export function ThreatNode({
       aria-pressed={selected}
     >
       <div className="flex w-full items-center justify-between">
-        <span className="truncate font-mono text-[9.5px] uppercase tracking-[0.1em] text-fg-dim">
-          {String(index + 1).padStart(2, "0")} {STAGE_CODE[node.stage]}
+        <span className="truncate font-mono text-[9.5px] uppercase tracking-[0.1em] text-fg-dim" title={STATUS[node.status].help}>
+          {String(index + 1).padStart(2, "0")} {STAGE_CODE[node.stage]} · {STATUS[node.status].label}
         </span>
         {visible && (
           <span className="relative flex h-1.5 w-1.5">
@@ -129,11 +138,11 @@ function EvidenceBlock({ evidence }: { evidence: Evidence[] }) {
           transition={{ delay: i * 0.05 }}
           className="flex gap-2.5 rounded-md border border-white/[0.06] bg-black/25 px-3 py-2.5"
         >
-          <Quote className="mt-0.5 h-3.5 w-3.5 shrink-0 text-risk/70" />
-          <p className="text-[13px] leading-relaxed text-fg">
-            {e.text}
-            {e.source === "payment" && <span className="ml-2 chip">payment record</span>}
-          </p>
+          {e.kind !== "context" && <Quote className="mt-0.5 h-3.5 w-3.5 shrink-0 text-risk/70" />}
+          <div className="min-w-0">
+            <div className="font-mono text-[9.5px] uppercase tracking-wider text-fg-dim">{speakerLabel(e)}</div>
+            <p className={cn("text-[13px] leading-relaxed", e.kind === "context" ? "text-fg-muted" : "text-fg")}>{e.text}</p>
+          </div>
         </motion.div>
       ))}
     </div>
@@ -227,7 +236,10 @@ export function AttackChain({
               className="panel grid gap-5 p-5 md:grid-cols-[minmax(0,1fr)_minmax(0,300px)]"
             >
               <div className="min-w-0">
-                <div className="label mb-1">Extracted evidence · {STAGE_CODE[selected.stage]}</div>
+                <div className="label mb-1">
+                  {STAGE_CODE[selected.stage]} · {STATUS[selected.status].label}
+                </div>
+                <p className="mb-2 text-[12px] text-fg-dim">{STATUS[selected.status].help}</p>
                 <div className="mb-3 text-lg font-semibold uppercase tracking-wide">{selected.label}</div>
                 {selected.evidence.length ? (
                   <EvidenceBlock evidence={selected.evidence} />

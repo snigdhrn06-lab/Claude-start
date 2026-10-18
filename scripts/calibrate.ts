@@ -1,13 +1,33 @@
-import { detectLocal } from "../src/lib/engine/detect";
-import { scoreSignals } from "../src/lib/engine/score";
-import { SCENARIOS, HISTORY_SEEDS } from "../src/lib/scenarios";
-const run = (name: string, conv: string, pay?: any) => {
-  const d = detectLocal(conv, pay);
-  const s = scoreSignals(d.signals);
-  console.log(name.padEnd(22), s.riskScore, JSON.stringify(s.dims), d.signals.map(x => `${x.id}:${Math.round(x.confidence*100)}`).join(" "));
+// Prints scenario scores, signals and the score trace. Use while reviewing policy changes.
+import { analyzeLocal } from "../src/lib/engine/analyze";
+import { applyEdits, compareAnalyses } from "../src/lib/engine/counterfactual";
+import { HISTORY_SEEDS, SCENARIOS, scenarioInput } from "../src/lib/scenarios";
+import type { ScanInput } from "../src/lib/types";
+
+const verbose = process.argv.includes("-v");
+const show = (name: string, input: ScanInput) => {
+  const r = analyzeLocal(input);
+  console.log(
+    name.padEnd(26),
+    String(r.riskScore).padStart(3),
+    r.band.padEnd(9),
+    r.decision.action.padEnd(18),
+    r.signals.map((s) => `${s.id}:${s.confidence}`).join(" "),
+  );
+  if (verbose) for (const t of r.scoreTrace.terms) console.log("     ", t.points.toFixed(2).padStart(6), t.label, "—", t.detail);
+  return r;
 };
-for (const sc of SCENARIOS) run(sc.id, sc.conversation, sc.payment);
-for (const h of HISTORY_SEEDS) run(h.id, h.conversation, h.payment);
-const k = SCENARIOS[0].pivot!;
-run("cf-original", k.context + " " + k.original);
-run("cf-safe", k.context + " " + k.safe);
+
+for (const sc of SCENARIOS) {
+  show(sc.id, scenarioInput(sc));
+  const base = { ...scenarioInput(sc, false) };
+  const before = show(`  ${sc.id} (chat only)`, base);
+  for (const p of sc.counterfactuals) {
+    const { input, missing } = applyEdits(base, p.edits);
+    if (missing.length) console.log("    !! preset find-text missing:", missing);
+    const after = show(`    cf:${p.id}`, input);
+    const c = compareAnalyses(before, after);
+    console.log("       ", c.delta > 0 ? "+" : "", c.delta, "|", c.reasons.slice(0, 2).join("; "));
+  }
+}
+for (const h of HISTORY_SEEDS) show(h.id, { conversation: h.conversation, payment: h.payment, source: "scenario", accountContext: h.accountContext });

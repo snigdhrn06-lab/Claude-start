@@ -10,7 +10,11 @@
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
     "calibrate": "tsx scripts/calibrate.ts",
-    "samples": "tsx scripts/make-samples.ts"
+    "samples": "tsx scripts/make-samples.ts",
+    "test": "node --import tsx --test tests/*.test.ts",
+    "bench": "tsx bench/run.ts",
+    "bench:live": "tsx bench/run.ts --compare=keyword,generic-llm,sentinel-llm",
+    "check": "npm run typecheck && npm run test && npm run bench"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.131.0",
