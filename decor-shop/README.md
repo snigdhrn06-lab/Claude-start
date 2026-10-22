@@ -1,4 +1,4 @@
-# Your Decorations Shop Website — Setup Guide (all from your phone)
+# SAPTHAGIRI PARTY SHOP Website — Setup Guide (all from your phone)
 
 Your website reads everything (products, prices, photos, festival pages and shop details) from **one Google Sheet**.
 When you change the sheet in the **Google Sheets app**, the website updates on its own. You never touch code.
@@ -23,7 +23,7 @@ When a customer picks items, chooses how many, and taps **Place order**:
 
 | Setting       | Value |
 |---------------|-------|
-| Shop Name     | Your shop's name |
+| Shop Name     | SAPTHAGIRI PARTY SHOP |
 | Tagline       | One line about your shop |
 | WhatsApp      | **+91 98765 43210** (keep the +91 and the space) |
 | Order Email   | yourshop@gmail.com |
