@@ -12,12 +12,12 @@ When a customer picks items, chooses how many, and taps **Place order**:
 ## Step 1 — Create your Google Sheet (one time, ~10 minutes)
 
 1. Open the **Google Sheets** app → tap **+** → **New spreadsheet**. Name it e.g. *My Shop*.
-2. Make **3 tabs** at the bottom, named exactly: **`Settings`**, **`Collections`**, **`Products`**
+2. Make **4 tabs** at the bottom, named exactly: **`Settings`**, **`Collections`**, **`Products`**, **`Shops`**
    (tap **+** at the bottom to add a tab, long-press a tab → *Rename*).
 3. Type the headings in **row 1** of each tab, as shown below.
 
 > Easier on a computer: upload `sheet-template/Decor-Shop-Sheet.xlsx` to Google Drive,
-> open it, and choose **File → Save as Google Sheets**. All 3 tabs are ready with examples.
+> open it, and choose **File → Save as Google Sheets**. All 4 tabs are ready with examples.
 
 ### Tab `Settings`
 
@@ -63,6 +63,18 @@ When a customer picks items, chooses how many, and taps **Place order**:
 - **Available**: `No` shows *Out of stock* (customers can't order it). Blank = available.
 - **Tag** (optional): a small label on the photo, like `New`, `Bestseller`, `20% off`.
 - To remove a product, delete its row.
+
+### Tab `Shops` — your shop locations
+
+| Name | Address | Map Link | Phone | Timings | Show |
+|------|---------|----------|-------|---------|------|
+| SAPTHAGIRI PARTY SHOP – Main Branch | Full address with area & city | *Google Maps link* | +91 98765 43210 | 10 AM – 9 PM | Yes |
+
+- Every row appears in a **📍 Visit our shops** section with a small map, a **Get directions** button and a **Call** button.
+- **Map Link** (best): open Google Maps on your phone → find your shop (or drop a pin on it) → **Share** → **Copy link** → paste it here.
+  If you leave it blank, directions use the address instead.
+- Customers can choose **Home delivery** or **Pick up from** any of your shops when they order, and you'll see their choice in the order.
+- Add a row for a new branch; type **No** in *Show* to hide one.
 
 ## Step 2 — Adding product photos from your phone
 
@@ -115,5 +127,6 @@ The website is hosted free on **GitHub Pages**:
 | Hide a festival after it's over | Type **No** in **Show** in Collections |
 | Put an offer at the top of the site | Edit **Announcement** in Settings |
 | Change WhatsApp / email | Edit it in **Settings** |
+| Add or change a shop location | Edit the **Shops** tab |
 
 Changes show up on the website within about a minute (refresh the page).

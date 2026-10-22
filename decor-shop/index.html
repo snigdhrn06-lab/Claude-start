@@ -94,7 +94,7 @@
   .btn.block { width: 100%; }
   .btn:disabled { opacity: .5; cursor: not-allowed; }
 
-  section { padding: 24px 0; }
+  section { padding: 24px 0; scroll-margin-top: 64px; }
   .section-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 14px; }
   .section-head h2 { font-size: 26px; }
   .section-head p { margin: 4px 0 0; color: var(--muted); }
@@ -160,6 +160,22 @@
   .page-head p { color: var(--muted); margin: 8px 0 0; max-width: 600px; }
   .page-banner { margin-top: 16px; border-radius: var(--radius); overflow: hidden; aspect-ratio: 3 / 1; }
   .page-banner img { width: 100%; height: 100%; object-fit: cover; }
+
+  /* Shop locations */
+  .shops { display: grid; gap: 14px; }
+  @media (min-width: 700px) { .shops { grid-template-columns: repeat(2, 1fr); } }
+  .shop { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow); display: flex; flex-direction: column; }
+  .shop iframe { width: 100%; height: 190px; border: 0; display: block; background: var(--accent-soft); }
+  .shop .body { padding: 14px; display: grid; gap: 6px; flex: 1; }
+  .shop h3 { font-size: 19px; }
+  .shop p { margin: 0; color: var(--muted); font-size: 15px; }
+  .shop .actions { display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
+  .shop .actions .btn { flex: 1; padding: 10px 14px; font-size: 14px; }
+  .receive { display: grid; gap: 8px; border: 0; padding: 0; margin: 0; }
+  .receive legend { font-size: 14px; font-weight: 500; margin-bottom: 4px; padding: 0; }
+  .receive label { display: flex !important; align-items: flex-start; gap: 10px; border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; background: var(--bg); }
+  .receive input { width: auto !important; margin-top: 4px; accent-color: var(--brand); }
+  .receive small { display: block; color: var(--muted); font-weight: 400; }
 
   /* Footer */
   footer { margin-top: 40px; padding: 32px 0 100px; border-top: 1px solid var(--line); color: var(--muted); font-size: 14px; }
@@ -266,6 +282,7 @@
       announcement: "🪔 Diwali orders are open — book early!",
       deliverynote: "We will confirm availability and delivery charges on WhatsApp."
     },
+    shops: [],
     collections: [
       { name: "Diwali", emoji: "🪔", description: "Diyas, torans, lanterns and rangoli for the festival of lights." },
       { name: "Halloween", emoji: "🎃", description: "Spooky pumpkins, bats, cobwebs and party props." },
@@ -299,7 +316,7 @@
   ];
 
   // ---------- State ----------
-  var S = { settings: {}, collections: [], products: [], byId: {}, cart: [], sample: false, query: "", page: null };
+  var S = { settings: {}, shops: [], collections: [], products: [], byId: {}, cart: [], sample: false, query: "", page: null };
   var CART_KEY = "decor-cart-v1";
 
   // ---------- Helpers ----------
@@ -402,7 +419,8 @@
     return Promise.all([
       fetchTab(id, "Settings").catch(function () { return []; }),
       fetchTab(id, "Collections").catch(function () { return []; }),
-      fetchTab(id, "Products")
+      fetchTab(id, "Products"),
+      fetchTab(id, "Shops").catch(function () { return []; })
     ]).then(function (res) {
       // Google returns the first tab when a tab name is missing, so check the headers.
       var settingsRows = res[0], colRows = res[1], prodRows = res[2];
@@ -416,7 +434,10 @@
       }
       var colHead = (colRows[0] || []).map(key);
       var collections = colHead.indexOf("name") >= 0 && colHead.indexOf("price") < 0 ? toObjects(colRows) : [];
-      return { settings: settings, collections: collections, products: toObjects(prodRows) };
+      var shopHead = (res[3][0] || []).map(key);
+      var isShops = shopHead.indexOf("name") >= 0 && shopHead.indexOf("price") < 0 &&
+        shopHead.some(function (h) { return /address|map|location/.test(h); });
+      return { settings: settings, collections: collections, products: toObjects(prodRows), shops: isShops ? toObjects(res[3]) : [] };
     });
   }
 
@@ -476,6 +497,17 @@
       S.products.push(prod); S.byId[id] = prod;
     });
     S.collections = cols.filter(function (c) { return c.show; });
+
+    S.shops = (data.shops || []).map(function (r) {
+      return {
+        name: pick(r, ["name", "shop", "shopname", "branch"]),
+        address: pick(r, ["address", "location", "area"]),
+        map: pick(r, ["maplink", "map", "googlemaps", "googlemap", "locationlink", "directions"]),
+        phone: pick(r, ["phone", "phonenumber", "mobile", "contact"]),
+        timings: pick(r, ["timings", "timing", "hours", "open", "openinghours"]),
+        show: yes(pick(r, ["show", "visible"]), true)
+      };
+    }).filter(function (sh) { return sh.name && sh.show; });
   }
 
   // ---------- Cart ----------
@@ -542,7 +574,8 @@
     $("navStrip").innerHTML = '<a class="chip' + (!active ? " active" : "") + '" href="#/">All</a>' +
       S.collections.map(function (c) {
         return '<a class="chip' + (active === c ? " active" : "") + '" href="#/c/' + c.slug + '">' + esc(c.emoji) + " " + esc(c.name) + '</a>';
-      }).join("");
+      }).join("") +
+      (S.shops.length ? '<a class="chip" href="#shops">📍 ' + (S.shops.length > 1 ? "Our shops" : "Our shop") + '</a>' : "");
     var strip = $("navStrip"), a = strip.querySelector(".active");
     if (a) strip.scrollLeft = a.offsetLeft - strip.clientWidth / 2 + a.offsetWidth / 2;
   }
@@ -577,7 +610,7 @@
         '<div class="collections">' + S.collections.map(collectionCard).join("") + '</div></section>';
     }
     html += '<section><div class="section-head"><div><h2>All decorations</h2></div></div>' + searchBox() +
-      '<div id="grid">' + productsGrid(pageProducts()) + '</div></section>';
+      '<div id="grid">' + productsGrid(pageProducts()) + '</div></section>' + shopsSection();
     $("app").innerHTML = html;
   }
 
@@ -588,7 +621,30 @@
       '<h1>' + esc(c.emoji) + " " + esc(c.name) + '</h1>' +
       (c.description ? '<p>' + esc(c.description) + '</p>' : "") +
       (c.image ? '<div class="page-banner"><img src="' + esc(c.image) + '" alt="" onerror="this.parentNode.remove()"></div>' : "") +
-      '</div><section><div id="grid">' + productsGrid(pageProducts()) + '</div></section>';
+      '</div><section><div id="grid">' + productsGrid(pageProducts()) + '</div></section>' + shopsSection();
+  }
+
+  function directionsUrl(sh) {
+    if (/^https?:\/\//.test(sh.map)) return sh.map;
+    return "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(sh.name + ", " + sh.address);
+  }
+  function telUrl(n) { return "tel:" + String(n).replace(/[^\d+]/g, ""); }
+  function shopsSection() {
+    if (!S.shops.length) return "";
+    return '<section id="shops"><div class="section-head"><div><h2>📍 Visit our ' + (S.shops.length > 1 ? "shops" : "shop") + '</h2>' +
+      '<p>Come see our full range in person.</p></div></div><div class="shops">' +
+      S.shops.map(function (sh) {
+        var q = sh.address ? sh.name + ", " + sh.address : "";
+        return '<article class="shop">' +
+          (q ? '<iframe loading="lazy" title="Map of ' + esc(sh.name) + '" referrerpolicy="no-referrer-when-downgrade" src="https://maps.google.com/maps?q=' + encodeURIComponent(q) + '&z=15&output=embed"></iframe>' : "") +
+          '<div class="body"><h3>' + esc(sh.name) + '</h3>' +
+          (sh.address ? '<p>📍 ' + esc(sh.address) + '</p>' : "") +
+          (sh.timings ? '<p>🕘 ' + esc(sh.timings) + '</p>' : "") +
+          (sh.phone ? '<p>📞 ' + esc(sh.phone) + '</p>' : "") +
+          '<div class="actions"><a class="btn primary" target="_blank" rel="noopener" href="' + esc(directionsUrl(sh)) + '">Get directions</a>' +
+          (sh.phone ? '<a class="btn ghost" href="' + esc(telUrl(sh.phone)) + '">Call</a>' : "") +
+          '</div></div></article>';
+      }).join("") + '</div></section>';
   }
 
   function renderFooter() {
@@ -603,6 +659,9 @@
       bits.push('<p>📸 <a target="_blank" rel="noopener" href="' + esc(igUrl) + '">Instagram</a></p>');
     }
     if (st.address) bits.push('<p>📍 ' + esc(st.address) + '</p>');
+    S.shops.forEach(function (sh) {
+      bits.push('<p>📍 <a target="_blank" rel="noopener" href="' + esc(directionsUrl(sh)) + '">' + esc(sh.name) + '</a>' + (sh.address ? " — " + esc(sh.address) : "") + '</p>');
+    });
     $("footer").innerHTML = '<h3>' + esc(st.shopName) + '</h3>' + bits.join("") +
       '<p style="margin-top:14px">© ' + new Date().getFullYear() + " " + esc(st.shopName) + '</p>';
   }
@@ -618,11 +677,13 @@
     var h = location.hash || "#/";
     var m = h.match(/^#\/c\/([^/?]+)/);
     var c = m && S.collections.find(function (x) { return x.slug === decodeURIComponent(m[1]); });
-    var toCollections = h === "#collections" && !S.page && $("collections");
-    S.page = c || null;
-    if (c) renderCollection(c);
-    else if (!toCollections) renderHome();
-    if (h === "#collections" && $("collections")) $("collections").scrollIntoView({ behavior: toCollections ? "smooth" : "auto" });
+    var anchor = h === "#collections" || h === "#shops" ? h.slice(1) : "";
+    var stay = anchor && $(anchor);   // section already on this page: just scroll to it
+    if (!stay) {
+      S.page = c || null;
+      if (c) renderCollection(c); else renderHome();
+    }
+    if (anchor && $(anchor)) $(anchor).scrollIntoView({ behavior: stay ? "smooth" : "auto" });
     else window.scrollTo(0, 0);
   }
 
@@ -691,14 +752,41 @@
         '<h3 style="font-size:18px">Your details</h3>' +
         '<label>Name *<input name="name" required autocomplete="name" value="' + esc(draft.name) + '"></label>' +
         '<label>Phone / WhatsApp *<input name="phone" type="tel" required autocomplete="tel" inputmode="tel" value="' + esc(draft.phone) + '"></label>' +
-        '<label>Delivery address / area *<textarea name="address" required autocomplete="street-address">' + esc(draft.address) + '</textarea></label>' +
-        '<label>Needed by (date)<input name="date" type="date"></label>' +
-        '<label>Notes (theme, colours, name on banner…)<textarea name="notes"></textarea></label>' +
+        receiveOptions(draft.receive) +
+        '<label id="addrWrap"' + (draft.receive && draft.receive !== "delivery" ? ' class="hidden"' : "") + '>Delivery address / area *<textarea name="address" autocomplete="street-address">' + esc(draft.address) + '</textarea></label>' +
+        '<label>Needed by (date)<input name="date" type="date" value="' + esc(draft.date) + '"></label>' +
+        '<label>Notes (theme, colours, name on banner…)<textarea name="notes">' + esc(draft.notes) + '</textarea></label>' +
         '<div class="error hidden" id="formErr"></div>' +
         '<button class="btn primary block" type="submit" id="placeBtn">Place order</button>' +
         (S.settings.deliveryNote ? '<p class="price muted" style="text-align:center;margin:0">' + esc(S.settings.deliveryNote) + '</p>' : "") +
       '</form>', "cart");
   }
+
+  function receiveOptions(current) {
+    if (!S.shops.length) return "";
+    current = current || "delivery";
+    var opts = [{ v: "delivery", t: "Home delivery", d: "We deliver to your address" }].concat(S.shops.map(function (sh, i) {
+      return { v: "pickup-" + i, t: "Pick up from " + sh.name, d: sh.address };
+    }));
+    return '<fieldset class="receive"><legend>How would you like to get your order? *</legend>' +
+      opts.map(function (o) {
+        return '<label><input type="radio" name="receive" value="' + o.v + '"' + (o.v === current ? " checked" : "") + '><span>' + esc(o.t) +
+          (o.d ? '<small>' + esc(o.d) + '</small>' : "") + '</span></label>';
+      }).join("") + '</fieldset>';
+  }
+  function receiveText(v) {
+    var m = /^pickup-(\d+)$/.exec(v || "");
+    var sh = m && S.shops[+m[1]];
+    return sh ? "Pickup from " + sh.name + (sh.address ? " (" + sh.address + ")" : "") : "Home delivery";
+  }
+  function formValues(form) {
+    var f = {};
+    ["name", "phone", "address", "date", "notes"].forEach(function (k) { f[k] = (form.elements[k].value || "").trim(); });
+    var r = form.querySelector('input[name="receive"]:checked');
+    f.receive = r ? r.value : "delivery";
+    return f;
+  }
+  function saveDraft(f) { try { localStorage.setItem("decor-customer", JSON.stringify(f)); } catch (e) {} }
 
   function orderId() {
     var d = new Date();
@@ -712,12 +800,13 @@
       return (i + 1) + ". " + p.name + " × " + l.qty + (p.price ? " = " + money(p.price * l.qty) : " (price on request)");
     });
     var o = {
-      id: orderId(), name: f.name, phone: f.phone, address: f.address, date: f.date, notes: f.notes,
+      id: orderId(), name: f.name, phone: f.phone, date: f.date, notes: f.notes,
+      pickup: f.receive !== "delivery", how: receiveText(f.receive), address: f.receive === "delivery" ? f.address : "",
       items: items.join("\n"),
       total: money(t.total) + (t.onRequest ? " + " + t.onRequest + " item(s) price on request" : "")
     };
     o.text = "🎉 *New order " + o.id + "*\n\n" + o.items + "\n\n*Total: " + o.total + "*\n\n" +
-      "Name: " + o.name + "\nPhone: " + o.phone + "\nAddress: " + o.address +
+      "Name: " + o.name + "\nPhone: " + o.phone + (S.shops.length ? "\n" + o.how : "") + (o.address ? "\nAddress: " + o.address : "") +
       (o.date ? "\nNeeded by: " + o.date : "") + (o.notes ? "\nNotes: " + o.notes : "");
     return o;
   }
@@ -730,7 +819,8 @@
     body.append("Order ID", o.id);
     body.append("Customer name", o.name);
     body.append("Phone", o.phone);
-    body.append("Address", o.address);
+    if (S.shops.length) body.append("Delivery / pickup", o.how);
+    if (o.address) body.append("Address", o.address);
     if (o.date) body.append("Needed by", o.date);
     if (o.notes) body.append("Notes", o.notes);
     body.append("Items", o.items);
@@ -744,15 +834,14 @@
   }
 
   function submitOrder(form) {
-    var f = {};
-    ["name", "phone", "address", "date", "notes"].forEach(function (k) { f[k] = (form.elements[k].value || "").trim(); });
+    var f = formValues(form);
     var err = $("formErr");
     var missing = [];
     if (!f.name) missing.push("name");
     if (f.phone.replace(/\D/g, "").length < 10) missing.push("a valid phone number");
-    if (!f.address) missing.push("delivery address");
+    if (f.receive === "delivery" && !f.address) missing.push("delivery address");
     if (missing.length) { err.textContent = "Please add your " + missing.join(", ") + "."; err.classList.remove("hidden"); return; }
-    try { localStorage.setItem("decor-customer", JSON.stringify({ name: f.name, phone: f.phone, address: f.address })); } catch (e) {}
+    saveDraft({ name: f.name, phone: f.phone, address: f.address, receive: f.receive });
 
     var o = buildOrder(f);
     var st = S.settings;
@@ -816,6 +905,14 @@
   });
   document.addEventListener("input", function (e) {
     if (e.target.id === "q") { S.query = e.target.value; refreshCards(); }
+    var form = e.target.form;
+    if (form && form.id === "checkout") saveDraft(formValues(form));
+  });
+  document.addEventListener("change", function (e) {
+    if (e.target.name === "receive") {
+      $("addrWrap").classList.toggle("hidden", e.target.value !== "delivery");
+      saveDraft(formValues(e.target.form));
+    }
   });
   window.addEventListener("hashchange", function () { closeSheet(); route(); });
 
