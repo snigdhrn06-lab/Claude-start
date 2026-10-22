@@ -166,6 +166,14 @@
   @media (min-width: 700px) { .shops { grid-template-columns: repeat(2, 1fr); } }
   .shop { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow); display: flex; flex-direction: column; }
   .shop iframe { width: 100%; height: 190px; border: 0; display: block; background: var(--accent-soft); }
+  .shop .map-ph {
+    height: 120px; display: grid; place-items: center; text-decoration: none; color: var(--brand); font-weight: 700; gap: 2px;
+    background-color: var(--accent-soft);
+    background-image: linear-gradient(rgba(122, 31, 92, .07) 1px, transparent 1px), linear-gradient(90deg, rgba(122, 31, 92, .07) 1px, transparent 1px);
+    background-size: 22px 22px;
+  }
+  .shop .map-ph span { font-size: 38px; line-height: 1; }
+  .shop .about { color: var(--brand); font-weight: 500; }
   .shop .body { padding: 14px; display: grid; gap: 6px; flex: 1; }
   .shop h3 { font-size: 19px; }
   .shop p { margin: 0; color: var(--muted); font-size: 15px; }
@@ -274,15 +282,20 @@
     settings: {
       shopname: "SAPTHAGIRI PARTY SHOP",
       tagline: "Party & festival decorations for birthdays, baby showers, Diwali, Dussehra, Halloween, Christmas and every celebration.",
-      whatsapp: "",
-      orderemail: "",
-      phone: "",
+      whatsapp: "+91 98808 55551",
+      orderemail: "rakeshbabyls@gmail.com",
+      phone: "+91 98808 55551",
       address: "",
       instagram: "",
       announcement: "🪔 Diwali orders are open — book early!",
       deliverynote: "We will confirm availability and delivery charges on WhatsApp."
     },
-    shops: [],
+    shops: [
+      { name: "Sapthagiri Party Shop", about: "Retail · Birthday · Halloween · Christmas", maplink: "https://maps.app.goo.gl/Q5BkWGuxpkbWK8W49" },
+      { name: "Sapthagiri Party Shop – Main Outlet", about: "Our main outlet", maplink: "https://maps.app.goo.gl/3qZwUjtAYMwjRRey9" },
+      { name: "Sapthagiri Regalia", about: "Birthday decorations – main store", maplink: "https://maps.app.goo.gl/3CZ5u6ptdbV4ymMu5" },
+      { name: "Vishnu Enterprises", about: "Event decor", maplink: "https://maps.app.goo.gl/GiXUgLquWgZUhxhR6" }
+    ],
     collections: [
       { name: "Diwali", emoji: "🪔", description: "Diyas, torans, lanterns and rangoli for the festival of lights." },
       { name: "Halloween", emoji: "🎃", description: "Spooky pumpkins, bats, cobwebs and party props." },
@@ -505,6 +518,7 @@
         map: pick(r, ["maplink", "map", "googlemaps", "googlemap", "locationlink", "directions"]),
         phone: pick(r, ["phone", "phonenumber", "mobile", "contact"]),
         timings: pick(r, ["timings", "timing", "hours", "open", "openinghours"]),
+        about: pick(r, ["about", "speciality", "specialty", "description", "for", "type"]),
         show: yes(pick(r, ["show", "visible"]), true)
       };
     }).filter(function (sh) { return sh.name && sh.show; });
@@ -636,8 +650,10 @@
       S.shops.map(function (sh) {
         var q = sh.address ? sh.name + ", " + sh.address : "";
         return '<article class="shop">' +
-          (q ? '<iframe loading="lazy" title="Map of ' + esc(sh.name) + '" referrerpolicy="no-referrer-when-downgrade" src="https://maps.google.com/maps?q=' + encodeURIComponent(q) + '&z=15&output=embed"></iframe>' : "") +
+          (q ? '<iframe loading="lazy" title="Map of ' + esc(sh.name) + '" referrerpolicy="no-referrer-when-downgrade" src="https://maps.google.com/maps?q=' + encodeURIComponent(q) + '&z=15&output=embed"></iframe>'
+             : '<a class="map-ph" target="_blank" rel="noopener" href="' + esc(directionsUrl(sh)) + '"><div style="text-align:center"><span>📍</span><br>Open in Google Maps</div></a>') +
           '<div class="body"><h3>' + esc(sh.name) + '</h3>' +
+          (sh.about ? '<p class="about">' + esc(sh.about) + '</p>' : "") +
           (sh.address ? '<p>📍 ' + esc(sh.address) + '</p>' : "") +
           (sh.timings ? '<p>🕘 ' + esc(sh.timings) + '</p>' : "") +
           (sh.phone ? '<p>📞 ' + esc(sh.phone) + '</p>' : "") +
@@ -766,7 +782,7 @@
     if (!S.shops.length) return "";
     current = current || "delivery";
     var opts = [{ v: "delivery", t: "Home delivery", d: "We deliver to your address" }].concat(S.shops.map(function (sh, i) {
-      return { v: "pickup-" + i, t: "Pick up from " + sh.name, d: sh.address };
+      return { v: "pickup-" + i, t: "Pick up from " + sh.name, d: sh.address || sh.about };
     }));
     return '<fieldset class="receive"><legend>How would you like to get your order? *</legend>' +
       opts.map(function (o) {

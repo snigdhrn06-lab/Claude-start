@@ -66,11 +66,16 @@ When a customer picks items, chooses how many, and taps **Place order**:
 
 ### Tab `Shops` — your shop locations
 
-| Name | Address | Map Link | Phone | Timings | Show |
-|------|---------|----------|-------|---------|------|
-| SAPTHAGIRI PARTY SHOP – Main Branch | Full address with area & city | *Google Maps link* | +91 98765 43210 | 10 AM – 9 PM | Yes |
+| Name | About | Address | Map Link | Phone | Timings | Show |
+|------|-------|---------|----------|-------|---------|------|
+| Sapthagiri Party Shop | Retail · Birthday · Halloween · Christmas | *(optional)* | https://maps.app.goo.gl/Q5BkWGuxpkbWK8W49 | +91 98808 55551 | 10 AM – 9 PM | Yes |
+| Sapthagiri Party Shop – Main Outlet | Our main outlet | | https://maps.app.goo.gl/3qZwUjtAYMwjRRey9 | +91 98808 55551 | | Yes |
+| Sapthagiri Regalia | Birthday decorations – main store | | https://maps.app.goo.gl/3CZ5u6ptdbV4ymMu5 | +91 98808 55551 | | Yes |
+| Vishnu Enterprises | Event decor | | https://maps.app.goo.gl/GiXUgLquWgZUhxhR6 | +91 98808 55551 | | Yes |
 
-- Every row appears in a **📍 Visit our shops** section with a small map, a **Get directions** button and a **Call** button.
+- Every row appears in a **📍 Visit our shops** section with a **Get directions** button (opens Google Maps) and a **Call** button.
+- Type the shop's **Address** too and a small map of the shop appears on its card.
+- **About** is a short line saying what that shop is best for.
 - **Map Link** (best): open Google Maps on your phone → find your shop (or drop a pin on it) → **Share** → **Copy link** → paste it here.
   If you leave it blank, directions use the address instead.
 - Customers can choose **Home delivery** or **Pick up from** any of your shops when they order, and you'll see their choice in the order.
