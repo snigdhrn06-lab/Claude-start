@@ -66,13 +66,17 @@ When a customer picks items, chooses how many, and taps **Place order**:
 
 ### Tab `Shops` — your shop locations
 
-| Name | About | Address | Map Link | Phone | Timings | Show |
-|------|-------|---------|----------|-------|---------|------|
-| Sapthagiri Party Shop | Retail · Birthday · Halloween · Christmas | *(optional)* | https://maps.app.goo.gl/Q5BkWGuxpkbWK8W49 | +91 98808 55551 | 10 AM – 9 PM | Yes |
-| Sapthagiri Party Shop – Main Outlet | Our main outlet | | https://maps.app.goo.gl/3qZwUjtAYMwjRRey9 | +91 98808 55551 | | Yes |
-| Sapthagiri Regalia | Birthday decorations – main store | | https://maps.app.goo.gl/3CZ5u6ptdbV4ymMu5 | +91 98808 55551 | | Yes |
-| Vishnu Enterprises | Event decor | | https://maps.app.goo.gl/GiXUgLquWgZUhxhR6 | +91 98808 55551 | | Yes |
+| Name | About | Address | Map Link | WhatsApp | Phone | Timings | Show |
+|------|-------|---------|----------|----------|-------|---------|------|
+| Sapthagiri Party Shop | Retail · Birthday · Halloween · Christmas | *(optional)* | https://maps.app.goo.gl/Q5BkWGuxpkbWK8W49 | +91 98861 80607 | +91 98861 80607 | | Yes |
+| Sapthagiri Party Shop – Main Outlet | Our main outlet | | https://maps.app.goo.gl/3qZwUjtAYMwjRRey9 | +91 98802 02339 | +91 98802 02339 | | Yes |
+| Sapthagiri Regalia | Birthday decorations – main store | | https://maps.app.goo.gl/3CZ5u6ptdbV4ymMu5 | +91 96208 19550 | +91 96208 19550 | | Yes |
+| Vishnu Enterprises | Event decor | | https://maps.app.goo.gl/GiXUgLquWgZUhxhR6 | +91 96636 23051 | +91 96636 23051 | | Yes |
 
+- **Who gets which order on WhatsApp:** the **main WhatsApp number** (Settings tab) gets **every** order.
+  When a customer chooses **Pick up from** a shop, that shop's **WhatsApp** number(s) get the order too.
+  The customer sees one button per number ("1. Send to …", "2. Send to …"), because WhatsApp only allows one number per tap.
+  For more than one number at a shop, separate them with a comma: `+91 98861 80607, +91 90000 00000`.
 - Every row appears in a **📍 Visit our shops** section with a **Get directions** button (opens Google Maps) and a **Call** button.
 - Type the shop's **Address** too and a small map of the shop appears on its card.
 - **About** is a short line saying what that shop is best for.

@@ -233,6 +233,8 @@
   .error { color: var(--danger); font-size: 14px; }
   .success { text-align: center; padding: 10px 0; }
   .success .big { font-size: 56px; }
+  .success .wa-list { display: grid; gap: 8px; }
+  .success .wa-list .sent { background: var(--surface); color: var(--ok); border: 1px solid var(--ok); }
   .success pre { text-align: left; white-space: pre-wrap; background: var(--bg); border-radius: 12px; padding: 12px; font-size: 13px; }
 
   .loading { padding: 60px 0; text-align: center; color: var(--muted); }
@@ -291,10 +293,10 @@
       deliverynote: "We will confirm availability and delivery charges on WhatsApp."
     },
     shops: [
-      { name: "Sapthagiri Party Shop", about: "Retail · Birthday · Halloween · Christmas", maplink: "https://maps.app.goo.gl/Q5BkWGuxpkbWK8W49" },
-      { name: "Sapthagiri Party Shop – Main Outlet", about: "Our main outlet", maplink: "https://maps.app.goo.gl/3qZwUjtAYMwjRRey9" },
-      { name: "Sapthagiri Regalia", about: "Birthday decorations – main store", maplink: "https://maps.app.goo.gl/3CZ5u6ptdbV4ymMu5" },
-      { name: "Vishnu Enterprises", about: "Event decor", maplink: "https://maps.app.goo.gl/GiXUgLquWgZUhxhR6" }
+      { name: "Sapthagiri Party Shop", about: "Retail · Birthday · Halloween · Christmas", whatsapp: "+91 98861 80607", phone: "+91 98861 80607", maplink: "https://maps.app.goo.gl/Q5BkWGuxpkbWK8W49" },
+      { name: "Sapthagiri Party Shop – Main Outlet", about: "Our main outlet", whatsapp: "+91 98802 02339", phone: "+91 98802 02339", maplink: "https://maps.app.goo.gl/3qZwUjtAYMwjRRey9" },
+      { name: "Sapthagiri Regalia", about: "Birthday decorations – main store", whatsapp: "+91 96208 19550", phone: "+91 96208 19550", maplink: "https://maps.app.goo.gl/3CZ5u6ptdbV4ymMu5" },
+      { name: "Vishnu Enterprises", about: "Event decor", whatsapp: "+91 96636 23051", phone: "+91 96636 23051", maplink: "https://maps.app.goo.gl/GiXUgLquWgZUhxhR6" }
     ],
     collections: [
       { name: "Diwali", emoji: "🪔", description: "Diyas, torans, lanterns and rangoli for the festival of lights." },
@@ -519,6 +521,9 @@
         phone: pick(r, ["phone", "phonenumber", "mobile", "contact"]),
         timings: pick(r, ["timings", "timing", "hours", "open", "openinghours"]),
         about: pick(r, ["about", "speciality", "specialty", "description", "for", "type"]),
+        // Extra WhatsApp numbers that get this shop's orders (besides the main number).
+        whatsapp: String(pick(r, ["whatsapp", "whatsappnumbers", "whatsappnumber", "ordernumbers", "ordernumber", "orderwhatsapp"]))
+          .split(/[,\/;&]+|\band\b/i).map(waNumber).filter(function (n) { return n.length >= 11; }),
         show: yes(pick(r, ["show", "visible"]), true)
       };
     }).filter(function (sh) { return sh.name && sh.show; });
@@ -790,9 +795,12 @@
           (o.d ? '<small>' + esc(o.d) + '</small>' : "") + '</span></label>';
       }).join("") + '</fieldset>';
   }
-  function receiveText(v) {
+  function shopFor(v) {
     var m = /^pickup-(\d+)$/.exec(v || "");
-    var sh = m && S.shops[+m[1]];
+    return (m && S.shops[+m[1]]) || null;
+  }
+  function receiveText(v) {
+    var sh = shopFor(v);
     return sh ? "Pickup from " + sh.name + (sh.address ? " (" + sh.address + ")" : "") : "Home delivery";
   }
   function formValues(form) {
@@ -817,7 +825,7 @@
     });
     var o = {
       id: orderId(), name: f.name, phone: f.phone, date: f.date, notes: f.notes,
-      pickup: f.receive !== "delivery", how: receiveText(f.receive), address: f.receive === "delivery" ? f.address : "",
+      pickup: f.receive !== "delivery", how: receiveText(f.receive), shop: shopFor(f.receive), address: f.receive === "delivery" ? f.address : "",
       items: items.join("\n"),
       total: money(t.total) + (t.onRequest ? " + " + t.onRequest + " item(s) price on request" : "")
     };
@@ -861,30 +869,53 @@
 
     var o = buildOrder(f);
     var st = S.settings;
-    var waUrl = st.whatsapp ? "https://wa.me/" + st.whatsapp + "?text=" + encodeURIComponent(o.text) : "";
+    var wa = waTargets(o);
 
-    if (!st.email && waUrl) {
-      // No email set up: send straight to WhatsApp.
-      finishOrder(o, { emailed: false, waUrl: waUrl });
-      if (!window.open(waUrl, "_blank")) window.location.href = waUrl;
+    if (!st.email && wa.length) {
+      // No email set up: open WhatsApp for the first number straight away.
+      finishOrder(o, { emailed: false, wa: wa, sentFirst: true });
+      if (!window.open(wa[0].url, "_blank")) window.location.href = wa[0].url;
       return;
     }
-    if (!st.email) { finishOrder(o, { emailed: false, waUrl: "" }); return; }
+    if (!st.email) { finishOrder(o, { emailed: false, wa: wa }); return; }
 
     var btn = $("placeBtn"); btn.disabled = true; btn.textContent = "Sending order…";
-    sendEmail(o).then(function () { finishOrder(o, { emailed: true, waUrl: waUrl }); })
-      .catch(function () { finishOrder(o, { emailed: false, waUrl: waUrl, failed: true }); });
+    sendEmail(o).then(function () { finishOrder(o, { emailed: true, wa: wa }); })
+      .catch(function () { finishOrder(o, { emailed: false, wa: wa, failed: true }); });
   }
+
+  function waTargets(o) {
+    var list = [], seen = {};
+    function add(num, label) {
+      num = waNumber(num);
+      if (num.length < 11 || seen[num]) return;
+      seen[num] = true;
+      list.push({ label: label, num: num, url: "https://wa.me/" + num + "?text=" + encodeURIComponent(o.text) });
+    }
+    add(S.settings.whatsapp, S.settings.shopName);
+    if (o.shop) o.shop.whatsapp.forEach(function (n) { add(n, o.shop.name); });
+    return list;
+  }
+  function prettyNum(n) { return n.slice(-10, -5) + " " + n.slice(-5); }
 
   function finishOrder(o, r) {
     S.cart = []; saveCart(); refreshCards();
-    var st = S.settings, msg;
-    if (r.emailed) msg = "We've received your order and will contact you shortly to confirm.";
-    else if (r.waUrl) msg = "Tap the button below to send your order to us on WhatsApp.";
+    var st = S.settings, msg, wa = r.wa || [];
+    var many = wa.length > 1;
+    if (many) msg = (r.emailed ? "We've received your order. " : "") + "<b>Please tap each WhatsApp button below</b> so our team gets your order and can confirm it quickly.";
+    else if (r.emailed) msg = "We've received your order and will contact you shortly to confirm.";
+    else if (wa.length) msg = "Tap the button below to send your order to us on WhatsApp.";
     else msg = "Please send the order details below to us" + (st.phone ? " at " + esc(st.phone) : "") + ".";
+    var buttons = wa.map(function (t, i) {
+      var label = (many ? (i + 1) + ". Send to " : r.emailed ? "Also confirm on WhatsApp · " : "Send on WhatsApp · ") +
+        (many ? t.label + " · " : "") + prettyNum(t.num);
+      var sent = r.sentFirst && i === 0;
+      return '<a class="btn wa block' + (sent ? " sent" : "") + '" data-wa href="' + esc(t.url) + '" target="_blank" rel="noopener">' +
+        (sent ? "✓ Sent · " : "") + esc(label) + '</a>';
+    }).join("");
     openSheet('<div class="sheet-head"><h2>Thank you!</h2><button class="x" data-close aria-label="Close">×</button></div>' +
       '<div class="success"><div class="big">🎉</div><p><b>Order ' + esc(o.id) + '</b><br>' + msg + '</p>' +
-      (r.waUrl ? '<a class="btn wa block" href="' + esc(r.waUrl) + '" target="_blank" rel="noopener">' + (r.emailed ? "Also confirm on WhatsApp" : "Send order on WhatsApp") + '</a>' : "") +
+      (buttons ? '<div class="wa-list">' + buttons + '</div>' : "") +
       '<details style="margin-top:14px;text-align:left"><summary>Order details</summary><pre>' + esc(o.text.replace(/\*/g, "")) + '</pre></details>' +
       '<button class="btn ghost block" data-close style="margin-top:10px">Continue shopping</button></div>', "done");
   }
@@ -912,6 +943,10 @@
     } else if (d.close !== undefined) {
       closeSheet();
     }
+  });
+  document.addEventListener("click", function (e) {
+    var a = e.target.closest("[data-wa]");
+    if (a && !a.classList.contains("sent")) { a.classList.add("sent"); a.textContent = "✓ Sent · " + a.textContent; }
   });
   $("overlay").addEventListener("click", closeSheet);
   $("cartBtn").addEventListener("click", openCart);
