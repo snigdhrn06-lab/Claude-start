@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>SAPTHAGIRI PARTY SHOP</title>
+<title>SAPTHAGIRI ENTERPRISES</title>
 <meta name="description" content="Decorations for birthdays, baby showers, Halloween, Christmas, Diwali, Dussehra and every festival.">
 <meta name="theme-color" content="#7a1f5c">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎉</text></svg>">
@@ -231,6 +231,10 @@
   }
   form.checkout textarea { min-height: 70px; resize: vertical; }
   .error { color: var(--danger); font-size: 14px; }
+  .form-box { display: grid; gap: 10px; border: 1px solid var(--line); border-radius: 14px; padding: 14px; background: var(--surface); }
+  .form-box h4 { margin: 0; font-size: 16px; }
+  .form-box .hint { margin: -4px 0 0; color: var(--muted); font-size: 13px; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
   .success { text-align: center; padding: 10px 0; }
   .success .big { font-size: 56px; }
   .success .wa-list { display: grid; gap: 8px; }
@@ -282,7 +286,7 @@
   // ---------- Sample data (shown until a Google Sheet is connected) ----------
   var SAMPLE = {
     settings: {
-      shopname: "SAPTHAGIRI PARTY SHOP",
+      shopname: "SAPTHAGIRI ENTERPRISES",
       tagline: "Party & festival decorations for birthdays, baby showers, Diwali, Dussehra, Halloween, Christmas and every celebration.",
       whatsapp: "+91 98808 55551",
       orderemail: "rakeshbabyls@gmail.com",
@@ -774,9 +778,18 @@
         '<label>Name *<input name="name" required autocomplete="name" value="' + esc(draft.name) + '"></label>' +
         '<label>Phone / WhatsApp *<input name="phone" type="tel" required autocomplete="tel" inputmode="tel" value="' + esc(draft.phone) + '"></label>' +
         receiveOptions(draft.receive) +
-        '<label id="addrWrap"' + (draft.receive && draft.receive !== "delivery" ? ' class="hidden"' : "") + '>Delivery address / area *<textarea name="address" autocomplete="street-address">' + esc(draft.address) + '</textarea></label>' +
+        '<div class="form-box' + (draft.receive && draft.receive !== "delivery" ? " hidden" : "") + '" id="addrWrap">' +
+          '<h4>📦 Shipping address</h4><p class="hint">We\'ll ship your order directly to this address.</p>' +
+          '<label>House / flat no., building, street *<textarea name="address" autocomplete="street-address" rows="2">' + esc(draft.address) + '</textarea></label>' +
+          '<label>Area / landmark<input name="landmark" value="' + esc(draft.landmark) + '" placeholder="e.g. near Ganesha temple"></label>' +
+          '<div class="grid2"><label>City *<input name="city" autocomplete="address-level2" value="' + esc(draft.city) + '"></label>' +
+          '<label>PIN code *<input name="pincode" inputmode="numeric" maxlength="6" autocomplete="postal-code" value="' + esc(draft.pincode) + '"></label></div>' +
+          '<label>State<input name="state" autocomplete="address-level1" value="' + esc(draft.state || "Karnataka") + '"></label>' +
+        '</div>' +
         '<label>Needed by (date)<input name="date" type="date" value="' + esc(draft.date) + '"></label>' +
-        '<label>Notes (theme, colours, name on banner…)<textarea name="notes">' + esc(draft.notes) + '</textarea></label>' +
+        '<div class="form-box"><h4>📝 Special instructions</h4>' +
+          '<p class="hint">Theme & colours, name / age for the banner, preferred delivery time, gift wrapping — anything we should know.</p>' +
+          '<textarea name="notes" rows="3" aria-label="Special instructions">' + esc(draft.notes) + '</textarea></div>' +
         '<div class="error hidden" id="formErr"></div>' +
         '<button class="btn primary block" type="submit" id="placeBtn">Place order</button>' +
         (S.settings.deliveryNote ? '<p class="price muted" style="text-align:center;margin:0">' + esc(S.settings.deliveryNote) + '</p>' : "") +
@@ -786,7 +799,7 @@
   function receiveOptions(current) {
     if (!S.shops.length) return "";
     current = current || "delivery";
-    var opts = [{ v: "delivery", t: "Home delivery", d: "We deliver to your address" }].concat(S.shops.map(function (sh, i) {
+    var opts = [{ v: "delivery", t: "Ship to my address", d: "We deliver your order directly to you" }].concat(S.shops.map(function (sh, i) {
       return { v: "pickup-" + i, t: "Pick up from " + sh.name, d: sh.address || sh.about };
     }));
     return '<fieldset class="receive"><legend>How would you like to get your order? *</legend>' +
@@ -801,16 +814,23 @@
   }
   function receiveText(v) {
     var sh = shopFor(v);
-    return sh ? "Pickup from " + sh.name + (sh.address ? " (" + sh.address + ")" : "") : "Home delivery";
+    return sh ? "Pickup from " + sh.name + (sh.address ? " (" + sh.address + ")" : "") : "Ship to customer's address";
   }
   function formValues(form) {
     var f = {};
-    ["name", "phone", "address", "date", "notes"].forEach(function (k) { f[k] = (form.elements[k].value || "").trim(); });
+    ["name", "phone", "address", "landmark", "city", "pincode", "state", "date", "notes"].forEach(function (k) {
+      f[k] = (form.elements[k].value || "").trim();
+    });
     var r = form.querySelector('input[name="receive"]:checked');
     f.receive = r ? r.value : "delivery";
     return f;
   }
   function saveDraft(f) { try { localStorage.setItem("decor-customer", JSON.stringify(f)); } catch (e) {} }
+
+  function fullAddress(f) {
+    return [f.address, f.landmark && "Landmark: " + f.landmark, f.city + (f.pincode ? " - " + f.pincode : ""), f.state]
+      .filter(function (x) { return x && x.trim(); }).join(", ");
+  }
 
   function orderId() {
     var d = new Date();
@@ -825,13 +845,13 @@
     });
     var o = {
       id: orderId(), name: f.name, phone: f.phone, date: f.date, notes: f.notes,
-      pickup: f.receive !== "delivery", how: receiveText(f.receive), shop: shopFor(f.receive), address: f.receive === "delivery" ? f.address : "",
+      pickup: f.receive !== "delivery", how: receiveText(f.receive), shop: shopFor(f.receive), address: f.receive === "delivery" ? fullAddress(f) : "", pincode: f.pincode,
       items: items.join("\n"),
       total: money(t.total) + (t.onRequest ? " + " + t.onRequest + " item(s) price on request" : "")
     };
     o.text = "🎉 *New order " + o.id + "*\n\n" + o.items + "\n\n*Total: " + o.total + "*\n\n" +
-      "Name: " + o.name + "\nPhone: " + o.phone + (S.shops.length ? "\n" + o.how : "") + (o.address ? "\nAddress: " + o.address : "") +
-      (o.date ? "\nNeeded by: " + o.date : "") + (o.notes ? "\nNotes: " + o.notes : "");
+      "Name: " + o.name + "\nPhone: " + o.phone + (o.pickup ? "\n🏬 " + o.how : "") + (o.address ? "\n📦 Ship to: " + o.address : "") +
+      (o.date ? "\nNeeded by: " + o.date : "") + (o.notes ? "\n📝 Special instructions: " + o.notes : "");
     return o;
   }
 
@@ -844,9 +864,9 @@
     body.append("Customer name", o.name);
     body.append("Phone", o.phone);
     if (S.shops.length) body.append("Delivery / pickup", o.how);
-    if (o.address) body.append("Address", o.address);
+    if (o.address) body.append("Shipping address", o.address);
     if (o.date) body.append("Needed by", o.date);
-    if (o.notes) body.append("Notes", o.notes);
+    if (o.notes) body.append("Special instructions", o.notes);
     body.append("Items", o.items);
     body.append("Total", o.total);
     return fetch("https://formsubmit.co/ajax/" + encodeURIComponent(S.settings.email), {
@@ -863,9 +883,13 @@
     var missing = [];
     if (!f.name) missing.push("name");
     if (f.phone.replace(/\D/g, "").length < 10) missing.push("a valid phone number");
-    if (f.receive === "delivery" && !f.address) missing.push("delivery address");
+    if (f.receive === "delivery") {
+      if (!f.address) missing.push("house / street address");
+      if (!f.city) missing.push("city");
+      if (!/^\d{6}$/.test(f.pincode)) missing.push("a 6-digit PIN code");
+    }
     if (missing.length) { err.textContent = "Please add your " + missing.join(", ") + "."; err.classList.remove("hidden"); return; }
-    saveDraft({ name: f.name, phone: f.phone, address: f.address, receive: f.receive });
+    saveDraft({ name: f.name, phone: f.phone, address: f.address, landmark: f.landmark, city: f.city, pincode: f.pincode, state: f.state, receive: f.receive });
 
     var o = buildOrder(f);
     var st = S.settings;

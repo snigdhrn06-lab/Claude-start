@@ -1,4 +1,4 @@
-# SAPTHAGIRI PARTY SHOP Website — Setup Guide (all from your phone)
+# SAPTHAGIRI ENTERPRISES Website — Setup Guide (all from your phone)
 
 Your website reads everything (products, prices, photos, festival pages and shop details) from **one Google Sheet**.
 When you change the sheet in the **Google Sheets app**, the website updates on its own. You never touch code.
@@ -23,11 +23,11 @@ When a customer picks items, chooses how many, and taps **Place order**:
 
 | Setting       | Value |
 |---------------|-------|
-| Shop Name     | SAPTHAGIRI PARTY SHOP |
+| Shop Name     | SAPTHAGIRI ENTERPRISES |
 | Tagline       | One line about your shop |
-| WhatsApp      | **+91 98765 43210** (keep the +91 and the space) |
-| Order Email   | yourshop@gmail.com |
-| Phone         | +91 98765 43210 |
+| WhatsApp      | **+91 98808 55551** — main number, gets every order (keep the +91 and the space) |
+| Order Email   | rakeshbabyls@gmail.com |
+| Phone         | +91 98808 55551 |
 | Address       | Your shop address / city |
 | Instagram     | @yourshop |
 | Announcement  | Top banner text, e.g. *🪔 Diwali orders open!* (leave blank to hide) |
@@ -117,7 +117,7 @@ The website is hosted free on **GitHub Pages**:
 
 1. On github.com, open this repository → **Settings** → **Pages**.
 2. Under *Build and deployment → Source*, choose **GitHub Actions**.
-3. Open the **Actions** tab → **Publish decorations shop website** → **Run workflow**.
+3. Open the **Actions** tab → **Publish SAPTHAGIRI ENTERPRISES website** → **Run workflow**.
 4. After a minute your site is live at an address like
    `https://<your-github-name>.github.io/Claude-start/`. Share it on WhatsApp, Instagram and Google Maps!
 
