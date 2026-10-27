@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Owner Portal – SAPTHAGIRI ENTERPRISES</title>
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#23112e">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔑</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/admin.css">
+</head>
+<body>
+  <div id="login" class="login hidden">
+    <form class="login-card" id="loginForm">
+      <div class="login-logo">🔑</div>
+      <h1>Owner Portal</h1>
+      <p>SAPTHAGIRI ENTERPRISES</p>
+      <label>Password<input type="password" name="password" autocomplete="current-password" required autofocus></label>
+      <div class="err hidden" id="loginErr"></div>
+      <button class="btn primary block" type="submit">Log in</button>
+      <a class="link" href="/">← Back to website</a>
+    </form>
+  </div>
+
+  <div id="shell" class="hidden">
+    <header class="bar">
+      <button class="back hidden" id="backBtn" aria-label="Back">‹</button>
+      <h1 id="title">Dashboard</h1>
+      <a class="view-site" href="/" target="_blank" rel="noopener">View site ↗</a>
+    </header>
+    <main id="view" class="view"></main>
+    <nav class="tabs" id="tabs">
+      <a href="#home" data-tab="home"><span>🏠</span>Home</a>
+      <a href="#orders" data-tab="orders"><span>🧾</span>Orders<i id="newBadge" class="badge hidden"></i></a>
+      <a href="#products" data-tab="products"><span>🛍️</span>Products</a>
+      <a href="#customers" data-tab="customers"><span>👥</span>Customers</a>
+      <a href="#more" data-tab="more"><span>☰</span>More</a>
+    </nav>
+  </div>
+
+  <div id="overlay" class="overlay hidden"></div>
+  <div id="sheet" class="sheet hidden" role="dialog" aria-modal="true"></div>
+  <div id="toast" class="toast hidden" role="status"></div>
+  <input type="file" id="filePick" accept="image/*" class="hidden">
+
+  <script src="/admin.js"></script>
+</body>
+</html>
