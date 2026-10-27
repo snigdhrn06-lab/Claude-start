@@ -8,6 +8,14 @@
   - Manage orders: status (New → Confirmed → Ready → Delivered), customer address, special instructions, and a ready-made update message to the customer.
   - **Full control without coding:** add, edit or delete products, photos, prices, discounts, stock, bestsellers, occasion pages (Halloween, Christmas, Diwali…), home page banners, stores and map links, shop details, announcement bar, "Why choose us", message templates and password.
 
+### What customers see
+- **Opening moment:** a gold rangoli draws itself inside a temple-arch frame, a diya lights up under a marigold toran, and your tagline gets a soft light sweep. It never delays shopping.
+- **Celebration planner:** "What are we celebrating?" Customers pick an occasion and a budget and see instant picks from your real products.
+- **Easy shopping:** search with live suggestions (press `/` on a computer), filters (occasion, price, in stock, on offer), sorting, product pages with photo zoom, a bag that slides in, "Goes well with" suggestions, saved items (hearts) and recently viewed items.
+- **On phones:** a bottom tab bar (Home, Shop, Search, Saved, Bag) and a sticky "Add to bag" bar on product pages.
+- **Checkout:** clear steps, delivery or store pickup, address checks, and a confirmation page with the WhatsApp buttons.
+- Everything on the site comes from your portal: products, occasions, banners, stores, the offer bar and texts. Nothing is invented. Discounts appear only when you enter an original price (MRP).
+
 ---
 
 ## Part 1 — Put the website online (one time, about 15 minutes)

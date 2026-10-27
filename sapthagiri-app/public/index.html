@@ -4,55 +4,108 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>SAPTHAGIRI ENTERPRISES – Party & Festival Decorations</title>
-<meta name="description" content="Party and festival decorations, children's costumes, Christmas trees, Halloween products and festive items at the best prices. Order online for delivery or pickup.">
-<meta name="theme-color" content="#8b1e6b">
+<meta name="description" content="Party and festival decorations, children's costumes, Christmas trees, Halloween products and festive items at the best prices. Order online for home delivery or store pickup.">
+<meta name="theme-color" content="#5c1128">
+<meta property="og:type" content="website">
 <meta property="og:title" content="SAPTHAGIRI ENTERPRISES">
 <meta property="og:description" content="You bring the guests, we bring the party! Decorations for every festival and celebration.">
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎉</text></svg>">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%235c1128'/%3E%3Cpath d='M32 14c5 8 8 12 8 17a8 8 0 0 1-16 0c0-5 3-9 8-17z' fill='%23e8b04a'/%3E%3Cpath d='M14 40h36c-2 7-9 11-18 11s-16-4-18-11z' fill='%23c9853a'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,500;1,9..144,600&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/styles.css">
 </head>
 <body>
-  <div id="announce" class="announce hidden"><div class="announce-track"><span id="announceText"></span></div></div>
+  <a class="skip" href="#app">Skip to content</a>
 
-  <header class="top">
-    <div class="wrap top-row">
-      <a class="logo" href="#/" aria-label="Home">
-        <span class="logo-badge" id="logoBadge">SE</span>
-        <span class="logo-text"><b id="shopName">SAPTHAGIRI ENTERPRISES</b><small id="shopTag">Party & festival decorations</small></span>
+  <div id="promo" class="promo" hidden><div class="promo-in"><span id="promoText"></span></div></div>
+
+  <header class="hdr" id="hdr">
+    <div class="wrap hdr-in">
+      <button class="hbtn only-m" id="menuBtn" aria-label="Open menu" aria-controls="drawer"><svg class="i" aria-hidden="true"><use href="#i-menu"/></svg></button>
+      <a class="brand" href="#/" aria-label="Home">
+        <span class="brand-mark" id="brandMark" aria-hidden="true"></span>
+        <span class="brand-text"><b id="brandName">SAPTHAGIRI ENTERPRISES</b><small id="brandTag">Party & festival decorations</small></span>
       </a>
-      <div class="top-actions">
-        <button class="icon-btn" id="searchBtn" aria-label="Search">
-          <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
-        </button>
-        <button class="icon-btn" id="accountBtn" aria-label="My account">
-          <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg>
-          <i class="dot hidden" id="accountDot"></i>
-        </button>
-        <button class="cart-btn" id="cartBtn" aria-label="Open cart">
-          <svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 7h12l-1 13H7L6 7Z"/><path d="M9 7a3 3 0 0 1 6 0"/></svg>
-          <span class="count" id="cartCount">0</span>
-        </button>
+      <nav class="nav only-d" aria-label="Main">
+        <div class="nav-item" id="megaWrap">
+          <button class="nav-link" id="megaBtn" aria-expanded="false" aria-controls="mega">Shop <svg class="i i-sm" aria-hidden="true"><use href="#i-down"/></svg></button>
+          <div class="mega" id="mega" hidden></div>
+        </div>
+        <span id="navOccasions"></span>
+        <a class="nav-link" href="#shops">Stores</a>
+      </nav>
+      <button class="search-trigger only-d" id="searchBar" aria-label="Search products"><svg class="i" aria-hidden="true"><use href="#i-search"/></svg><span>Search decorations, costumes, trees…</span><kbd>/</kbd></button>
+      <div class="hdr-actions">
+        <button class="hbtn only-m" id="searchBtn" aria-label="Search"><svg class="i" aria-hidden="true"><use href="#i-search"/></svg></button>
+        <a class="hbtn only-d" href="#/saved" aria-label="Saved items"><svg class="i" aria-hidden="true"><use href="#i-heart"/></svg><i class="cnt" id="savedCount" hidden></i></a>
+        <a class="hbtn" href="#/account" id="accountBtn" aria-label="My account"><svg class="i" aria-hidden="true"><use href="#i-user"/></svg><i class="dot" id="accountDot" hidden></i></a>
+        <button class="hbtn bag" id="cartBtn" aria-label="Open bag"><svg class="i" aria-hidden="true"><use href="#i-bag"/></svg><i class="cnt" id="cartCount">0</i></button>
       </div>
     </div>
   </header>
 
-  <main id="app">
-    <div class="loading"><div class="spinner"></div><p>Getting the party ready…</p></div>
+  <main id="app" tabindex="-1">
+    <div class="boot"><span class="boot-diya" aria-hidden="true"></span><p>Lighting up the store…</p></div>
   </main>
 
-  <footer class="footer" id="footer"></footer>
+  <footer class="ftr" id="footer"></footer>
 
-  <a id="fab" class="fab hidden" target="_blank" rel="noopener" aria-label="Chat on WhatsApp">
-    <svg width="30" height="30" viewBox="0 0 24 24" fill="#fff"><path d="M17.5 14.4c-.3-.1-1.8-.9-2-1-.3-.1-.5-.1-.7.1-.2.3-.8 1-.9 1.2-.2.2-.3.2-.6.1-.3-.1-1.3-.5-2.4-1.5-.9-.8-1.5-1.8-1.7-2.1-.2-.3 0-.5.1-.6l.4-.5c.2-.2.2-.3.3-.5.1-.2 0-.4 0-.5l-.9-2.2c-.2-.6-.5-.5-.7-.5h-.6c-.2 0-.5.1-.8.4-.3.3-1 1-1 2.5s1.1 2.9 1.2 3.1c.1.2 2.1 3.2 5.1 4.5.7.3 1.3.5 1.7.6.7.2 1.4.2 1.9.1.6-.1 1.8-.7 2-1.4.2-.7.2-1.3.2-1.4-.1-.2-.3-.3-.6-.4zM12 21.8c-1.8 0-3.5-.5-5-1.4l-.4-.2-3.7 1 1-3.6-.2-.4A9.8 9.8 0 1 1 12 21.8zm8.4-18.2A11.8 11.8 0 0 0 1.8 17.9L.1 24l6.3-1.6A11.8 11.8 0 0 0 12 23.8 11.8 11.8 0 0 0 20.4 3.6z"/></svg>
-  </a>
+  <nav class="tabbar only-m" aria-label="Quick">
+    <a href="#/" data-tab="home"><svg class="i" aria-hidden="true"><use href="#i-home"/></svg>Home</a>
+    <a href="#/shop" data-tab="shop"><svg class="i" aria-hidden="true"><use href="#i-grid"/></svg>Shop</a>
+    <button data-tab="search" id="tabSearch"><svg class="i" aria-hidden="true"><use href="#i-search"/></svg>Search</button>
+    <a href="#/saved" data-tab="saved"><svg class="i" aria-hidden="true"><use href="#i-heart"/></svg>Saved<i class="cnt" id="savedCount2" hidden></i></a>
+    <button data-tab="bag" id="tabBag"><svg class="i" aria-hidden="true"><use href="#i-bag"/></svg>Bag<i class="cnt" id="cartCount2" hidden></i></button>
+  </nav>
 
-  <div id="overlay" class="overlay hidden"></div>
-  <div id="sheet" class="sheet hidden" role="dialog" aria-modal="true"></div>
-  <div id="gate" class="gate hidden"></div>
-  <div id="toast" class="toast hidden" role="status"></div>
+  <a id="waFab" class="wa-fab" target="_blank" rel="noopener" aria-label="Chat with us on WhatsApp" hidden><svg class="i" aria-hidden="true"><use href="#i-wa"/></svg></a>
+
+  <div id="scrim" class="scrim" hidden></div>
+  <aside id="drawer" class="drawer drawer-left" role="dialog" aria-modal="true" aria-label="Menu" hidden></aside>
+  <aside id="bag" class="drawer drawer-right" role="dialog" aria-modal="true" aria-label="Your bag" hidden></aside>
+  <div id="modal" class="modal" role="dialog" aria-modal="true" hidden></div>
+  <div id="search" class="search" role="dialog" aria-modal="true" aria-label="Search" hidden></div>
+  <div id="gate" class="gate" hidden></div>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <!-- Icon set -->
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <defs>
+      <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h10"/></symbol>
+      <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="m20 20-4.2-4.2"/></symbol>
+      <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8.5" r="3.8"/><path d="M4.5 20c1.4-3.8 4.3-5.6 7.5-5.6s6.1 1.8 7.5 5.6"/></symbol>
+      <symbol id="i-heart" viewBox="0 0 24 24"><path d="M12 20s-7.5-4.6-7.5-10.2A4.3 4.3 0 0 1 12 7.2a4.3 4.3 0 0 1 7.5 2.6C19.5 15.4 12 20 12 20z"/></symbol>
+      <symbol id="i-bag" viewBox="0 0 24 24"><path d="M5.5 8h13l-1 12h-11l-1-12z"/><path d="M9 8V6.8a3 3 0 0 1 6 0V8"/></symbol>
+      <symbol id="i-home" viewBox="0 0 24 24"><path d="M4 11 12 4l8 7v9h-5v-6H9v6H4z"/></symbol>
+      <symbol id="i-grid" viewBox="0 0 24 24"><rect x="4" y="4" width="6.5" height="6.5" rx="1.5"/><rect x="13.5" y="4" width="6.5" height="6.5" rx="1.5"/><rect x="4" y="13.5" width="6.5" height="6.5" rx="1.5"/><rect x="13.5" y="13.5" width="6.5" height="6.5" rx="1.5"/></symbol>
+      <symbol id="i-close" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></symbol>
+      <symbol id="i-down" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></symbol>
+      <symbol id="i-right" viewBox="0 0 24 24"><path d="m9 6 6 6-6 6"/></symbol>
+      <symbol id="i-left" viewBox="0 0 24 24"><path d="m15 6-6 6 6 6"/></symbol>
+      <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14m-5-5 5 5-5 5"/></symbol>
+      <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+      <symbol id="i-minus" viewBox="0 0 24 24"><path d="M5 12h14"/></symbol>
+      <symbol id="i-truck" viewBox="0 0 24 24"><path d="M3 6h11v10H3zM14 9.5h3.8L21 13v3h-7z"/><circle cx="7" cy="17.5" r="1.8"/><circle cx="17.5" cy="17.5" r="1.8"/></symbol>
+      <symbol id="i-store" viewBox="0 0 24 24"><path d="M4 9.5 5.5 4h13L20 9.5M4 9.5h16M4 9.5c0 1.6 1.3 2.5 2.7 2.5s2.6-.9 2.6-2.5c0 1.6 1.2 2.5 2.7 2.5s2.7-.9 2.7-2.5c0 1.6 1.2 2.5 2.6 2.5S20 11.1 20 9.5M5.5 12v8h13v-8M10 20v-4.5h4V20"/></symbol>
+      <symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 21s-6.5-6-6.5-11a6.5 6.5 0 0 1 13 0c0 5-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.4"/></symbol>
+      <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M12 7.5V12l3 2"/></symbol>
+      <symbol id="i-phone" viewBox="0 0 24 24"><path d="M6.6 3.8 9.4 4l1.2 4-2 1.4a12 12 0 0 0 6 6l1.4-2 4 1.2.2 2.8c0 1-1 1.8-2 1.8C10.9 19.2 4.8 13.1 4.8 5.8c0-1 .8-2 1.8-2z"/></symbol>
+      <symbol id="i-wa" viewBox="0 0 24 24"><path d="M4.5 19.5 5.6 16A7.8 7.8 0 1 1 8.4 18.6z"/><path d="M9.3 8.8c.2-.5.5-.6.8-.6h.5c.2 0 .4.1.5.4l.7 1.6c.1.3 0 .5-.1.7l-.5.6c-.1.1-.2.3 0 .5.4.8 1.2 1.6 2.1 2.1.2.1.4.1.5 0l.6-.6c.2-.2.4-.2.7-.1l1.5.7c.3.1.4.3.4.5 0 .9-.7 1.7-1.6 1.8-2.6.3-6-3-6.2-5.4 0-.8.1-1.4.4-1.8z" fill="currentColor" stroke="none"/></symbol>
+      <symbol id="i-share" viewBox="0 0 24 24"><circle cx="17.5" cy="5.5" r="2.3"/><circle cx="6.5" cy="12" r="2.3"/><circle cx="17.5" cy="18.5" r="2.3"/><path d="m8.5 10.8 7-4.1M8.5 13.2l7 4.1"/></symbol>
+      <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.5"/></symbol>
+      <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3.5 19 6v5.5c0 4.3-3 7.6-7 9-4-1.4-7-4.7-7-9V6z"/><path d="m8.8 12 2.2 2.2 4.4-4.4"/></symbol>
+      <symbol id="i-gift" viewBox="0 0 24 24"><rect x="4" y="9" width="16" height="4" rx="1"/><path d="M5.5 13v7h13v-7M12 9v11M12 9c-1.5-3.5-5-3.8-5-1.5S10 9 12 9zm0 0c1.5-3.5 5-3.8 5-1.5S14 9 12 9z"/></symbol>
+      <symbol id="i-tag" viewBox="0 0 24 24"><path d="M3.5 12.2V4.5h7.7l9.3 9.3-7.7 7.7z"/><circle cx="8" cy="9" r="1.4"/></symbol>
+      <symbol id="i-sparkle" viewBox="0 0 24 24"><path d="M12 3.5c.8 4.4 2.1 5.7 6.5 6.5-4.4.8-5.7 2.1-6.5 6.5-.8-4.4-2.1-5.7-6.5-6.5 4.4-.8 5.7-2.1 6.5-6.5zM18.5 15.5c.3 1.7.8 2.2 2.5 2.5-1.7.3-2.2.8-2.5 2.5-.3-1.7-.8-2.2-2.5-2.5 1.7-.3 2.2-.8 2.5-2.5z"/></symbol>
+      <symbol id="i-filter" viewBox="0 0 24 24"><path d="M4 6.5h16M7 12h10M10 17.5h4"/></symbol>
+      <symbol id="i-trash" viewBox="0 0 24 24"><path d="M5 7h14M10 7V5h4v2M7 7l1 13h8l1-13"/></symbol>
+      <symbol id="i-history" viewBox="0 0 24 24"><path d="M4.5 12a7.5 7.5 0 1 0 2.2-5.3L4.5 9"/><path d="M4.5 4.5V9H9M12 8v4l2.8 1.8"/></symbol>
+      <symbol id="i-mail" viewBox="0 0 24 24"><rect x="3.5" y="5.5" width="17" height="13" rx="2"/><path d="m4 7 8 6 8-6"/></symbol>
+      <symbol id="i-insta" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="4.5"/><circle cx="12" cy="12" r="3.6"/><circle cx="17" cy="7" r=".6" fill="currentColor"/></symbol>
+      <symbol id="i-zoom" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="m20 20-4.2-4.2M11 8.5v5M8.5 11h5"/></symbol>
+    </defs>
+  </svg>
 
   <script src="/app.js"></script>
 </body>
