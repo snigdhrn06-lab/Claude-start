@@ -4,8 +4,12 @@ const crypto = require("crypto");
 
 // Neon gives two URLs: DATABASE_URL (pooled, "-pooler" host) for app traffic and
 // DATABASE_URL_UNPOOLED (direct) for schema changes. Other Postgres hosts only need DATABASE_URL.
+// Accept values pasted with stray spaces, quotes, or Neon's "psql '…'" snippet wrapper.
+function cleanUrl(raw) {
+  return String(raw || "").trim().replace(/^psql\s+/, "").replace(/^['"]|['"]$/g, "").trim();
+}
 function connConfig(raw) {
-  const url = new URL(raw);
+  const url = new URL(cleanUrl(raw));
   const local = ["localhost", "127.0.0.1", ""].includes(url.hostname) || process.env.PGSSL === "off";
   // pg ignores the ssl option when sslmode is in the URL, so handle SSL here instead.
   url.searchParams.delete("sslmode");
@@ -18,17 +22,37 @@ if (!process.env.DATABASE_URL) {
   process.exit(1);
 }
 
-const pool = new Pool({ ...connConfig(process.env.DATABASE_URL), max: 5, idleTimeoutMillis: 30000 });
+let poolConfig;
+try { poolConfig = connConfig(process.env.DATABASE_URL); } catch (e) {
+  console.error("\n  DATABASE_URL is not a valid postgresql:// connection string. Copy it again from Neon → Connect.\n");
+  process.exit(1);
+}
+const pool = new Pool({ ...poolConfig, max: 5, idleTimeoutMillis: 30000 });
 // Neon suspends idle computes and closes their connections; drop those clients instead of crashing.
 pool.on("error", (err) => console.warn("Database connection closed:", err.message));
 const q = (text, params) => pool.query(text, params);
 
+// Say which variable failed and why, without printing the password.
+function explain(err, varName) {
+  let where = "";
+  try { const u = new URL(cleanUrl(process.env[varName])); where = ` (user "${decodeURIComponent(u.username)}" at ${u.hostname})`; } catch (e) {}
+  const hint = err.code === "28P01" ? "The password in this variable is wrong or was reset. Copy a fresh connection string from Neon → Connect and paste it again."
+    : err.code === "ENOTFOUND" ? "The host name in this variable is wrong."
+    : err.code === "ERR_INVALID_URL" ? "This value is not a valid postgresql:// connection string." : "";
+  const out = new Error(`${varName}${where}: ${err.message}${hint ? "\n  → " + hint : ""}`);
+  out.code = err.code;
+  return out;
+}
+
 async function applySchema() {
   const direct = process.env.DATABASE_URL_UNPOOLED;
-  if (!direct || direct === process.env.DATABASE_URL) return q(SCHEMA);
-  const client = new Client(connConfig(direct));
-  await client.connect();
+  if (!direct || cleanUrl(direct) === cleanUrl(process.env.DATABASE_URL)) {
+    try { return await q(SCHEMA); } catch (e) { throw explain(e, "DATABASE_URL"); }
+  }
+  let client;
+  try { client = new Client(connConfig(direct)); await client.connect(); } catch (e) { throw explain(e, "DATABASE_URL_UNPOOLED"); }
   try { await client.query(SCHEMA); } finally { await client.end(); }
+  try { await q("select 1"); } catch (e) { throw explain(e, "DATABASE_URL"); } // prove the pooled URL works too
 }
 
 const SCHEMA = `
