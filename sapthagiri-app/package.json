@@ -5,12 +5,16 @@
   "description": "SAPTHAGIRI ENTERPRISES – party & festival decorations shop with owner admin portal",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js"
+    "start": "node server.js",
+    "dev": "node --env-file-if-exists=.env.local --env-file-if-exists=.env server.js",
+    "build": "node --check server.js && node --check db.js && node --check public/app.js && node --check public/admin.js"
   },
   "engines": {
     "node": ">=18"
   },
   "dependencies": {
+    "@neon/config": "^1.9.5",
+    "@neon/env": "^1.6.6",
     "express": "^4.21.2",
     "pg": "^8.13.1"
   }

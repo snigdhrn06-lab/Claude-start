@@ -24,15 +24,24 @@ You need two free accounts:
 - **Neon**, which stores your products, customers and orders. Its free plan doesn't expire.
 - **Render**, which runs the website.
 
-### Step 1: Create the database on Neon
-1. Go to **https://neon.tech** and tap **Sign up**, then choose **Continue with Google**.
-2. Create a project:
-   - Name: `sapthagiri`
-   - Region: **AWS Asia Pacific (Singapore)**, the closest to India
-   - Tap **Create project**.
-3. On the project dashboard, tap **Connect**. Copy the **connection string**. It looks like this:
-   `postgresql://neondb_owner:xxxx@ep-xxxx.ap-southeast-1.aws.neon.tech/neondb?sslmode=require`
-   Keep it safe, because it is the key to your data.
+### Step 1: Get your database connection strings from Neon
+Your Neon project is already linked in this folder (`neon.ts`, project `summer-dream-37808375`, branch `production`).
+
+**Option A — Neon website (easiest on a phone)**
+1. Sign in at **https://console.neon.tech** and open the project **summer-dream-37808375**, branch **production**.
+2. Tap **Connect**. Copy two connection strings:
+   - With **Connection pooling ON** → this is `DATABASE_URL` (the host contains `-pooler`).
+   - With **Connection pooling OFF** → this is `DATABASE_URL_UNPOOLED` (no `-pooler`).
+   They look like `postgresql://neondb_owner:xxxx@ep-xxxx-pooler.ap-southeast-1.aws.neon.tech/neondb?sslmode=require`.
+   Keep them secret — they are the keys to your data.
+
+**Option B — Neon CLI (on a computer)**, in the `sapthagiri-app` folder:
+```bash
+npm i -g neon@latest
+neon login          # finish the sign-in in your browser
+neon deploy         # provisions what neon.ts declares and writes DATABASE_URL + DATABASE_URL_UNPOOLED into .env.local
+npm run dev         # runs the site locally against Neon, reading .env.local
+```
 
 ### Step 2: Create the website on Render
 1. Go to **https://render.com** and tap **Get Started**, then choose **Continue with GitHub**. Allow Render to see the repository **Claude-start**.
@@ -46,16 +55,17 @@ You need two free accounts:
    | Branch | `claude/exciting-knuth-72ejsn` |
    | **Root Directory** | `sapthagiri-app` |
    | Runtime / Language | **Node** |
-   | Build Command | `npm install` |
+   | Build Command | `npm install && npm run build` |
    | Start Command | `npm start` |
    | Instance Type | **Free** |
 
-4. Under **Environment Variables**, tap **Add Environment Variable** three times and add:
+4. Under **Environment Variables**, tap **Add Environment Variable** and add these four:
 
    | Key | Value |
    |---|---|
-   | `DATABASE_URL` | the Neon connection string from Step 1 |
-   | `ADMIN_PASSWORD` | a password of your choice for the owner portal |
+   | `DATABASE_URL` | the **pooled** Neon string from Step 1 (used for all website traffic) |
+   | `DATABASE_URL_UNPOOLED` | the **direct** Neon string from Step 1 (used only to set up the tables) |
+   | `ADMIN_PASSWORD` | your owner portal password |
    | `NODE_VERSION` | `22` |
 
 5. Tap **Deploy Web Service**. Wait 2–4 minutes until it says **Live**.
@@ -115,4 +125,5 @@ Customers log in with **name + mobile number + email**. There is no OTP, because
 - Node.js 18+ (Express) and PostgreSQL (`pg`). No build step.
 - `DATABASE_URL` (required), `ADMIN_PASSWORD` (required until a password is set in the portal), `SESSION_SECRET` (optional; one is generated and stored in the database), `PGSSL=off` for a local database without SSL.
 - Tables are created and sample data added automatically on first start (`db.js`).
-- Run locally: `npm install && DATABASE_URL=postgres://… ADMIN_PASSWORD=… npm start`, then open http://localhost:3000.
+- `DATABASE_URL_UNPOOLED` (optional): Neon's direct URL, used for the schema setup at start-up; app queries use the pooled `DATABASE_URL`.
+- Run locally: `npm install`, put the variables in `.env.local` (or run `neon deploy` to write them), then `npm run dev` and open http://localhost:3000. `npm run build` syntax-checks the server and browser code.

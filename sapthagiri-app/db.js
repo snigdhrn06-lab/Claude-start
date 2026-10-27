@@ -1,23 +1,35 @@
 // Database: tables, first-run sample data, and small query helpers.
-const { Pool } = require("pg");
+const { Pool, Client } = require("pg");
 const crypto = require("crypto");
 
-function poolConfig() {
-  const raw = process.env.DATABASE_URL;
-  if (!raw) {
-    console.error("\n  DATABASE_URL is not set. Add your database connection string as an environment variable.\n");
-    process.exit(1);
-  }
+// Neon gives two URLs: DATABASE_URL (pooled, "-pooler" host) for app traffic and
+// DATABASE_URL_UNPOOLED (direct) for schema changes. Other Postgres hosts only need DATABASE_URL.
+function connConfig(raw) {
   const url = new URL(raw);
   const local = ["localhost", "127.0.0.1", ""].includes(url.hostname) || process.env.PGSSL === "off";
   // pg ignores the ssl option when sslmode is in the URL, so handle SSL here instead.
   url.searchParams.delete("sslmode");
   url.searchParams.delete("channel_binding");
-  return { connectionString: url.toString(), ssl: local ? false : { rejectUnauthorized: false }, max: 5 };
+  const neon = /\.neon\.tech$/.test(url.hostname); // Neon has publicly trusted certificates, so verify them
+  return { connectionString: url.toString(), ssl: local ? false : neon ? true : { rejectUnauthorized: false } };
+}
+if (!process.env.DATABASE_URL) {
+  console.error("\n  DATABASE_URL is not set. Add your database connection string as an environment variable.\n");
+  process.exit(1);
 }
 
-const pool = new Pool(poolConfig());
+const pool = new Pool({ ...connConfig(process.env.DATABASE_URL), max: 5, idleTimeoutMillis: 30000 });
+// Neon suspends idle computes and closes their connections; drop those clients instead of crashing.
+pool.on("error", (err) => console.warn("Database connection closed:", err.message));
 const q = (text, params) => pool.query(text, params);
+
+async function applySchema() {
+  const direct = process.env.DATABASE_URL_UNPOOLED;
+  if (!direct || direct === process.env.DATABASE_URL) return q(SCHEMA);
+  const client = new Client(connConfig(direct));
+  await client.connect();
+  try { await client.query(SCHEMA); } finally { await client.end(); }
+}
 
 const SCHEMA = `
 create table if not exists settings (key text primary key, value text not null default '');
@@ -148,7 +160,7 @@ const CATALOGUE_ITEMS = [
 ];
 
 async function init() {
-  await q(SCHEMA);
+  await applySchema();
   // Settings: add any missing keys (also covers new keys added in later versions).
   for (const [k, v] of Object.entries(DEFAULT_SETTINGS)) {
     await q("insert into settings (key, value) values ($1, $2) on conflict (key) do nothing", [k, v]);
