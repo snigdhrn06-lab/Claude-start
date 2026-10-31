@@ -1,0 +1,62 @@
+# ASSUMPTION: INR prices for Bread Basket items. These are NOT from the dataset (which has no prices).
+# They are a declared, plausible Bengaluru cafe-bakery price list. Basket amount = sum of item prices.
+# Rows with Item == "NONE" (unrecorded item) and "Adjustment" are priced at 0 and dropped;
+# transactions left with a 0 total are dropped (counts are written to the ingest report).
+currency: INR
+default_price: 100
+prices:
+  Coffee: 120
+  Bread: 60
+  Tea: 40
+  Cake: 90
+  Pastry: 80
+  Sandwich: 150
+  Medialuna: 70
+  Hot chocolate: 140
+  Cookies: 50
+  Brownie: 90
+  Farm House: 180
+  Muffin: 80
+  Juice: 90
+  Alfajores: 70
+  Soup: 140
+  Scone: 70
+  Toast: 60
+  Scandinavian: 90
+  Truffles: 60
+  Coke: 50
+  Spanish Brunch: 280
+  Fudge: 60
+  Baguette: 90
+  Jam: 150
+  Tiffin: 160
+  Mineral water: 30
+  Jammie Dodgers: 40
+  Chicken Stew: 220
+  Hearty & Seasonal: 200
+  Salad: 180
+  Frittata: 190
+  Smoothies: 160
+  Keeping It Local: 250
+  The Nomad: 260
+  Focaccia: 120
+  Vegan mincepie: 90
+  Bakewell: 90
+  Tartine: 150
+  Afternoon with the baker: 300
+  Eggs: 80
+  Granola: 220
+  Crisps: 40
+  Chicken sand: 170
+  Bacon: 120
+  Empanadas: 110
+  Crepes: 130
+  Victorian Sponge: 120
+  Chocolates: 150
+  Lemon and coconut: 80
+  Kids biscuit: 30
+  Gift voucher: 500
+  Tshirt: 600
+  Postcard: 30
+  NONE: 0
+  Adjustment: 0

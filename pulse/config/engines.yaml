@@ -1,0 +1,105 @@
+# Engine parameters. All are design parameters, tuned on TRAINING merchants only.
+calendar:
+  # Live-match moments, as offsets in minutes from scheduled start (documented design parameters).
+  formats:
+    T20:
+      duration_min: 225          # toss (-30) to end (~3 h 45 m)
+      moments:                   # [from, to] minutes after start
+        toss: [-30, 0]
+        innings_break: [95, 120]
+        final_overs: [190, 225]
+    ODI:
+      duration_min: 480
+      moments:
+        toss: [-30, 0]
+        innings_break: [215, 255]
+        final_overs: [430, 480]
+    Test:
+      days: 5                    # scored on each scheduled day (actual result days: to verify)
+      duration_min: 420
+      moments:
+        toss: [-30, 0]           # day 1 only
+        lunch: [120, 160]
+        final_hour: [360, 420]
+drift:
+  anchor_days: 30                # frozen anchor = first 30 eligible days (or declared profile while < 30 days old)
+  rolling_days: 30
+  rolling_lag_days: 7
+  shrink_24h: 10                 # pseudo-count pulling small windows toward the baseline (smoothing)
+  shrink_7d: 20
+  amount_bins: [1.0, 5.6, 22]    # log10(INR) from, to, number of bins
+  round_modulus: 100             # "divisible by 100 or 500" (every multiple of 500 is a multiple of 100)
+  cusum: {k: 0.5, h: 5.0}
+  # Each component scores (x - floor) / (ref - floor), clipped to [0, 1]. The floor is the sampling-noise
+  # level seen on honest training merchants; for CUSUM it is the alarm level h.
+  floors:
+    js_24h: 0.08
+    js_7d: 0.10
+    js_declared: 0.12
+    wasserstein: 0.12
+    round_excess: 0.08
+    cusum: 5.0
+  refs:                          # component value that counts as "full" drift (=1)
+    js_24h: 0.30
+    js_7d: 0.25
+    js_declared: 0.35
+    wasserstein: 0.60
+    round_excess: 0.35
+    cusum: 15.0
+  weights:                       # noisy-OR weights
+    js_24h: 0.7
+    js_7d: 0.6
+    js_declared: 0.6
+    wasserstein: 0.6
+    round_excess: 0.6
+    cusum: 0.4
+  fire_threshold: 0.5           # on the cohort-adjusted drift score
+peers:
+  min_cluster_size: 5
+  min_group: 8                   # below this, fall back to category x size band
+  size_bands: 3
+  z_threshold: 3.0
+  persist_k: 3
+  persist_n: 6
+  mad_floor: 0.08
+invariants:
+  window_hours: 168
+  loop:
+    min_payouts: 5
+    loop_ratio: 0.5
+    unmatched_share: 0.5
+    payout_ratio_min: 0.15       # payouts / pay-ins (INR) in the window
+  match_clock:
+    window_hours: 336            # trailing 14 days
+    n_placebo: 1000
+    placebo_min_beta: 0.5        # placebo test run only where real beta >= 0.5 (else p reported as 1)
+    min_shift_hours: 168
+    beta_threshold: 1.0
+    p_threshold: 0.05
+    distant_new_excess: 0.15     # sports bars have beta > 0 but local payers: require new distant payers too
+  new_payer_days: 7
+  burst_minutes: 10
+graph:
+  window_hours: 720              # trailing 30 days of payers
+  p_threshold: 1.0e-6            # Bonferroni-adjusted hypergeometric tail
+  min_shared: 3
+  hard_link_fires: true
+fusion:
+  scorecard:                     # Stage A expert weights (log-odds), no labels needed
+    intercept: -6.0
+    drift: 2.5
+    peers: 1.5
+    invariants: 3.0
+    graph: 3.5
+    two_engines_bonus: 1.5
+  lightgbm:
+    n_estimators: 300
+    learning_rate: 0.05
+    num_leaves: 15
+    min_child_samples: 40
+    subsample: 0.8
+    subsample_freq: 1
+    colsample_bytree: 0.8
+    reg_lambda: 1.0
+  time_split_day: 125            # time-aware validation inside training: train < day, validate >= day
+  calibration_share: 0.3         # share of training merchants held out for isotonic calibration

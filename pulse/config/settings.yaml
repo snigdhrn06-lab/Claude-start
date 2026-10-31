@@ -1,0 +1,33 @@
+# Global settings. Everything here is a design parameter unless marked otherwise.
+seed: 42                       # one global seed; every random draw derives from it
+window:
+  start: "2025-05-25"          # Sunday. Bread Basket starts Sun 2016-10-30; shift = 447 weeks (day-of-week preserved)
+  days: 162                    # exactly the span of the real Bread Basket data (no padding)
+  baseline_days: 60            # first 60 days = baseline period (no scenario injections before day 60)
+region:
+  payer_pool: 50000
+  cities:                      # synthetic region; city names used only as labels for tiers
+    - {name: Bengaluru, tier: 1, share: 0.60, wards: 12}
+    - {name: Mysuru,    tier: 2, share: 0.25, wards: 5}
+    - {name: Hubballi,  tier: 3, share: 0.15, wards: 3}
+  bettor_share: 0.12           # share of the regional pool that bets at all (design parameter)
+  syndicates:                  # bettor pools of betting syndicates (design parameter)
+    A: 2600
+    B: 3000
+    C: 1600
+    D: 1600
+hero:
+  name: "Sunrise Bakery"
+  city: Bengaluru
+  ward: 3
+  local_payers: 400            # regular-customer base for the real data
+  zipf_exponent: 1.0           # repeat-visit skew among regulars
+  walk_in_share: 0.08          # share of baskets paid by a payer from elsewhere in the city
+  takeover_day_index: 112      # 2025-09-14, India v Pakistan, Asia Cup (S3)
+split:
+  test_share: 0.30
+paths:
+  raw: data/raw
+  events: data/events
+  processed: data/processed
+  artifacts: artifacts

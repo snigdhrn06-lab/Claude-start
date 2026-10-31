@@ -1,0 +1,101 @@
+[
+ {
+  "actual": "Max level L0 over 162 days",
+  "expected": "No action above L0",
+  "explanation": "Real bakery data stays inside its own pattern of life.",
+  "id": "S0",
+  "label": "Hero bakery, normal months (real data)",
+  "merchant": "HERO_TWIN",
+  "pass": true,
+  "report_only": false,
+  "truth": "honest"
+ },
+ {
+  "actual": "Max level L0; reserve held Rs 0 (Rs 0 even if L3 were forced over Diwali)",
+  "expected": "No L2+; delta reserve holds Rs 0",
+  "explanation": "The whole sweet-shop cohort lifts on Diwali, so the peer gap stays small and Tolerated rises with the cohort.",
+  "id": "S1",
+  "label": "Diwali: every bakery and sweet shop x4-5",
+  "merchant": "S1_SWEETS",
+  "pass": true,
+  "report_only": false,
+  "truth": "honest"
+ },
+ {
+  "actual": "Max level L1",
+  "expected": "At most L0/L1 (watch only)",
+  "explanation": "Match nights lift every sports bar; payers are local and nobody is paid back, so the match clock alone cannot escalate.",
+  "id": "S2",
+  "label": "Sports bar busy on every match night",
+  "merchant": "S2_SPORTSBAR",
+  "pass": true,
+  "report_only": false,
+  "truth": "honest"
+ },
+ {
+  "actual": "Flagged L2+ 0 h after the first bet; auto level L3; Rs 3,205,493 held",
+  "expected": "Flag within hours of T (<= 1 match day); L3 delta reserve; evidence pack",
+  "explanation": "Timing, round stakes, new distant payers and the shared-bettor graph agree within the first match night.",
+  "id": "S3",
+  "label": "Hero bakery taken over on day T",
+  "merchant": "HERO",
+  "pass": true,
+  "report_only": false,
+  "truth": "front"
+ },
+ {
+  "actual": "Flagged at week 6 when betting share on match days was 18% (limit 20%)",
+  "expected": "Flag before the betting share passes 20% (design parameter)",
+  "explanation": "The frozen anchor keeps the original bakery as the reference, so the slow ramp cannot teach the model that betting is normal.",
+  "id": "S4",
+  "label": "Slow ramp: betting share +3 points a week",
+  "merchant": "S4",
+  "pass": true,
+  "report_only": false,
+  "truth": "front"
+ },
+ {
+  "actual": "Graph fires on day one: yes; flagged L2+ 2 h after its first payment",
+  "expected": "Flag on day one via the graph engine",
+  "explanation": "12 of its first 20 payers are bettors of a front banned two days earlier, and it shares that front's device ID.",
+  "id": "S5",
+  "label": "Brand-new 'IT services' shell",
+  "merchant": "S5",
+  "pass": true,
+  "report_only": false,
+  "truth": "front"
+ },
+ {
+  "actual": "Flagged L2+ 0 h after the first bet",
+  "expected": "Still flagged (timing, loop, graph)",
+  "explanation": "Removing round amounts removes one drift signal; timing, the refund loop and the graph remain.",
+  "id": "E1",
+  "label": "Evasion: S3 without round amounts",
+  "merchant": "E1",
+  "pass": true,
+  "report_only": true,
+  "truth": "front"
+ },
+ {
+  "actual": "10 of 10 ring fronts flagged L2+ (median 400 h after their first bet); 10 linked to a banned front through shared bettors",
+  "expected": "Linked through shared bettors",
+  "explanation": "Each ring member is small, so volume engines stay quiet; shared bettors with the banned front link them once that front is banned.",
+  "id": "E2",
+  "label": "Evasion: betting split across 10 small fronts",
+  "merchant": "E2_01",
+  "pass": true,
+  "report_only": true,
+  "truth": "front"
+ },
+ {
+  "actual": "Flagged L2+ 1 h after the first bet",
+  "expected": "Weaker signal; still flagged by timing + graph, or marked 'would need consented bank data'",
+  "explanation": "With no refunds on PayU the loop engine is blind; timing, new distant payers and the graph carry the case. Seeing the off-platform payouts would need consented bank data (Earned Trust tier 2).",
+  "id": "E3",
+  "label": "Evasion: winners paid off-platform",
+  "merchant": "E3",
+  "pass": true,
+  "report_only": true,
+  "truth": "front"
+ }
+]

@@ -1,0 +1,14 @@
+# Python 3.11
+pandas==2.2.3
+numpy==1.26.4
+scipy==1.13.1
+scikit-learn==1.5.2
+lightgbm==4.5.0
+shap==0.46.0
+networkx==3.3
+pyyaml==6.0.2
+pyarrow==17.0.0
+streamlit==1.39.0
+plotly==5.24.1
+pytest==8.3.3
+playwright==1.47.0

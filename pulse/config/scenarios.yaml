@@ -1,0 +1,165 @@
+# Scenarios with a known right answer. Betting behaviour is SYNTHETIC; each injection rule cites the
+# public finding that motivates it (source references as supplied in the team brief; verify before publishing).
+sources:
+  ed_1xbet:
+    text: "ED (Nov 2025), 1xBet probe: 6,000+ mule accounts; merchants' declared business did not match their transactions."
+  ed_parimatch:
+    text: "ED and press reporting on Parimatch: payouts to winners disguised as refunds or vendor payments."
+  dggi_shells:
+    text: "DGGI (Jul 2026): ~Rs 70,000 crore routed through ~750 shell 'merchants' posing as IT and travel firms."
+  ipaisa:
+    text: "iPaisa network (Oct 2026): 200+ shells onboarded as merchants."
+  cuts:
+    text: "CUTS International: offshore betting use among surveyed Delhi NCR players rose from 68.3% to 82.0% after the 2025 ban."
+
+# Betting behaviour shared by all fronts (design parameters)
+betting:
+  stakes_round: [200, 500, 1000, 2000, 5000]
+  stakes_round_p: [0.10, 0.35, 0.35, 0.15, 0.05]
+  stake_nonround_median: 900
+  moment_weights: {toss: 0.30, innings_break: 0.25, final_overs: 0.25, in_play: 0.20}
+  bets_per_session: [1, 2, 3]
+  bets_per_session_p: [0.5, 0.3, 0.2]
+  session_gap_minutes: [1, 8]
+  win_prob: 0.45
+  odds: [1.7, 2.1]
+  payout_delay_minutes: [15, 150]   # after match end
+  local_bettor_share: 0.10          # bettors are mostly from across the region
+
+banned_seed_fronts:                 # known fronts from earlier investigations (graph seed list)
+  - {id: BF1, name: "Skyline Tours & Travels", category: it_services, syndicate: A, start_day: 0,  ban_day: 96,  bets_per_match: 110, bettors: 1800, sources: [dggi_shells, ed_1xbet]}
+  - {id: BF2, name: "QuickServ IT Solutions",  category: it_services, syndicate: B, start_day: 0,  ban_day: 140, bets_per_match: 280, bettors: 2800, sources: [dggi_shells, ipaisa]}
+  - {id: BF3, name: "Annapoorna Kirana",       category: kirana,      syndicate: C, start_day: 65, ban_day: 121, bets_per_match: 80,  bettors: 900,  sources: [ed_1xbet]}
+
+scenarios:
+  S0:
+    label: "Hero bakery, normal months (real data)"
+    truth: honest
+    merchant: hero_twin
+    rule: "No injection. The real Bread Basket stream for all 162 days, with simulated payer IDs."
+    sources: []
+    expected: {max_level: 0}
+    expected_text: "No action above L0"
+  S1:
+    label: "Diwali: every bakery and sweet shop x4-5"
+    truth: honest
+    merchant: {category: sweet_shop, designated: true}
+    rule: "Festival multipliers from data/events/festivals.csv apply to all bakeries and sweet shops; Diwali evening x4.5. Gift-box purchases add round amounts and city-wide walk-ins."
+    sources: []
+    expected: {max_level_lt: 2, reserve_inr: 0}
+    expected_text: "No L2+; delta reserve holds Rs 0"
+  S2:
+    label: "Sports bar busy on every match night"
+    truth: honest
+    merchant: {category: sports_bar, designated: true}
+    rule: "Match-window demand x2.6 with local payers; no payouts."
+    sources: []
+    expected: {max_level_le: 1}
+    expected_text: "At most L0/L1 (watch only)"
+  S3:
+    label: "Hero bakery taken over on day T"
+    truth: front
+    merchant: hero
+    rule: "From T (2025-09-14, India v Pakistan), betting on every fixture: ~70% of the day's payments inside match windows; round stakes Rs 500/1,000/2,000; bettors from across the region (syndicate A) who repeat within minutes; winners paid back as 'refunds' to earlier payers."
+    takeover_day: 112
+    bets_per_match: 150
+    syndicate: A
+    bettors: 1500
+    round: true
+    payouts: refund
+    sources: [ed_1xbet, ed_parimatch, cuts]
+    expected: {detect_hours_le: 24, min_auto_level: 3, reserve_gt: 0}
+    expected_text: "Flag within hours of T (<= 1 match day); L3 delta reserve; evidence pack"
+  S4:
+    label: "Slow ramp: betting share +3 points a week"
+    truth: front
+    merchant: {category: bakery, designated: true}
+    rule: "From T, betting share of payments on match days rises 3 percentage points a week (week 1: 3%, week 2: 6%, ...)."
+    takeover_day: 105
+    ramp_per_week: 0.03
+    flag_before_share: 0.20
+    syndicate: C
+    bettors: 700
+    round: true
+    payouts: refund
+    sources: [ed_1xbet, ed_parimatch]
+    expected: {flag_before_share: 0.20}
+    expected_text: "Flag before the betting share passes 20% (design parameter)"
+  S5:
+    label: "Brand-new 'IT services' shell"
+    truth: front
+    merchant: {category: it_services, designated: true}
+    rule: "Onboarded 2025-10-14, two days after BF2 was banned. 12 of its first 20 payers come from BF2's 2,000 bettors; shares a device ID with BF2."
+    onboard_day: 142
+    first_payers: 20
+    first_payers_from_banned: 12
+    banned_front: BF2
+    bets_per_match: 60
+    syndicate: B
+    bettors: 600
+    round: true
+    payouts: refund
+    hard_links: {device_id: BF2}
+    sources: [dggi_shells, ipaisa]
+    expected: {detect_hours_le: 24, graph_fires_day_one: true}
+    expected_text: "Flag on day one via the graph engine"
+  E1:
+    label: "Evasion: S3 without round amounts"
+    truth: front
+    merchant: {category: bakery, designated: true}
+    rule: "As S3 on a simulated bakery (from India v Pakistan, Super 4, 21 Sep), but stakes are irregular (never multiples of 100)."
+    takeover_day: 119
+    bets_per_match: 150
+    syndicate: A
+    bettors: 1200
+    round: false
+    payouts: refund
+    sources: [ed_1xbet, ed_parimatch]
+    expected: {detect_hours_le: 48}
+    expected_text: "Still flagged (timing, loop, graph)"
+    report_only: true
+  E2:
+    label: "Evasion: betting split across 10 small fronts"
+    truth: front
+    merchant: {ring: 10, categories: [kirana, bakery, pharmacy, sweet_shop, restaurant]}
+    rule: "Ten small fronts (~15 bets per match each) share syndicate B's bettors; three share a device ID with each other."
+    takeover_day_range: [108, 120]
+    bets_per_match: 15
+    syndicate: B
+    bettors: 250
+    round: true
+    payouts: refund
+    sources: [ipaisa, dggi_shells, ed_1xbet]
+    expected: {ring_flag_share_ge: 0.5}
+    expected_text: "Linked through shared bettors"
+    report_only: true
+  E3:
+    label: "Evasion: winners paid off-platform"
+    truth: front
+    merchant: {category: bakery, designated: true}
+    rule: "As S3 on a simulated bakery (from India v Sri Lanka, 26 Sep), but no refunds or payouts on PayU."
+    takeover_day: 124
+    bets_per_match: 150
+    syndicate: A
+    bettors: 1200
+    round: true
+    payouts: none
+    sources: [ed_1xbet, cuts]
+    expected: {detect_hours_le: 72}
+    expected_text: "Weaker signal; still flagged by timing + graph, or marked 'would need consented bank data'"
+    report_only: true
+
+extra_fronts:                       # randomised fronts for training and evaluation
+  count: 45
+  host_categories: {bakery: 0.2, sweet_shop: 0.1, restaurant: 0.15, kirana: 0.2, pharmacy: 0.1, it_services: 0.25}
+  takeover_day_range: [100, 152]
+  bets_per_match_median: 55
+  bets_per_match_sigma: 0.7
+  bettors_range: [150, 1500]
+  p_nonround: 0.3
+  p_no_payouts: 0.3
+  p_ramp: 0.15
+  ramp_per_week: 0.04
+  syndicate_p: {A: 0.3, B: 0.3, C: 0.2, D: 0.2}
+  hard_link_p: 0.15
+  sources: [ed_1xbet, ed_parimatch, dggi_shells, ipaisa, cuts]

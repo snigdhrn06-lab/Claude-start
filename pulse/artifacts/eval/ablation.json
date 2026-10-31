@@ -1,0 +1,52 @@
+[
+ {
+  "detect_hours_median": 163.0,
+  "detect_within_24h_share": 0.310345,
+  "false_alarms_l3_per_1000_merchant_months": 0.0,
+  "merchant_day_pr_auc": 0.983064,
+  "precision_at_10": 1.0,
+  "precision_at_25": 1.0,
+  "recall_l2": 0.965517,
+  "variant": "full"
+ },
+ {
+  "detect_hours_median": 246.5,
+  "detect_within_24h_share": 0.206897,
+  "false_alarms_l3_per_1000_merchant_months": 0.0,
+  "merchant_day_pr_auc": 0.984202,
+  "precision_at_10": 1.0,
+  "precision_at_25": 1.0,
+  "recall_l2": 0.896552,
+  "variant": "without drift"
+ },
+ {
+  "detect_hours_median": 163.0,
+  "detect_within_24h_share": 0.310345,
+  "false_alarms_l3_per_1000_merchant_months": 0.0,
+  "merchant_day_pr_auc": 0.983092,
+  "precision_at_10": 1.0,
+  "precision_at_25": 1.0,
+  "recall_l2": 0.965517,
+  "variant": "without peers"
+ },
+ {
+  "detect_hours_median": 417.5,
+  "detect_within_24h_share": 0.206897,
+  "false_alarms_l3_per_1000_merchant_months": 0.0,
+  "merchant_day_pr_auc": 0.877314,
+  "precision_at_10": 1.0,
+  "precision_at_25": 1.0,
+  "recall_l2": 0.758621,
+  "variant": "without invariants"
+ },
+ {
+  "detect_hours_median": 72.0,
+  "detect_within_24h_share": 0.275862,
+  "false_alarms_l3_per_1000_merchant_months": 0.0,
+  "merchant_day_pr_auc": 0.956067,
+  "precision_at_10": 0.8,
+  "precision_at_25": 0.92,
+  "recall_l2": 0.62069,
+  "variant": "without graph"
+ }
+]

@@ -1,0 +1,48 @@
+match_id,date,start_time_ist,teams,competition,format,verification
+IPL25-01,2025-03-22,19:30,KKR v RCB,IPL 2025,T20,to be verified by team (outside simulation window)
+IPL25-58,2025-05-17,19:30,RCB v KKR,IPL 2025,T20,web search: resumption 17 May; reported abandoned (rain) - to be verified
+IPL25-59,2025-05-18,15:30,RR v PBKS,IPL 2025,T20,web search confirmed (Jaipur 3:30 PM)
+IPL25-60,2025-05-18,19:30,DC v GT,IPL 2025,T20,web search confirmed (Delhi 7:30 PM)
+IPL25-61,2025-05-19,19:30,LSG v SRH,IPL 2025,T20,to be verified by team
+IPL25-62,2025-05-20,19:30,CSK v RR,IPL 2025,T20,to be verified by team
+IPL25-63,2025-05-21,19:30,MI v DC,IPL 2025,T20,to be verified by team
+IPL25-64,2025-05-22,19:30,GT v LSG,IPL 2025,T20,to be verified by team
+IPL25-65,2025-05-23,19:30,RCB v SRH,IPL 2025,T20,to be verified by team
+IPL25-66,2025-05-24,19:30,PBKS v DC,IPL 2025,T20,to be verified by team (replay of the match halted at Dharamsala; sources disagree)
+IPL25-67,2025-05-25,15:30,GT v CSK,IPL 2025,T20,to be verified by team
+IPL25-68,2025-05-25,19:30,SRH v KKR,IPL 2025,T20,to be verified by team
+IPL25-69,2025-05-26,19:30,PBKS v MI,IPL 2025,T20,web search: PBKS v MI moved to Jaipur 26 May
+IPL25-70,2025-05-27,19:30,LSG v RCB,IPL 2025,T20,web search: last league match 27 May
+IPL25-Q1,2025-05-29,19:30,PBKS v RCB,IPL 2025,T20,web search: Qualifier 1 on 29 May
+IPL25-EL,2025-05-30,19:30,GT v MI,IPL 2025,T20,web search: Eliminator on 30 May
+IPL25-Q2,2025-06-01,19:30,PBKS v MI,IPL 2025,T20,web search: Qualifier 2 on 1 June
+IPL25-F,2025-06-03,19:30,RCB v PBKS,IPL 2025,T20,web search: final on 3 June
+ENG25-T1,2025-06-20,15:30,India v England,Ind v Eng Tests 2025,Test,to be verified by team
+ENG25-T2,2025-07-02,15:30,India v England,Ind v Eng Tests 2025,Test,to be verified by team
+ENG25-T3,2025-07-10,15:30,India v England,Ind v Eng Tests 2025,Test,to be verified by team
+ENG25-T4,2025-07-23,15:30,India v England,Ind v Eng Tests 2025,Test,to be verified by team
+ENG25-T5,2025-07-31,15:30,India v England,Ind v Eng Tests 2025,Test,to be verified by team
+ASIA25-02,2025-09-10,20:00,India v UAE,Asia Cup 2025,T20,web search: tournament 9-28 Sep; 8 PM IST revised start - verify
+ASIA25-06,2025-09-14,20:00,India v Pakistan,Asia Cup 2025,T20,web search confirmed (Dubai; 8 PM IST)
+ASIA25-12,2025-09-19,20:00,India v Oman,Asia Cup 2025,T20,to be verified by team
+ASIA25-S4A,2025-09-21,20:00,India v Pakistan,Asia Cup 2025,T20,to be verified by team
+ASIA25-S4B,2025-09-24,20:00,India v Bangladesh,Asia Cup 2025,T20,to be verified by team
+ASIA25-S4C,2025-09-26,20:00,India v Sri Lanka,Asia Cup 2025,T20,to be verified by team
+ASIA25-F,2025-09-28,20:00,India v Pakistan,Asia Cup 2025,T20,web search: final 28 Sep 8 PM IST
+WWC25-01,2025-09-30,15:00,India W v Sri Lanka W,Women's WC 2025,ODI,to be verified by team
+WI25-T1,2025-10-02,09:30,India v West Indies,Ind v WI Tests 2025,Test,to be verified by team
+WWC25-06,2025-10-05,15:00,India W v Pakistan W,Women's WC 2025,ODI,to be verified by team
+WWC25-10,2025-10-09,15:00,India W v South Africa W,Women's WC 2025,ODI,to be verified by team
+WI25-T2,2025-10-10,09:30,India v West Indies,Ind v WI Tests 2025,Test,to be verified by team
+WWC25-13,2025-10-12,15:00,India W v Australia W,Women's WC 2025,ODI,to be verified by team
+AUS25-O1,2025-10-19,09:00,India v Australia,India in Australia 2025,ODI,to be verified by team
+WWC25-20,2025-10-19,15:00,India W v England W,Women's WC 2025,ODI,to be verified by team
+AUS25-O2,2025-10-23,09:00,India v Australia,India in Australia 2025,ODI,to be verified by team
+WWC25-24,2025-10-23,15:00,India W v New Zealand W,Women's WC 2025,ODI,to be verified by team
+AUS25-O3,2025-10-25,09:00,India v Australia,India in Australia 2025,ODI,to be verified by team
+WWC25-28,2025-10-26,15:00,India W v Bangladesh W,Women's WC 2025,ODI,to be verified by team
+AUS25-T1,2025-10-29,13:45,India v Australia,India in Australia 2025,T20,to be verified by team
+WWC25-SF2,2025-10-30,15:00,India W v Australia W,Women's WC 2025,ODI,to be verified by team
+AUS25-T2,2025-10-31,13:45,India v Australia,India in Australia 2025,T20,to be verified by team
+AUS25-T3,2025-11-02,13:45,India v Australia,India in Australia 2025,T20,to be verified by team
+WWC25-F,2025-11-02,15:00,India W v South Africa W,Women's WC 2025,ODI,to be verified by team

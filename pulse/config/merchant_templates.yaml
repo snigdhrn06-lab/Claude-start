@@ -1,0 +1,121 @@
+# Category templates for simulated merchants. ALL values are design parameters.
+# hour_profile: relative payment intensity by hour of day (0..23). "from_bread_basket" means the
+#   profile is computed from the real Bread Basket data at build time.
+# dow: relative intensity Monday..Sunday.
+# daily_tx_median / daily_tx_sigma: log-normal across merchants (size).
+# bill_median / bill_sigma: log-normal bill size in INR within a merchant.
+# round_rate: probability a payment is a round multiple of 100 (natural rounding, e.g. kirana top-ups).
+# refund_rate: share of payments refunded later (genuine refunds: same payer, same or lower amount).
+# festival_categories: which festival multipliers apply (see data/events/festivals.csv).
+# match_multiplier: demand multiplier inside live-match windows (sports bars are busy on match nights).
+categories:
+  bakery:
+    count: 40
+    hour_profile: from_bread_basket
+    dow: [0.85, 0.85, 0.9, 0.9, 1.0, 1.35, 1.25]
+    daily_tx_median: 60
+    daily_tx_sigma: 0.45
+    bill_median: 220
+    bill_sigma: 0.55
+    round_rate: 0.04
+    refund_rate: 0.0
+    local_payers_per_daily_tx: 7
+    walk_in_share: 0.08
+    festival: true
+    match_multiplier: 1.0
+  sweet_shop:
+    count: 36
+    hour_profile: [0,0,0,0,0,0,0.2,0.6,1.0,1.2,1.3,1.3,1.4,1.3,1.2,1.3,1.6,2.0,2.4,2.4,2.0,1.2,0.3,0]
+    dow: [0.9, 0.85, 0.9, 0.9, 1.0, 1.3, 1.35]
+    daily_tx_median: 70
+    daily_tx_sigma: 0.45
+    bill_median: 320
+    bill_sigma: 0.6
+    round_rate: 0.10
+    refund_rate: 0.0
+    local_payers_per_daily_tx: 7
+    walk_in_share: 0.10
+    festival: true
+    match_multiplier: 1.0
+  restaurant:
+    count: 50
+    hour_profile: [0.3,0.1,0,0,0,0,0,0.1,0.4,0.6,0.5,0.6,1.8,2.4,1.8,0.7,0.5,0.6,1.0,1.8,2.6,2.6,1.6,0.8]
+    dow: [0.85, 0.85, 0.9, 0.95, 1.1, 1.4, 1.35]
+    daily_tx_median: 110
+    daily_tx_sigma: 0.5
+    bill_median: 650
+    bill_sigma: 0.65
+    round_rate: 0.03
+    refund_rate: 0.012
+    local_payers_per_daily_tx: 6
+    walk_in_share: 0.18
+    festival: false
+    match_multiplier: 1.15
+  kirana:
+    count: 60
+    hour_profile: [0,0,0,0,0,0,0.3,1.0,1.5,1.5,1.3,1.1,1.0,0.8,0.7,0.8,1.1,1.5,1.9,2.0,1.8,1.2,0.5,0.1]
+    dow: [1.0, 0.95, 0.95, 0.95, 1.0, 1.1, 1.2]
+    daily_tx_median: 130
+    daily_tx_sigma: 0.5
+    bill_median: 260
+    bill_sigma: 0.8
+    round_rate: 0.30
+    refund_rate: 0.002
+    local_payers_per_daily_tx: 5
+    walk_in_share: 0.05
+    festival: false
+    match_multiplier: 1.0
+  pharmacy:
+    count: 30
+    hour_profile: [0.2,0.1,0.05,0,0,0,0.1,0.4,1.0,1.3,1.3,1.2,1.1,1.0,0.9,0.9,1.0,1.3,1.6,1.7,1.6,1.2,0.6,0.3]
+    dow: [1.05, 1.0, 1.0, 1.0, 1.0, 0.95, 0.9]
+    daily_tx_median: 80
+    daily_tx_sigma: 0.45
+    bill_median: 420
+    bill_sigma: 0.75
+    round_rate: 0.06
+    refund_rate: 0.004
+    local_payers_per_daily_tx: 6
+    walk_in_share: 0.12
+    festival: false
+    match_multiplier: 1.0
+  sports_bar:
+    count: 18
+    hour_profile: [1.0,0.5,0.1,0,0,0,0,0,0,0,0,0.1,0.5,0.8,0.6,0.4,0.5,0.9,1.6,2.4,2.8,2.8,2.4,1.6]
+    dow: [0.8, 0.8, 0.85, 0.95, 1.25, 1.5, 1.3]
+    daily_tx_median: 70
+    daily_tx_sigma: 0.45
+    bill_median: 900
+    bill_sigma: 0.6
+    round_rate: 0.05
+    refund_rate: 0.005
+    local_payers_per_daily_tx: 6
+    walk_in_share: 0.12
+    festival: false
+    match_multiplier: 2.6
+  it_services:
+    count: 16
+    hour_profile: [0,0,0,0,0,0,0,0,0.2,1.0,1.6,1.8,1.6,1.0,1.4,1.7,1.6,1.2,0.6,0.2,0,0,0,0]
+    dow: [1.1, 1.1, 1.1, 1.1, 1.1, 0.4, 0.1]
+    daily_tx_median: 4
+    daily_tx_sigma: 0.6
+    bill_median: 28000
+    bill_sigma: 0.9
+    round_rate: 0.45
+    refund_rate: 0.0
+    local_payers_per_daily_tx: 6
+    walk_in_share: 0.5
+    payer_scope: city          # B2B clients come from across the city
+    festival: false
+    match_multiplier: 1.0
+# Merchant-level variation around the template (design parameters)
+variation:
+  hour_jitter_sigma: 0.20      # multiplicative noise on each hour weight
+  day_noise_shape: 25          # gamma shape for day-to-day volume noise (smaller = noisier)
+  honest_quirks:               # hard negatives among honest merchants (share of background merchants)
+    late_hours: 0.05           # starts opening 2-3 h later from a random day (own-past drift only)
+    step_up: 0.05              # volume x1.4-1.8 from a random day (new branch / delivery app)
+    bulk_order: 0.05           # one day with a handful of large round catering payments
+    growth: 0.10               # +1% a week organic growth
+  honest_new_share: 0.10       # honest merchants onboarded mid-window (scored against their declared profile)
+  honest_new_day_range: [60, 150]

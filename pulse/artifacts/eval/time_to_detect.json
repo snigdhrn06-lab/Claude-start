@@ -1,0 +1,205 @@
+[
+ {
+  "category": "bakery",
+  "code": "HERO",
+  "detect_hours": 0.0,
+  "detect_hours_l3": 0.0,
+  "scenario": "S3"
+ },
+ {
+  "category": "bakery",
+  "code": "S4",
+  "detect_hours": 665.0,
+  "detect_hours_l3": 665.0,
+  "scenario": "S4"
+ },
+ {
+  "category": "bakery",
+  "code": "E1",
+  "detect_hours": 0.0,
+  "detect_hours_l3": 0.0,
+  "scenario": "E1"
+ },
+ {
+  "category": "bakery",
+  "code": "E3",
+  "detect_hours": 1.0,
+  "detect_hours_l3": 1.0,
+  "scenario": "E3"
+ },
+ {
+  "category": "it_services",
+  "code": "S5",
+  "detect_hours": 2.0,
+  "detect_hours_l3": 2.0,
+  "scenario": "S5"
+ },
+ {
+  "category": "kirana",
+  "code": "E2_01",
+  "detect_hours": 533.0,
+  "detect_hours_l3": 533.0,
+  "scenario": "E2"
+ },
+ {
+  "category": "bakery",
+  "code": "E2_02",
+  "detect_hours": 2.0,
+  "detect_hours_l3": 2.0,
+  "scenario": "E2"
+ },
+ {
+  "category": "pharmacy",
+  "code": "E2_03",
+  "detect_hours": 771.0,
+  "detect_hours_l3": 771.0,
+  "scenario": "E2"
+ },
+ {
+  "category": "sweet_shop",
+  "code": "E2_04",
+  "detect_hours": 5.0,
+  "detect_hours_l3": 5.0,
+  "scenario": "E2"
+ },
+ {
+  "category": "restaurant",
+  "code": "E2_05",
+  "detect_hours": 772.0,
+  "detect_hours_l3": 772.0,
+  "scenario": "E2"
+ },
+ {
+  "category": "kirana",
+  "code": "E2_06",
+  "detect_hours": 910.0,
+  "detect_hours_l3": 910.0,
+  "scenario": "E2"
+ },
+ {
+  "category": "bakery",
+  "code": "E2_07",
+  "detect_hours": 65.0,
+  "detect_hours_l3": 65.0,
+  "scenario": "E2"
+ },
+ {
+  "category": "pharmacy",
+  "code": "E2_08",
+  "detect_hours": 79.0,
+  "detect_hours_l3": 79.0,
+  "scenario": "E2"
+ },
+ {
+  "category": "sweet_shop",
+  "code": "E2_09",
+  "detect_hours": 267.0,
+  "detect_hours_l3": 267.0,
+  "scenario": "E2"
+ },
+ {
+  "category": "restaurant",
+  "code": "E2_10",
+  "detect_hours": 819.0,
+  "detect_hours_l3": 819.0,
+  "scenario": "E2"
+ },
+ {
+  "category": "kirana",
+  "code": "FX003",
+  "detect_hours": 5.0,
+  "detect_hours_l3": 5.0,
+  "scenario": "extra"
+ },
+ {
+  "category": "it_services",
+  "code": "FX005",
+  "detect_hours": 0.0,
+  "detect_hours_l3": 0.0,
+  "scenario": "extra"
+ },
+ {
+  "category": "it_services",
+  "code": "FX012",
+  "detect_hours": null,
+  "detect_hours_l3": null,
+  "scenario": "extra"
+ },
+ {
+  "category": "it_services",
+  "code": "FX014",
+  "detect_hours": 274.0,
+  "detect_hours_l3": 274.0,
+  "scenario": "extra"
+ },
+ {
+  "category": "restaurant",
+  "code": "FX015",
+  "detect_hours": 677.0,
+  "detect_hours_l3": 677.0,
+  "scenario": "extra"
+ },
+ {
+  "category": "restaurant",
+  "code": "FX016",
+  "detect_hours": 55.0,
+  "detect_hours_l3": 55.0,
+  "scenario": "extra"
+ },
+ {
+  "category": "it_services",
+  "code": "FX017",
+  "detect_hours": 183.0,
+  "detect_hours_l3": 183.0,
+  "scenario": "extra"
+ },
+ {
+  "category": "kirana",
+  "code": "FX023",
+  "detect_hours": 413.0,
+  "detect_hours_l3": 413.0,
+  "scenario": "extra"
+ },
+ {
+  "category": "restaurant",
+  "code": "FX025",
+  "detect_hours": 508.0,
+  "detect_hours_l3": 508.0,
+  "scenario": "extra"
+ },
+ {
+  "category": "it_services",
+  "code": "FX027",
+  "detect_hours": 113.0,
+  "detect_hours_l3": 113.0,
+  "scenario": "extra"
+ },
+ {
+  "category": "sweet_shop",
+  "code": "FX028",
+  "detect_hours": 3.0,
+  "detect_hours_l3": 3.0,
+  "scenario": "extra"
+ },
+ {
+  "category": "pharmacy",
+  "code": "FX034",
+  "detect_hours": 176.0,
+  "detect_hours_l3": 176.0,
+  "scenario": "extra"
+ },
+ {
+  "category": "bakery",
+  "code": "FX038",
+  "detect_hours": 150.0,
+  "detect_hours_l3": 150.0,
+  "scenario": "extra"
+ },
+ {
+  "category": "restaurant",
+  "code": "FX040",
+  "detect_hours": 987.0,
+  "detect_hours_l3": 987.0,
+  "scenario": "extra"
+ }
+]

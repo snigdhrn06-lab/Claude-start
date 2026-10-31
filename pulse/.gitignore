@@ -1,0 +1,10 @@
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+data/raw/bread_basket.csv
+data/processed/
+artifacts/*
+!artifacts/eval/
+!artifacts/screenshots/
+!artifacts/evidence/

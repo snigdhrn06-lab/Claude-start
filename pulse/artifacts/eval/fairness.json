@@ -1,0 +1,106 @@
+[
+ {
+  "dimension": "tier",
+  "ever_l1": 0.372093,
+  "ever_l2": 0.0,
+  "ever_l3": 0.0,
+  "n": 43,
+  "value": "1"
+ },
+ {
+  "dimension": "tier",
+  "ever_l1": 0.590909,
+  "ever_l2": 0.0,
+  "ever_l3": 0.0,
+  "n": 22,
+  "value": "2"
+ },
+ {
+  "dimension": "tier",
+  "ever_l1": 0.166667,
+  "ever_l2": 0.0,
+  "ever_l3": 0.0,
+  "n": 12,
+  "value": "3"
+ },
+ {
+  "dimension": "size_band",
+  "ever_l1": 0.461538,
+  "ever_l2": 0.0,
+  "ever_l3": 0.0,
+  "n": 26,
+  "value": "small"
+ },
+ {
+  "dimension": "size_band",
+  "ever_l1": 0.48,
+  "ever_l2": 0.0,
+  "ever_l3": 0.0,
+  "n": 25,
+  "value": "medium"
+ },
+ {
+  "dimension": "size_band",
+  "ever_l1": 0.269231,
+  "ever_l2": 0.0,
+  "ever_l3": 0.0,
+  "n": 26,
+  "value": "large"
+ },
+ {
+  "dimension": "category",
+  "ever_l1": 0.090909,
+  "ever_l2": 0.0,
+  "ever_l3": 0.0,
+  "n": 11,
+  "value": "bakery"
+ },
+ {
+  "dimension": "category",
+  "ever_l1": 0.8,
+  "ever_l2": 0.0,
+  "ever_l3": 0.0,
+  "n": 5,
+  "value": "it_services"
+ },
+ {
+  "dimension": "category",
+  "ever_l1": 0.416667,
+  "ever_l2": 0.0,
+  "ever_l3": 0.0,
+  "n": 12,
+  "value": "kirana"
+ },
+ {
+  "dimension": "category",
+  "ever_l1": 0.333333,
+  "ever_l2": 0.0,
+  "ever_l3": 0.0,
+  "n": 9,
+  "value": "pharmacy"
+ },
+ {
+  "dimension": "category",
+  "ever_l1": 0.45,
+  "ever_l2": 0.0,
+  "ever_l3": 0.0,
+  "n": 20,
+  "value": "restaurant"
+ },
+ {
+  "dimension": "category",
+  "ever_l1": 1.0,
+  "ever_l2": 0.0,
+  "ever_l3": 0.0,
+  "n": 7,
+  "value": "sports_bar"
+ },
+ {
+  "dimension": "category",
+  "ever_l1": 0.153846,
+  "ever_l2": 0.0,
+  "ever_l3": 0.0,
+  "n": 13,
+  "value": "sweet_shop"
+ }
+]

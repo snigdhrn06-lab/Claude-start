@@ -1,0 +1,111 @@
+{
+ "calibration_fold": [
+  {
+   "bin_hi": 0.01,
+   "bin_lo": 0.0,
+   "mean_p": 0.000301,
+   "n": 6654,
+   "observed": 0.000301
+  },
+  {
+   "bin_hi": 0.2,
+   "bin_lo": 0.1,
+   "mean_p": 0.117647,
+   "n": 51,
+   "observed": 0.117647
+  },
+  {
+   "bin_hi": 0.3,
+   "bin_lo": 0.2,
+   "mean_p": 0.25,
+   "n": 4,
+   "observed": 0.25
+  },
+  {
+   "bin_hi": 0.5,
+   "bin_lo": 0.3,
+   "mean_p": 0.416667,
+   "n": 24,
+   "observed": 0.416667
+  },
+  {
+   "bin_hi": 0.7,
+   "bin_lo": 0.5,
+   "mean_p": 0.5,
+   "n": 4,
+   "observed": 0.5
+  },
+  {
+   "bin_hi": 0.9,
+   "bin_lo": 0.7,
+   "mean_p": 0.777778,
+   "n": 9,
+   "observed": 0.777778
+  },
+  {
+   "bin_hi": 1.0,
+   "bin_lo": 0.9,
+   "mean_p": 1.0,
+   "n": 349,
+   "observed": 1.0
+  }
+ ],
+ "test": [
+  {
+   "bin_hi": 0.01,
+   "bin_lo": 0.0,
+   "mean_p": 0.000521,
+   "n": 11417,
+   "observed": 0.002452
+  },
+  {
+   "bin_hi": 0.06,
+   "bin_lo": 0.03,
+   "mean_p": 0.048001,
+   "n": 3,
+   "observed": 0.0
+  },
+  {
+   "bin_hi": 0.2,
+   "bin_lo": 0.1,
+   "mean_p": 0.117885,
+   "n": 162,
+   "observed": 0.135802
+  },
+  {
+   "bin_hi": 0.3,
+   "bin_lo": 0.2,
+   "mean_p": 0.226851,
+   "n": 11,
+   "observed": 0.0
+  },
+  {
+   "bin_hi": 0.5,
+   "bin_lo": 0.3,
+   "mean_p": 0.423098,
+   "n": 73,
+   "observed": 0.684932
+  },
+  {
+   "bin_hi": 0.7,
+   "bin_lo": 0.5,
+   "mean_p": 0.533652,
+   "n": 6,
+   "observed": 1.0
+  },
+  {
+   "bin_hi": 0.9,
+   "bin_lo": 0.7,
+   "mean_p": 0.791125,
+   "n": 42,
+   "observed": 1.0
+  },
+  {
+   "bin_hi": 1.0,
+   "bin_lo": 0.9,
+   "mean_p": 0.999962,
+   "n": 1014,
+   "observed": 1.0
+  }
+ ]
+}

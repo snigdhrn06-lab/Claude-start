@@ -1,0 +1,26 @@
+{
+ "engine_fire_rate_front_post": {
+  "drift": 0.169294,
+  "graph": 0.641979,
+  "invariants": 0.468969,
+  "peers": 0.048579
+ },
+ "engine_fire_rate_honest": {
+  "drift": 0.014794,
+  "graph": 0.0,
+  "invariants": 8.2e-05,
+  "peers": 0.00683
+ },
+ "honest_merchant_hours": 741432,
+ "naive": {
+  "expected_alarms": 1349.898032,
+  "merchant_hours": 1000000,
+  "p_tail": 0.00135
+ },
+ "per_million": {
+  "ladder_l2_plus": 22.928603,
+  "persistent_and_corroborated": 152.407773,
+  "z_gt_3": 9879.530422,
+  "z_gt_3_persistent": 6830.02622
+ }
+}

@@ -1,0 +1,41 @@
+# Response-layer design parameters (costs are relative units, not rupees).
+# Decision rule: act at level L only if  p * C_fraud > (1 - p) * C_friction(L)
+#   which is the same as  p > C_friction(L) / (C_fraud + C_friction(L)).
+c_fraud: 100
+c_friction:
+  L1: 1      # silent check
+  L2: 6      # micro-proof (OTP, supplier invoice)
+  L3: 12     # delta reserve + video KYC
+  L4: 40     # restrict
+  L5: 120    # exit + STR draft
+min_engines:                # corroboration: engines that must independently fire
+  L1: 0
+  L2: 2
+  L3: 2
+  L4: 3
+  L5: 3
+auto_max_level: 3           # L4-L5 are recommendations that require analyst approval
+hold_hours: 24              # a level, once reached, is held for this long (cooling-off)
+levels:
+  L0: {name: "Watch", merchant_visible: "No change", compliance: "Scored hourly; nothing stored beyond normal logs"}
+  L1: {name: "Silent check", merchant_visible: "No change", compliance: "Checkout origin compared with registered site/app"}
+  L2: {name: "Micro-proof", merchant_visible: "OTP re-verification and one recent supplier invoice", compliance: "Case opened; analyst queue"}
+  L3: {name: "Delta reserve", merchant_visible: "Video KYC; part of today's settlement delayed for review", compliance: "Only the fingerprinted surplus is held"}
+  L4: {name: "Restrict", merchant_visible: "Payouts, refunds and new payment links paused", compliance: "Requires analyst approval"}
+  L5: {name: "Exit + STR draft", merchant_visible: "Account closed", compliance: "Requires analyst approval; STR drafted for compliance review"}
+delta_reserve:
+  sigma_multiplier: 3.0     # Tolerated = baseline * exp(cohort_lift + k * sigma)
+  min_hourly_baseline_inr: 50   # floor on the baseline per day is this x 1 (spread over 24 h)
+  settlement_hour: 11       # T+1 settlement at 11:00 the next day
+earned_trust:
+  tiers:
+    0: {name: "No consent", perk: "Standard terms. Refusing consent is never a penalty."}
+    1: {name: "GST linked", perk: "Settlement T+1 guaranteed; reserve tolerance widened (k = 3.5)"}
+    2: {name: "GST + bank data (Account Aggregator)", perk: "Same-day settlement up to a limit; k = 4"}
+    3: {name: "Continuous consent", perk: "Same-day settlement; higher limits; k = 4.5"}
+  sigma_multiplier_by_tier: {0: 3.0, 1: 3.5, 2: 4.0, 3: 4.5}
+  # log-likelihood-ratio weights applied to the calibrated score when consented data is present (design parameters)
+  llr_weights:
+    sweep_2h: 4.0          # per unit of share moved on within 2 h above 0.25
+    individual_recipients: 3.0  # per unit share of outflows to individuals above 0.30
+    gst_gap: 1.5           # per unit of log(PayU settlements / GST turnover) above 0.2

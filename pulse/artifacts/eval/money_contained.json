@@ -1,0 +1,210 @@
+{
+ "per_merchant": [
+  {
+   "betting_inr": 3952200.0,
+   "code": "HERO",
+   "held_inr": 3205493.263672,
+   "merchant_id": 0,
+   "settled_before_flag_inr": 0.0
+  },
+  {
+   "betting_inr": 315200.0,
+   "code": "S4",
+   "held_inr": 29895.123047,
+   "merchant_id": 255,
+   "settled_before_flag_inr": 107400.0
+  },
+  {
+   "betting_inr": 3680727.0,
+   "code": "E1",
+   "held_inr": 3091169.542969,
+   "merchant_id": 256,
+   "settled_before_flag_inr": 0.0
+  },
+  {
+   "betting_inr": 3160400.0,
+   "code": "E3",
+   "held_inr": 2545233.744141,
+   "merchant_id": 257,
+   "settled_before_flag_inr": 0.0
+  },
+  {
+   "betting_inr": 707300.0,
+   "code": "S5",
+   "held_inr": 154581.65625,
+   "merchant_id": 258,
+   "settled_before_flag_inr": 0.0
+  },
+  {
+   "betting_inr": 366900.0,
+   "code": "E2_01",
+   "held_inr": 0.0,
+   "merchant_id": 259,
+   "settled_before_flag_inr": 181500.0
+  },
+  {
+   "betting_inr": 348700.0,
+   "code": "E2_02",
+   "held_inr": 66305.886719,
+   "merchant_id": 260,
+   "settled_before_flag_inr": 0.0
+  },
+  {
+   "betting_inr": 346800.0,
+   "code": "E2_03",
+   "held_inr": 6326.28125,
+   "merchant_id": 261,
+   "settled_before_flag_inr": 159700.0
+  },
+  {
+   "betting_inr": 428400.0,
+   "code": "E2_04",
+   "held_inr": 53542.59375,
+   "merchant_id": 262,
+   "settled_before_flag_inr": 0.0
+  },
+  {
+   "betting_inr": 458300.0,
+   "code": "E2_05",
+   "held_inr": 0.0,
+   "merchant_id": 263,
+   "settled_before_flag_inr": 217800.0
+  },
+  {
+   "betting_inr": 386300.0,
+   "code": "E2_06",
+   "held_inr": 11759.453125,
+   "merchant_id": 264,
+   "settled_before_flag_inr": 268800.0
+  },
+  {
+   "betting_inr": 372900.0,
+   "code": "E2_07",
+   "held_inr": 54783.683594,
+   "merchant_id": 265,
+   "settled_before_flag_inr": 35700.0
+  },
+  {
+   "betting_inr": 417400.0,
+   "code": "E2_08",
+   "held_inr": 9337.824219,
+   "merchant_id": 266,
+   "settled_before_flag_inr": 23000.0
+  },
+  {
+   "betting_inr": 413800.0,
+   "code": "E2_09",
+   "held_inr": 8724.734375,
+   "merchant_id": 267,
+   "settled_before_flag_inr": 88700.0
+  },
+  {
+   "betting_inr": 441700.0,
+   "code": "E2_10",
+   "held_inr": 0.0,
+   "merchant_id": 268,
+   "settled_before_flag_inr": 286000.0
+  },
+  {
+   "betting_inr": 1052600.0,
+   "code": "FX003",
+   "held_inr": 764941.515625,
+   "merchant_id": 272,
+   "settled_before_flag_inr": 0.0
+  },
+  {
+   "betting_inr": 1196000.0,
+   "code": "FX005",
+   "held_inr": 401112.242188,
+   "merchant_id": 274,
+   "settled_before_flag_inr": 0.0
+  },
+  {
+   "betting_inr": 902700.0,
+   "code": "FX012",
+   "held_inr": 0.0,
+   "merchant_id": 281,
+   "settled_before_flag_inr": 902700.0
+  },
+  {
+   "betting_inr": 336200.0,
+   "code": "FX014",
+   "held_inr": 0.0,
+   "merchant_id": 283,
+   "settled_before_flag_inr": 85900.0
+  },
+  {
+   "betting_inr": 1586200.0,
+   "code": "FX015",
+   "held_inr": 0.0,
+   "merchant_id": 284,
+   "settled_before_flag_inr": 526300.0
+  },
+  {
+   "betting_inr": 2491200.0,
+   "code": "FX016",
+   "held_inr": 272271.03125,
+   "merchant_id": 285,
+   "settled_before_flag_inr": 86400.0
+  },
+  {
+   "betting_inr": 811400.0,
+   "code": "FX017",
+   "held_inr": 10186.382812,
+   "merchant_id": 286,
+   "settled_before_flag_inr": 140700.0
+  },
+  {
+   "betting_inr": 152300.0,
+   "code": "FX023",
+   "held_inr": 0.0,
+   "merchant_id": 292,
+   "settled_before_flag_inr": 83400.0
+  },
+  {
+   "betting_inr": 1289000.0,
+   "code": "FX025",
+   "held_inr": 0.0,
+   "merchant_id": 294,
+   "settled_before_flag_inr": 401900.0
+  },
+  {
+   "betting_inr": 1770800.0,
+   "code": "FX027",
+   "held_inr": 0.0,
+   "merchant_id": 296,
+   "settled_before_flag_inr": 114000.0
+  },
+  {
+   "betting_inr": 1755100.0,
+   "code": "FX028",
+   "held_inr": 1188084.142578,
+   "merchant_id": 297,
+   "settled_before_flag_inr": 0.0
+  },
+  {
+   "betting_inr": 398800.0,
+   "code": "FX034",
+   "held_inr": 0.0,
+   "merchant_id": 303,
+   "settled_before_flag_inr": 68100.0
+  },
+  {
+   "betting_inr": 277400.0,
+   "code": "FX038",
+   "held_inr": 60329.451172,
+   "merchant_id": 307,
+   "settled_before_flag_inr": 21400.0
+  },
+  {
+   "betting_inr": 1096700.0,
+   "code": "FX040",
+   "held_inr": 0.0,
+   "merchant_id": 309,
+   "settled_before_flag_inr": 900800.0
+  }
+ ],
+ "total_betting_inr": 30913427.0,
+ "total_held_inr": 11934078.552734,
+ "total_settled_before_flag_inr": 4700200.0
+}
