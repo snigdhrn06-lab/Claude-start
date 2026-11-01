@@ -81,7 +81,7 @@ The numbers come from the current build. If you rebuild, they can shift slightly
 
 ## 4. The app page by page
 
-The left sidebar has 7 pages. **Story mode** is the demo; the others are for deeper questions.
+The left sidebar has 8 pages. **Cinematic presentation** is the hands-free version of the whole story (see section 4a below). **Story mode** is the demo; the others are for deeper questions.
 Use **Next →** and **← Back** to move through Story mode. The row of 7 boxes at the top shows where you are.
 
 ### Story mode, step 1: Meet the bakery (badge: REAL DATA)
@@ -103,11 +103,11 @@ Use **Next →** and **← Back** to move through Story mode. The row of 7 boxes
 - A bar chart across about 6 days. Green bars = payments outside match times; **dark bars = payments during matches** (green shaded areas).
 - A green line = PULSE's score. It jumps from 0 to the top on the first match night.
 - A **▶ Replay** button plays it hour by hour.
-- Cards: **182 payments on Day T** (normally about 58), **70% inside match windows**, **₹2.1 lakh paid out as "refunds"**, **first flag at 19:00 on 14 Sep, in the same hour as the first bets**.
+- Cards: **185 payments on Day T** (normally about 58), **69% inside match windows**, **₹2.1 lakh paid out as "refunds"** (14–20 Sep), **first flag at 19:00 on 14 Sep, in the same hour as the first bets**.
 
 **What it means:** on 14 Sep 2025 (India v Pakistan) the bakery suddenly gets three times its usual payments, mostly during the match, from strangers, and pays "refunds" afterwards. Each payment looks normal; the pattern doesn't.
 
-**Say:** "Same shop, same papers. But 70% of today's money arrived during the match, and winners were paid back as refunds. PULSE flagged it within the hour."
+**Say:** "Same shop, same papers. But about 70% of today's payments arrived during the match, and winners were paid back as refunds. PULSE flagged it within the hour."
 
 ### Step 3: Four engines light up (SIMULATED)
 
@@ -255,10 +255,44 @@ Three tabs.
 
 ---
 
+## 4a. Cinematic presentation (the hands-free demo)
+
+**What it is:** a full-screen, self-playing version of the whole story, about **3 minutes 17 seconds** long and 10 chapters. Press **Play** once and it runs to the end on its own, like a product video. The visuals are drawn live from the same data as the rest of the app.
+
+**How to open it:** sidebar → **Cinematic presentation**, or the **▶ Cinematic presentation** button at the top of Story mode. The **⬇ Offline copy (HTML)** button next to it downloads the same presentation as one file that plays in any browser, even without the app running.
+
+**Controls** (they fade away while it plays; move the mouse to bring them back):
+
+| Key or button | What it does |
+|---|---|
+| **Space** | Pause / resume |
+| **← / →** | Previous / next chapter |
+| **R** | Replay from the start |
+| **F** | Fullscreen (or press F11 if the browser blocks it) |
+| **X** or **✕ Exit** | Back to the normal app |
+| Clicking the progress bar | Jump to that moment |
+
+**The 10 chapters:**
+
+| # | Chapter | What the audience learns |
+|---|---|---|
+| 1 | The blind spot | Every payment can look legitimate; the business behind it may not be |
+| 2 | Meet the merchant | The real bakery's normal: 58 a day, ₹180 bills, 91% regulars (**REAL DATA**) |
+| 3 | The takeover | 14 Sep: 185 payments, 69% during the match, refunds loop back, flagged at 19:00 |
+| 4 | Four engines | Drift, Peers, Invariants (34 of 34) and Graph (32 vs 8.3) fire one by one, then converge: 4 of 4 agree |
+| 5 | A decision | > 99% score, three real reasons, action L3 now; L5 only with analyst approval |
+| 6 | The money | ₹1.49 lakh in → ₹1.17 lakh held, ₹32,033 paid on time; Diwali Tolerated rises, so ₹0 held |
+| 7 | Honest cases | Lakshmi Sweets stays L0 on Diwali; the sports bar stays at the L1 silent check |
+| 8 | The network | The new shell: 12 of its first 20 payers vs 0.84 expected (about 1 in 400 billion) |
+| 9 | Evidence pack | The real case file assembles itself; the STR is a draft for humans |
+| 10 | Validation and close | 28 of 29, 97%, 1.00, 0.983, 0 honest at L3+, 9/9, plus the limitations, then the closing line |
+
+**Tip for the big screen:** open it, press **F** for fullscreen, press **Play**, and step away. If the browser tab is hidden it pauses and resumes when you come back, so nothing is skipped. At the end it holds the closing frame and does not restart.
+
 ## 5. Cheat sheet: numbers to remember
 
 - **58** payments a day, **₹180** median bill, **91%** from regulars (real bakery)
-- Takeover: **14 Sep 2025, India v Pakistan**; **70%** of payments during the match; caught **in the first hour**
+- Takeover: **14 Sep 2025, India v Pakistan**; **185** payments that day; **69%** of payments during the match; caught **in the first hour**
 - **4 of 4** detectors agree; score **> 99%**; action **L3**, with L5 only after a human approves
 - Day T: **₹1.49 lakh** in; **₹1.17 lakh** held; **₹32,000** of real sales paid normally
 - Network: **12 of 20** shared vs **0.84** expected (**0.008** in a 5-million region)

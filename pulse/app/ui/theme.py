@@ -102,6 +102,10 @@ div.stButton > button, div.stDownloadButton > button {{ border-radius: 10px; bor
 div.stButton > button:hover, div.stDownloadButton > button:hover {{ background: {DARK}; color: {NEON}; border-color: {DARK}; }}
 div.stButton > button[kind="primary"] {{ background: {DARK}; color: {NEON}; }}
 div.stButton > button[kind="primary"]:hover {{ background: {JADE}; color: #fff; border-color: {JADE}; }}
+[data-testid="stMain"] [data-testid="stPageLink"] a {{ background: {DARK}; border-radius: 10px; padding: 0.45rem 1rem;
+  justify-content: center; box-shadow: 0 0 0 1px {DARK}; }}
+[data-testid="stMain"] [data-testid="stPageLink"] a p, [data-testid="stMain"] [data-testid="stPageLink"] a span {{ color: {NEON} !important; font-weight: 600; }}
+[data-testid="stMain"] [data-testid="stPageLink"] a:hover {{ background: {JADE}; }}
 .stTabs [data-baseweb="tab-list"] {{ gap: 6px; }}
 .stTabs [data-baseweb="tab"] {{ background: #fff; border: 1px solid {GREY}; border-radius: 10px 10px 0 0; padding: 6px 16px; }}
 .stTabs [aria-selected="true"] {{ background: {DARK} !important; color: {NEON} !important; }}

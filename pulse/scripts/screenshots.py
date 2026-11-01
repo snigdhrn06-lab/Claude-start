@@ -12,7 +12,7 @@ ROOT = pathlib.Path(__file__).resolve().parents[1]
 OUT = ROOT / "artifacts" / "screenshots"
 PORT = int(os.environ.get("PULSE_PORT", "8599"))
 PAGES = [(f"story_step{k}", f"?step={k}") for k in range(1, 8)] + [
-    ("explorer", "explorer"), ("engines_lab", "engines"), ("network", "network"), ("response", "response"),
+    ("presentation_cover", "present"), ("explorer", "explorer"), ("engines_lab", "engines"), ("network", "network"), ("response", "response"),
     ("evaluation", "evaluation"), ("data_assumptions", "data")]
 
 

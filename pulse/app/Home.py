@@ -7,7 +7,7 @@ st.set_page_config(page_title="PULSE · pattern-of-life engine", page_icon=":mat
 from ui import components, data, theme  # noqa: E402
 
 present = st.query_params.get("present", "1") != "0"
-present = st.sidebar.toggle("Presentation mode", value=present, help="Hides the Streamlit menu and footer.")
+present = st.sidebar.toggle("Clean display", value=present, help="Hides the Streamlit menu and footer.")
 theme.apply(present)
 components.header()
 
@@ -17,6 +17,7 @@ if not data.ready():
 
 pages = [
     st.Page("views/story.py", title="Story mode", icon=":material/play_circle:", default=True, url_path="story"),
+    st.Page("views/presentation.py", title="Cinematic presentation", icon=":material/slideshow:", url_path="present"),
     st.Page("views/explorer.py", title="Merchant explorer", icon=":material/storefront:", url_path="explorer"),
     st.Page("views/engines_lab.py", title="Engines lab", icon=":material/tune:", url_path="engines"),
     st.Page("views/network.py", title="Network", icon=":material/hub:", url_path="network"),

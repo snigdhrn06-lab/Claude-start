@@ -42,6 +42,16 @@ the app then shows "Partner bakery (consented)".
 **Screenshots** need Chromium. The script uses `PLAYWRIGHT_CHROMIUM` or a pre-installed `/opt/pw-browsers` build;
 otherwise run `.venv/bin/playwright install chromium` once.
 
+## Cinematic presentation (hands-free demo)
+
+Sidebar → **Cinematic presentation** (or the button on Story mode) opens a full-window, self-playing version of the whole
+story: 10 chapters, about 3 min 17 s, no clicks after **Play**. Space pauses, ← → move between chapters, R replays, F goes fullscreen, X exits.
+It's built as one HTML/SVG/Canvas document (`app/presentation/presentation.html`) driven by a single deterministic timeline. Every scene is a
+pure function of time, so pause, seek, skip and replay are exact. Its data is built from the same artefacts as the app
+(`app/ui/presentation_data.py`), so the numbers always agree. `make presentation` writes a standalone offline copy to
+`artifacts/presentation.html`. `make test-presentation` launches the app and checks the entry point, a full unattended
+run, pause/resume/seek/replay/exit, keyboard, hidden-tab recovery, 16:9 resolutions and reduced motion (about 4 minutes).
+
 ## Hosting (Render)
 
 The repo includes the prebuilt artifacts (about 11 MB), so a host only serves the app and never retrains it. On Render, create a

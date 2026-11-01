@@ -1,13 +1,17 @@
 # PULSE demo: 2-minute narration
 
-Setup: `make app`, browser at full screen (1440 px wide), Presentation mode on (default). Start on **Story mode, step 1**.
+**Hands-free option:** sidebar → **Cinematic presentation** → press **F** for fullscreen → **Play**. It runs the whole
+story by itself in about 3:17 (10 chapters) and holds the closing frame. Use the click-through script below if you want
+to narrate live instead.
+
+Setup: `make app`, browser at full screen (1440 px wide), Clean display on (default). Start on **Story mode, step 1**.
 The timings add up to about 2:00. Words in *italics* are on screen; numbers come from the current artefacts, so re-read
 them after any rebuild.
 
 | Time | Click | Say |
 |---|---|---|
 | 0:00 | Story mode · Step 1 *Meet Sunrise Bakery* (Real data badge) | "This is a real bakery's pattern of life: about 58 payments a day, breakfast and lunch peaks, a median bill of ₹180, and 334 regulars who make 91% of payments. That comes from public transaction data. Everything we add on top is simulated and labelled." |
-| 0:15 | **Next →** Step 2. Press **▶ Replay** | "On 14 September, India v Pakistan, the same merchant ID starts taking bets. The papers are still genuine, and every payment looks normal on its own. Watch the dark bars: 70% of the day's payments land inside match windows, and winners are paid back as 'refunds'. PULSE flags it in the same hour as the first bets." |
+| 0:15 | **Next →** Step 2. Press **▶ Replay** | "On 14 September, India v Pakistan, the same merchant ID starts taking bets. The papers are still genuine, and every payment looks normal on its own. Watch the dark bars: 69% of the day's payments land inside match windows, and winners are paid back as 'refunds'. PULSE flags it in the same hour as the first bets." |
 | 0:35 | **Next →** Step 3 (clock already at the hour all four agree) | "Four engines look at what betting can't hide. Drift from its own past. Its peers: other bakeries didn't surge. The betting invariants: a match clock with a placebo test, and a closed loop of payouts to earlier payers. And the graph: it now shares bettors with a front we banned in August. No engine acts alone." |
 | 0:55 | **Next →** Step 4 | "They fuse into one calibrated score with three plain reasons. Every number in them is recomputed from the payments. The decision rule is explicit: act only if p × the cost of fraud beats (1 − p) × the cost of friction." |
 | 1:10 | **Next →** Step 5 | "The response is proportionate. L3 is a delta reserve: we hold only the surplus above a festival-aware tolerated level, and only payments carrying a betting fingerprint. The bakery's real daytime sales settle on time. L4 and L5 always need an analyst." |

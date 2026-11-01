@@ -37,6 +37,22 @@ meta = data.meta()
 thr = meta["level_thresholds"]
 costs = meta["config"]["costs"]
 
+# ---------------------------------------------------------------- cinematic presentation entry point
+_c1, _c2, _c3 = st.columns([4, 3, 2])
+_c1.markdown("<div class='muted' style='padding-top:10px'>Presenting to judges? The cinematic version plays the whole story "
+             "automatically (about 3 minutes, no clicks after Play).</div>", unsafe_allow_html=True)
+_c2.page_link("views/presentation.py", label="Cinematic presentation", icon=":material/play_circle:", use_container_width=True)
+
+
+@st.cache_data(show_spinner=False)
+def _offline_html():
+    from ui import presentation_data
+    return presentation_data.html()
+
+
+_c3.download_button("⬇ Offline copy (HTML)", _offline_html(), file_name="PULSE_presentation.html", mime="text/html",
+                    use_container_width=True, help="One file that plays in any browser, even without the app running.")
+
 # ---------------------------------------------------------------- stepper + nav
 st.markdown("<div class='stepper'>" + "".join(
     f"<div class='s {'cur' if i + 1 == step else ('done' if i + 1 < step else '')}'><b>STEP {i + 1}</b>{s}</div>"
@@ -136,10 +152,12 @@ elif step == 2:
                                   args=[[str(k)], dict(mode="immediate", frame=dict(duration=0, redraw=True))]) for k, h in enumerate(hrs)])],
     )
     st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
-    night = (hrs >= TD * 24) & (hrs < TD * 24 + 24)
-    share = inside[night].sum() / max((inside + outside)[night].sum(), 1)
+    # KPIs cover the whole calendar day of Day T (00:00-24:00), not just the hours drawn on the chart
+    dayp = pin[(ph >= TD * 24) & (ph < TD * 24 + 24)]
+    day_n = len(dayp)
+    share = dayp.fp_match.sum() / max(day_n, 1)
     P_out = P[(P.kind == 1) & (P.t_min // 60 >= h0) & (P.t_min // 60 < h1)]
-    C.kpi_row([("Payments on Day T", f"{int((inside + outside)[night].sum())}", f"vs about {twin.base_daily_tx:.0f} on a normal day"),
+    C.kpi_row([("Payments on Day T", f"{day_n}", f"vs about {twin.base_daily_tx:.0f} on a normal day"),
                ("Inside match windows", f"{100 * share:.0f}%", "shaded green on the chart"),
                ("'Refunds' paid out", f"₹{P_out.amount.sum():,.0f}", f"{len(P_out)} payouts in the replay window"),
                ("First PULSE flag (L2+)", data.hour_label(first_l2, "%H:00 %d %b"),

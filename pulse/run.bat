@@ -24,6 +24,7 @@ goto end
 call :data || exit /b 1
 call :train || exit /b 1
 call :test || exit /b 1
+%PY% scripts\build_presentation.py
 call :screenshots
 goto end
 

@@ -1,9 +1,9 @@
 # PULSE prototype. `make all` = fetch data, build, train/evaluate, test, screenshots.
 PY ?= $(if $(wildcard .venv/bin/python),.venv/bin/python,python3)
 
-.PHONY: all setup fetch-data data train test test-fast app screenshots clean
+.PHONY: all setup fetch-data data train test test-fast app screenshots presentation test-presentation clean
 
-all: fetch-data data train test screenshots
+all: fetch-data data train test presentation screenshots
 
 setup:
 	python3.11 -m venv .venv && .venv/bin/pip install -r requirements.txt
@@ -30,6 +30,12 @@ app:
 
 screenshots:
 	$(PY) scripts/screenshots.py
+
+presentation:
+	$(PY) scripts/build_presentation.py
+
+test-presentation:
+	$(PY) scripts/test_presentation.py
 
 clean:
 	rm -rf data/processed artifacts/*.parquet artifacts/*.json artifacts/*.npz artifacts/evidence

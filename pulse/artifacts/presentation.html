@@ -1,0 +1,847 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PULSE · Presentation</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#000F11; --bg2:#001A1D; --panel:#03252A; --panel2:#062E33; --line:rgba(98,202,195,.16);
+  --dark:#002124; --neon:#00FE89; --jade:#00AD7D; --emerald:#4EB564; --mint:#62CAC3;
+  --off:#F7F7F7; --grey:#E3E3E3; --muted:#8FA6A7; --dim:#4F6668;
+  --font:'Poppins',system-ui,-apple-system,'Segoe UI',Arial,sans-serif; --mono:'JetBrains Mono',ui-monospace,Menlo,Consolas,monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:100%;height:100%;background:var(--bg);overflow:hidden;color:var(--off);font-family:var(--font)}
+button{font-family:var(--font)}
+#viewport{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:radial-gradient(1200px 700px at 50% 40%,#022A2E 0%,var(--bg) 70%)}
+#stage{position:relative;flex:none;width:1600px;height:900px;transform-origin:center center;overflow:hidden;background:var(--bg)}
+/* persistent atmosphere: never goes blank between scenes */
+#atmos{position:absolute;inset:0;pointer-events:none}
+#atmos .grid{position:absolute;inset:-40px;background-image:linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);background-size:64px 64px;opacity:.35;mask-image:radial-gradient(900px 560px at 50% 50%,#000 30%,transparent 80%)}
+#atmos .glow{position:absolute;width:900px;height:900px;border-radius:50%;filter:blur(40px);opacity:.22;background:radial-gradient(circle,rgba(0,173,125,.55),transparent 65%)}
+.scene{position:absolute;inset:0;will-change:opacity}
+.abs{position:absolute}
+.eyebrow{font-size:14px;letter-spacing:.22em;text-transform:uppercase;color:var(--mint);font-weight:600}
+.h1{font-size:64px;font-weight:700;letter-spacing:-.02em;line-height:1.05}
+.h2{font-size:44px;font-weight:700;letter-spacing:-.015em;line-height:1.1}
+.h3{font-size:24px;font-weight:600;letter-spacing:-.005em}
+.lead{font-size:22px;font-weight:300;color:#CFE3E1;line-height:1.45}
+.small{font-size:14px;color:var(--muted);line-height:1.5}
+.mono{font-family:var(--mono)}
+.neon{color:var(--neon)}
+.badge{display:inline-flex;align-items:center;gap:8px;font-size:12px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;padding:6px 12px;border-radius:999px;border:1px solid rgba(98,202,195,.35);color:var(--mint);background:rgba(3,37,42,.7)}
+.badge.real{color:#00170F;background:var(--jade);border-color:var(--jade)}
+.badge.sim::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--mint)}
+.panel{background:linear-gradient(180deg,rgba(6,46,51,.92),rgba(3,37,42,.92));border:1px solid rgba(98,202,195,.18);border-radius:18px;box-shadow:0 24px 60px rgba(0,0,0,.35),inset 0 1px 0 rgba(255,255,255,.04)}
+.kpi{padding:18px 20px}
+.kpi .l{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.kpi .v{font-size:42px;font-weight:700;color:var(--neon);margin-top:6px;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.kpi .s{font-size:13px;color:var(--muted);margin-top:2px}
+.caption{position:absolute;left:96px;right:96px;bottom:92px;font-size:30px;font-weight:600;letter-spacing:-.01em;color:#fff;text-align:left}
+.caption span.mark{color:var(--neon)}
+.chip{display:inline-block;white-space:nowrap;padding:4px 12px;border-radius:8px;font-weight:700;font-size:15px}
+.reason{padding:16px 20px;border-left:4px solid var(--neon);border-radius:12px;background:rgba(6,46,51,.95);margin-bottom:12px;font-size:19px;line-height:1.4}
+.reason .e{font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--neon);font-weight:700;margin-bottom:4px}
+svg text{font-family:var(--font)}
+.lbl{paint-order:stroke;stroke:#03252A;stroke-width:6px;stroke-linejoin:round}
+.axis{fill:var(--muted);font-size:13px}
+.bar{transform-box:fill-box;transform-origin:50% 100%}
+.disclaim{position:absolute;right:40px;top:30px}
+/* cover */
+#cover{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:26px;z-index:20;background:radial-gradient(900px 520px at 50% 45%,rgba(0,173,125,.18),transparent 70%)}
+#cover .word{font-size:132px;font-weight:800;letter-spacing:.32em;padding-left:.32em;background:linear-gradient(180deg,#fff,#9FE9D7);-webkit-background-clip:text;background-clip:text;color:transparent}
+#cover .tag{font-size:24px;font-weight:300;color:#CFE3E1}
+#playBtn{margin-top:18px;display:flex;align-items:center;gap:14px;font-size:20px;font-weight:600;color:#00170F;background:var(--neon);border:0;border-radius:999px;padding:18px 36px 18px 28px;cursor:pointer;box-shadow:0 0 0 0 rgba(0,254,137,.5);animation:ring 2.4s infinite}
+#playBtn:focus-visible{outline:3px solid #fff;outline-offset:4px}
+@keyframes ring{0%{box-shadow:0 0 0 0 rgba(0,254,137,.45)}70%{box-shadow:0 0 0 22px rgba(0,254,137,0)}100%{box-shadow:0 0 0 0 rgba(0,254,137,0)}}
+#cover .meta{font-size:14px;color:var(--muted);letter-spacing:.06em}
+#cover .note{position:absolute;bottom:40px;font-size:13px;color:var(--dim);max-width:900px;text-align:center;line-height:1.6}
+/* controls */
+#controls{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);z-index:50;width:min(1100px,calc(100vw - 32px));background:rgba(0,20,23,.86);backdrop-filter:blur(8px);border:1px solid rgba(98,202,195,.22);border-radius:16px;padding:10px 14px 12px;transition:opacity .45s ease;display:none}
+#controls.show{display:block}
+#controls.idle{opacity:0}
+#controls .row{display:flex;align-items:center;gap:8px}
+#controls button{background:transparent;border:1px solid rgba(98,202,195,.28);color:var(--off);border-radius:10px;height:38px;min-width:38px;padding:0 10px;cursor:pointer;font-size:15px;display:flex;align-items:center;justify-content:center;gap:6px}
+#controls button:hover{background:rgba(98,202,195,.12)}
+#controls button:focus-visible{outline:2px solid var(--neon);outline-offset:2px}
+#controls button.primary{background:var(--neon);color:#00170F;border-color:var(--neon);font-weight:700}
+#chapter{flex:1;min-width:0;font-size:14px;color:#CFE3E1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:0 8px}
+#chapter b{color:var(--neon);font-weight:600;margin-right:6px}
+#time{font-family:var(--mono);font-size:13px;color:var(--muted);white-space:nowrap}
+#track{position:relative;height:16px;margin-top:8px;cursor:pointer}
+#track .rail{position:absolute;left:0;right:0;top:6px;height:4px;border-radius:4px;background:rgba(98,202,195,.18)}
+#track .fill{position:absolute;left:0;top:6px;height:4px;border-radius:4px;background:var(--neon)}
+#track .tick{position:absolute;top:3px;width:2px;height:10px;background:rgba(247,247,247,.35)}
+#track .knob{position:absolute;top:2px;width:12px;height:12px;border-radius:50%;background:#fff;margin-left:-6px;box-shadow:0 0 12px rgba(0,254,137,.7)}
+#sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+#hint{position:fixed;top:14px;right:16px;z-index:50;font-size:12px;color:var(--dim);transition:opacity .45s}
+#endcard{position:fixed;top:16px;left:50%;transform:translateX(-50%);z-index:50;font-size:13px;color:var(--muted);background:rgba(0,20,23,.8);border:1px solid rgba(98,202,195,.2);padding:6px 14px;border-radius:999px;display:none}
+</style>
+</head>
+<body>
+<div id="viewport">
+  <div id="stage" aria-live="off">
+    <div id="atmos"><div class="grid"></div><div class="glow" id="glow"></div></div>
+    <div id="scenes"></div>
+    <div id="cover" role="dialog" aria-label="PULSE presentation">
+      <div class="eyebrow">Follow the Money · Innovation Challenge</div>
+      <div class="word">PULSE</div>
+      <div class="tag">Behavioural intelligence for payment fraud detection</div>
+      <button id="playBtn" aria-label="Play presentation"><svg width="22" height="22" viewBox="0 0 22 22"><path d="M5 3l14 8-14 8z" fill="#00170F"/></svg>Play presentation</button>
+      <div class="meta" id="coverMeta"></div>
+      <div class="note">Plays automatically from start to finish. Space pauses · ← → move between chapters · F fullscreen.<br>
+      The bakery's normal is real public data; every other scenario is simulated and labelled. Not PayU production data.</div>
+    </div>
+  </div>
+</div>
+<div id="hint">Space · ← → · F</div>
+<div id="endcard">End of presentation · press Replay or R</div>
+<div id="controls" role="toolbar" aria-label="Presentation controls">
+  <div class="row">
+    <button id="bPrev" aria-label="Previous chapter" title="Previous (←)">⏮</button>
+    <button id="bPlay" class="primary" aria-label="Pause" title="Play / pause (Space)">❚❚</button>
+    <button id="bNext" aria-label="Next chapter" title="Next (→)">⏭</button>
+    <div id="chapter"></div>
+    <div id="time"></div>
+    <button id="bReplay" aria-label="Replay from the beginning" title="Replay (R)">↺ Replay</button>
+    <button id="bFull" aria-label="Toggle fullscreen" title="Fullscreen (F)">⛶</button>
+    <button id="bExit" aria-label="Exit presentation" title="Exit (X)">✕ Exit</button>
+  </div>
+  <div id="track" role="slider" aria-label="Presentation timeline" aria-valuemin="0" tabindex="0"><div class="rail"></div><div class="fill"></div><div class="knob"></div></div>
+</div>
+<div id="sr" aria-live="polite"></div>
+<script>
+"use strict";
+const D = {"brand":{"name":"PULSE"},"hero":{"name":"Sunrise Bakery","city":"Bengaluru","category":"Bakery","avg_daily":58.419753,"median_bill":180.0,"regulars":334,"share_regulars":0.90522,"days_open":159,"weekday":[0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.13,2.463,6.119,6.749,7.423,7.302,6.473,6.162,5.332,3.465,1.141,0.216,0.069,0.026,0.0,0.009,0.017],"weekend":[0.0,0.022,0.0,0.0,0.0,0.0,0.0,0.022,1.944,6.438,10.478,12.531,10.37,8.512,8.793,6.546,3.889,0.605,0.583,0.54,0.259,0.043,0.13,0.022],"bill_edges":[0,40,80,120,160,200,240,280,320,360,400,440,480,520,560,600,640,680,720,760,800,840,880,920,960,1000,1040,1080,1120,1160,1200],"bill_hist":[23,1583,703,1849,1182,839,848,522,491,329,286,203,158,127,75,72,45,43,18,13,16,12,3,8,5,4,0,3,0,2],"share_100_300":0.5633981403212173,"baskets":9464,"source_note":"Real transactions from the public Bread Basket dataset (a UK bakery), moved onto the 2025 calendar with day-of-week kept. Rupee prices and customer IDs are assumptions. Not PayU data."},"takeover":{"date":"Sun 14 Sep 2025","date_next":"Mon 15 Sep 2025","fixture":"India v Pakistan \u00b7 Asia Cup 2025","kickoff":"20:00","hour0":6,"hours":["06:00","07:00","08:00","09:00","10:00","11:00","12:00","13:00","14:00","15:00","16:00","17:00","18:00","19:00","20:00","21:00","22:00","23:00","00:00","01:00","02:00","03:00"],"inside":[0,0,0,0,0,0,0,0,0,0,0,0,0,32,7,44,8,36,0,0,0,0],"outside":[0,0,0,3,6,11,12,11,11,2,0,0,2,0,0,0,0,0,0,0,0,0],"p":[0.0,0.0,0.0,0.0,0.0,0.0,0.0020040080416947603,0.0020040080416947603,0.0020040080416947603,0.0020040080416947603,0.0020040080416947603,0.0020040080416947603,0.0020040080416947603,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0],"windows":[[13.5,17.75,"India v Pakistan","Asia Cup 2025"]],"normal_daily":58,"day_total":185,"share_inside":0.6864864864864865,"refunds_inr":210430.0,"refunds_n":64,"refund_window":"14 Sep\u201320 Sep","first_flag":"19:00, 14 Sep","first_flag_idx":13,"first_flag_same_hour":true,"stream":[{"t":"09:45","payer":"UPI \u2022\u20227881","amount":180,"match":false},{"t":"10:45","payer":"UPI \u2022\u20229050","amount":90,"match":false},{"t":"11:31","payer":"UPI \u2022\u20228929","amount":210,"match":false},{"t":"12:18","payer":"UPI \u2022\u20227763","amount":470,"match":false},{"t":"12:55","payer":"UPI \u2022\u20227640","amount":350,"match":false},{"t":"13:49","payer":"UPI \u2022\u20228906","amount":680,"match":false},{"t":"14:03","payer":"UPI \u2022\u20228906","amount":210,"match":false},{"t":"14:37","payer":"UPI \u2022\u20229872","amount":120,"match":false},{"t":"19:31","payer":"UPI \u2022\u20220062","amount":1000,"match":true},{"t":"19:40","payer":"UPI \u2022\u20227535","amount":500,"match":true},{"t":"19:46","payer":"UPI \u2022\u20227535","amount":500,"match":true},{"t":"19:54","payer":"UPI \u2022\u20227446","amount":500,"match":true},{"t":"19:58","payer":"UPI \u2022\u20225260","amount":1000,"match":true},{"t":"20:30","payer":"UPI \u2022\u20222386","amount":500,"match":true},{"t":"21:37","payer":"UPI \u2022\u20223499","amount":5000,"match":true},{"t":"21:44","payer":"UPI \u2022\u20222010","amount":500,"match":true},{"t":"21:48","payer":"UPI \u2022\u20229313","amount":2000,"match":true},{"t":"21:53","payer":"UPI \u2022\u20220636","amount":500,"match":true},{"t":"21:57","payer":"UPI \u2022\u20224878","amount":5000,"match":true},{"t":"21:59","payer":"UPI \u2022\u20220124","amount":200,"match":true},{"t":"22:36","payer":"UPI \u2022\u20224077","amount":2000,"match":true},{"t":"23:13","payer":"UPI \u2022\u20224675","amount":1000,"match":true},{"t":"23:21","payer":"UPI \u2022\u20221522","amount":1000,"match":true},{"t":"23:26","payer":"UPI \u2022\u20228633","amount":2000,"match":true},{"t":"23:36","payer":"UPI \u2022\u20223662","amount":1000,"match":true},{"t":"23:43","payer":"UPI \u2022\u20229488","amount":2000,"match":true}]},"engines":{"hour":"Sun 14 Sep, 23:00","drift":{"score":0.9656898975372314,"thr":0.5,"cnt":[0,0,0,0,0,0,0,0,0,3,6,11,12,11,11,2,0,0,2,32,7,44,8,36],"E":[0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,2.799999952316284,13.600000381469727,19.200000762939453,12.399999618530273,8.399999618530273,8.0,5.800000190734863,2.5999999046325684,0.800000011920929,0.20000000298023224,0.0,0.0,0.0,0.0,0.0],"labels":["00","01","02","03","04","05","06","07","08","09","10","11","12","13","14","15","16","17","18","19","20","21","22","23"]},"peers":{"z":4.128756046295166,"persist":3,"lift":[-0.5207759737968445,-0.5207759737968445,-0.5207759737968445,-0.5207759737968445,-0.5207759737968445,-0.5207759737968445,-0.5207759737968445,-0.5141533613204956,-0.5151640772819519,-0.48707646131515503,-0.5750243663787842,-0.4025368392467499,-0.5655505061149597,-0.31999337673187256,-0.2447827011346817,-0.3278141915798187,-0.23576200008392334,-0.23556609451770782,-0.23556609451770782,-0.23556609451770782,-0.2386477291584015,-0.2386477291584015,-0.2386477291584015,-0.2386477291584015,-0.2386477291584015,-0.2386477291584015,-0.2386477291584015,-0.2386477291584015,-0.2386477291584015,-0.2386477291584015,-0.2386477291584015,-0.23556609451770782,-0.19549201428890228,-0.05981849879026413,-0.01749313436448574,-0.025246810168027878,0.04027386009693146,-0.07410800457000732,-0.141758993268013,-0.12978799641132355,-0.1189519464969635,-0.08900409191846848,-0.08412602543830872,-0.08167802542448044,-0.07922400534152985,-0.07922400534152985,-0.07922400534152985,-0.07922400534152985,-0.07922400534152985,-0.07922400534152985,-0.07922400534152985,-0.07922400534152985,-0.07922400534152985,-0.07922400534152985,-0.07922400534152985,-0.07922400534152985,-0.06385147571563721,-0.0975523591041565,-0.14890557527542114,-0.2869125306606293,-0.2867487967014313,-0.21323959529399872,-0.14698222279548645,-0.17915992438793182,-0.244297593832016,-0.272434800863266,-0.2372804880142212,0.19604159891605377,0.2701495885848999,0.6410091519355774,0.6958173513412476,0.9109287261962891],"peer":[-0.08299688994884491,-0.08299688994884491,-0.08299688994884491,-0.08299688994884491,-0.08299688994884491,-0.08299688994884491,-0.08299688994884491,-0.08078205585479736,-0.09890405833721161,-0.12449445575475693,-0.09653794765472412,-0.11778303235769272,-0.08112557232379913,-0.13564062118530273,-0.08632805943489075,-0.027834797278046608,-0.05965980887413025,-0.05434715002775192,-0.048790160566568375,-0.04124293848872185,-0.04124293848872185,-0.04124293848872185,-0.04124293848872185,-0.04124293848872185,-0.04124293848872185,-0.04124293848872185,-0.04124293848872185,-0.04124293848872185,-0.04124293848872185,-0.04124293848872185,-0.04124293848872185,-0.04376503825187683,-0.0350913405418396,-0.05981849879026413,-0.01749313436448574,-0.025246810168027878,0.019838374108076096,0.01005028747022152,-0.03877910599112511,-0.03077162615954876,-0.042559634894132614,-0.04047413542866707,-0.05085841566324234,-0.052477944642305374,-0.043894197791814804,-0.043894197791814804,-0.043894197791814804,-0.043894197791814804,-0.043894197791814804,-0.043894197791814804,-0.043894197791814804,-0.043894197791814804,-0.043894197791814804,-0.043894197791814804,-0.043894197791814804,-0.043894197791814804,-0.06327081471681595,-0.08283603191375732,-0.02892538160085678,0.1041792631149292,0.12158698588609695,0.0762525275349617,0.037307024002075195,0.015839120373129845,-0.017775893211364746,-0.02786887250840664,-0.04116977006196976,-0.0055401925928890705,-0.033901579678058624,-0.033901579678058624,-0.025533299893140793,-0.022728245705366135],"day_labels":["12 Sep","13 Sep","14 Sep"]},"loop":{"A":259,"B":34,"AB":34,"beta":5.454918384552002,"p":0.0},"graph":{"k":32,"n":537,"expected":8.29128,"front":"Skyline Tours & Travels","ban":"29 Aug","neglogp":9.887493133544922},"fired":{"drift":true,"peers":true,"invariants":true,"graph":true}},"decision":{"hour":"Sun 14 Sep, 23:00","p":1.0,"n_engines":4,"reasons":[{"engine":"invariants","text":"69% of payments in the last 24 h fell inside live-match windows vs 2% in its baseline"},{"engine":"graph","text":"32 of its 537 payers in the last 30 days also paid Skyline Tours & Travels, banned on 29 Aug (about 8.3 expected by chance)"},{"engine":"invariants","text":"38 payers paid again within 10 minutes in the last 24 h"}],"auto":3,"rec":5,"auto_name":"Delta reserve","rec_name":"Exit + STR draft","c_fraud":100,"c_l3":12,"thresholds":{"L1":0.009901,"L2":0.056604,"L3":0.107143,"L4":0.285714,"L5":0.545455},"auto_max":3},"reserve":{"paid":149360.0,"held":117327.171875,"settled":32032.828125,"hours":["00","01","02","03","04","05","06","07","08","09","10","11","12","13","14","15","16","17","18","19","20","21","22","23"],"amount":[0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,930.0,2270.0,4320.0,4230.0,3360.0,2890.0,660.0,0.0,0.0,600.0,28000.0,4000.0,59100.0,10000.0,29000.0],"held_h":[0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,461.0,25152.0,3590.0,53093.0,8980.0,26051.0],"tolerated":[4.0,4.0,4.0,4.0,4.0,4.0,4.0,4.0,4.0,1213.0,5892.0,8318.0,5372.0,3639.0,3466.0,2513.0,1126.0,347.0,87.0,4.0,4.0,4.0,4.0,4.0],"total_case":3205493.263671875,"k":3.0,"s1_days":["18 Oct","19 Oct","20 Oct","21 Oct","22 Oct","23 Oct"],"s1_amount":[103316.0,147084.0,135845.0,79356.0,55228.0,73288.0],"s1_tol":[230757.0,446328.0,435816.0,190873.0,156195.0,181290.0],"s1_held":0.0},"honest":{"s1":{"name":"Lakshmi Sweets","labels":["12 Oct","13 Oct","14 Oct","15 Oct","16 Oct","17 Oct","18 Oct","19 Oct","20 Oct","21 Oct","22 Oct","23 Oct","24 Oct","25 Oct","26 Oct","27 Oct"],"cnt":[57,92,53,47,87,56,171,231,198,124,89,116,56,84,77,46],"exp":[98.25071716308594,67.00204467773438,66.93224334716797,75.06889343261719,59.75041198730469,66.91898345947266,116.96923065185547,215.0334930419922,212.11181640625,184.411865234375,116.52882385253906,98.59243774414062,93.73773956298828,84.33087158203125,99.99787139892578,69.06843566894531],"fest":["","","","","","","Dhanteras","Naraka Chaturdashi (Diwali eve)","Diwali (Lakshmi Puja)","Diwali (day after)","Balipadyami","Bhai Dooj","","","",""],"max_level":0,"held":0.0},"s2":{"name":"Third Umpire Sports Bar","cnt":[0,0,0,0,0,3,1,6,3,6,0,4,0,1,1,0,0,0,0,0,0,0,0,0,1,0,1,1,1,0,1,2,3,8,1,8,3,2,0,0,0,0,0,0,0,0,0,0,0,0,3,0,0,1,3,2,3,6,11,1,0,1,0,0,0,0,0,0,0,0,0,0,1,2,0,2,0,1,0,3,6,2,1,2,3,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,2,1,2,5,13,12,9,4,0,0,0,0,0,0,0,0,0,0,0,1,0,0,1,0,0,2,0,1,0,3,3,2,0,1,0,0,0,0,0,0,0,0,0,0,0,0,1,2,0,1,0,3,0,1,3,3,2,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,2,2,2,3,3,2,1],"windows":[[7.5,11.75],[103.5,107.75]],"max_level":1,"label0":"10 Sep","label1":"17 Sep"},"hero_level":3},"network":{"ego":{"edges":[{"a":"M258","b":"P13317"},{"a":"M258","b":"P16270"},{"a":"M258","b":"P19045"},{"a":"M258","b":"P19719"},{"a":"M258","b":"P21397"},{"a":"M258","b":"P28318"},{"a":"M258","b":"P29148"},{"a":"M258","b":"P30261"},{"a":"M258","b":"P3262"},{"a":"M258","b":"P34769"},{"a":"M258","b":"P35184"},{"a":"M258","b":"P3576"},{"a":"M258","b":"P38401"},{"a":"M258","b":"P42348"},{"a":"M258","b":"P4240"},{"a":"M258","b":"P45834"},{"a":"M258","b":"P46354"},{"a":"M258","b":"P47663"},{"a":"M258","b":"P48345"},{"a":"M258","b":"P9421"},{"a":"M3","b":"P16270"},{"a":"M3","b":"P19045"},{"a":"M3","b":"P19719"},{"a":"M3","b":"P28318"},{"a":"M3","b":"P29148"},{"a":"M3","b":"P3262"},{"a":"M3","b":"P3576"},{"a":"M3","b":"P42348"},{"a":"M3","b":"P4240"},{"a":"M3","b":"P46354"},{"a":"M3","b":"P48345"},{"a":"M3","b":"P9421"},{"a":"P13317","b":"M117"},{"a":"P13317","b":"M119"},{"a":"P16270","b":"M106"},{"a":"P16270","b":"M117"},{"a":"P16270","b":"M119"},{"a":"P16270","b":"M300"},{"a":"P19045","b":"M106"},{"a":"P19045","b":"M300"},{"a":"P19045","b":"M309"},{"a":"P19719","b":"M117"},{"a":"P19719","b":"M300"},{"a":"P19719","b":"M309"},{"a":"P21397","b":"M117"},{"a":"P21397","b":"M119"},{"a":"P21397","b":"M300"},{"a":"P21397","b":"M309"},{"a":"P28318","b":"M119"},{"a":"P28318","b":"M309"},{"a":"P30261","b":"M118"},{"a":"P30261","b":"M309"},{"a":"P3262","b":"M300"},{"a":"P34769","b":"M118"},{"a":"P34769","b":"M300"},{"a":"P35184","b":"M118"},{"a":"P35184","b":"M300"},{"a":"P3576","b":"M106"},{"a":"P38401","b":"M118"},{"a":"P38401","b":"M300"},{"a":"P42348","b":"M300"},{"a":"P4240","b":"M106"},{"a":"P4240","b":"M119"},{"a":"P4240","b":"M300"},{"a":"P48345","b":"M300"}],"nodes":[{"id":"M106","kind":"merchant","label":"Restaurant #26","role":"context","x":-0.081069,"y":0.846488},{"id":"M117","kind":"merchant","label":"Restaurant #37","role":"context","x":0.72238,"y":0.65081},{"id":"M118","kind":"merchant","label":"Restaurant #38","role":"context","x":0.475307,"y":-1.0},{"id":"M119","kind":"merchant","label":"Restaurant #39","role":"context","x":0.506656,"y":0.568348},{"id":"M258","kind":"merchant","label":"S5 shell (new)","role":"s5","x":-0.112035,"y":-0.0666},{"id":"M3","kind":"merchant","label":"QuickServ IT Solutions (banned)","role":"banned","x":-0.26738,"y":0.184647},{"id":"M300","kind":"merchant","label":"It Services F32","role":"context","x":0.095947,"y":-0.151245},{"id":"M309","kind":"merchant","label":"Restaurant F41","role":"context","x":0.719954,"y":-0.043587},{"id":"P13317","kind":"payer","label":"payer 13317","role":"other","x":0.339019,"y":0.735131},{"id":"P16270","kind":"payer","label":"payer 16270","role":"shared","x":0.176883,"y":0.472237},{"id":"P19045","kind":"payer","label":"payer 19045","role":"shared","x":0.127039,"y":0.250105},{"id":"P19719","kind":"payer","label":"payer 19719","role":"shared","x":0.362619,"y":0.219164},{"id":"P21397","kind":"payer","label":"payer 21397","role":"other","x":0.594475,"y":0.199218},{"id":"P28318","kind":"payer","label":"payer 28318","role":"shared","x":0.350803,"y":0.052313},{"id":"P29148","kind":"payer","label":"payer 29148","role":"shared","x":-0.663691,"y":0.420494},{"id":"P30261","kind":"payer","label":"payer 30261","role":"other","x":0.613092,"y":-0.515995},{"id":"P3262","kind":"payer","label":"payer 3262","role":"shared","x":-0.458598,"y":-0.060934},{"id":"P34769","kind":"payer","label":"payer 34769","role":"other","x":0.023966,"y":-0.750886},{"id":"P35184","kind":"payer","label":"payer 35184","role":"other","x":0.192895,"y":-0.692028},{"id":"P3576","kind":"payer","label":"payer 3576","role":"shared","x":-0.404092,"y":0.618529},{"id":"P38401","kind":"payer","label":"payer 38401","role":"other","x":0.349412,"y":-0.586383},{"id":"P42348","kind":"payer","label":"payer 42348","role":"shared","x":-0.231453,"y":-0.381065},{"id":"P4240","kind":"payer","label":"payer 4240","role":"shared","x":-0.038161,"y":0.450194},{"id":"P45834","kind":"payer","label":"payer 45834","role":"other","x":-0.854516,"y":-0.50216},{"id":"P46354","kind":"payer","label":"payer 46354","role":"shared","x":-0.788697,"y":-0.041603},{"id":"P47663","kind":"payer","label":"payer 47663","role":"other","x":-0.544564,"y":-0.796503},{"id":"P48345","kind":"payer","label":"payer 48345","role":"shared","x":-0.428865,"y":-0.286539},{"id":"P9421","kind":"payer","label":"payer 9421","role":"shared","x":-0.777327,"y":0.207848}]},"card":{"K":2102,"N":50000,"expected":0.8408,"k":12,"log10_p":-11.565504,"n":20,"p_value":0.0},"worked":{"K":2000,"N":5000000,"expected":0.008,"k":12,"log10_p":-35.690642,"n":20,"p_value":0.0},"first":[{"amount":2000,"bf2_bettor":true,"payer_id":19045,"t_min":205574},{"amount":500,"bf2_bettor":false,"payer_id":47663,"t_min":205616},{"amount":1000,"bf2_bettor":false,"payer_id":21397,"t_min":205633},{"amount":1000,"bf2_bettor":true,"payer_id":3576,"t_min":205640},{"amount":500,"bf2_bettor":true,"payer_id":16270,"t_min":205669},{"amount":500,"bf2_bettor":true,"payer_id":28318,"t_min":205704},{"amount":2000,"bf2_bettor":true,"payer_id":19719,"t_min":205727},{"amount":1000,"bf2_bettor":false,"payer_id":35184,"t_min":205735},{"amount":500,"bf2_bettor":true,"payer_id":48345,"t_min":205745},{"amount":500,"bf2_bettor":true,"payer_id":4240,"t_min":205763},{"amount":2000,"bf2_bettor":false,"payer_id":13317,"t_min":205777},{"amount":2000,"bf2_bettor":true,"payer_id":9421,"t_min":205779},{"amount":500,"bf2_bettor":true,"payer_id":3262,"t_min":205794},{"amount":1000,"bf2_bettor":true,"payer_id":46354,"t_min":205796},{"amount":1000,"bf2_bettor":true,"payer_id":29148,"t_min":205806},{"amount":2000,"bf2_bettor":true,"payer_id":42348,"t_min":205818},{"amount":2000,"bf2_bettor":false,"payer_id":34769,"t_min":205819},{"amount":2000,"bf2_bettor":false,"payer_id":38401,"t_min":205828},{"amount":2000,"bf2_bettor":false,"payer_id":30261,"t_min":205836},{"amount":500,"bf2_bettor":false,"payer_id":45834,"t_min":205907}],"s5_name":"Nimbus Cloud IT Services","onboard":"14 Oct","front":"QuickServ IT Solutions","ban":"12 Oct","detect_h":2.0},"evidence":{"case_id":"PULSE-HERO-2707","timeline":[{"when":"Sun 25 May 2025, 00:00","what":"Onboarded (KYB passed as bakery)"},{"when":"Sun 14 Sep 2025, 19:00","what":"Invariants engine crossed its threshold"},{"when":"Sun 14 Sep 2025, 19:00","what":"L2 micro-proof requested (OTP + supplier invoice)"},{"when":"Sun 14 Sep 2025, 19:00","what":"L3 delta reserve and video KYC"},{"when":"Sun 14 Sep 2025, 19:00","what":"PULSE reached L3 (calibrated p > 0.99; 2 engines agree)"},{"when":"Sun 14 Sep 2025, 21:00","what":"Graph engine crossed its threshold"}],"links":["Skyline Tours & Travels (banned 2025-08-29): 20 shared payers"],"money":["Pay-ins: 431 payments, Rs 1,32,220","'Refunds' / payouts: 0 payments, Rs 0 to 0 recipients","Delta reserve held (whole window): Rs 32,05,493; everything else settled T+1"],"str":"Sunrise Bakery, onboarded as a bakery in Bengaluru, showed a sustained change in its pattern of payments from Sun 14 Sep 2025, 19:00. 36% of payments in the last 24 h fell inside live-match windows vs 2% in its baseline. 12 payers paid again within 10 minutes in the last 24 h. 30 of 90 payments in the last 24 h came from 19 new \u2026","readings":[{"engine":"Drift","score":0.9656898975372314,"fired":true},{"engine":"Peers","score":0.34406301379203796,"fired":true},{"engine":"Invariants","score":1.0,"fired":true},{"engine":"Graph","score":0.8239577412605286,"fired":true}]},"eval":{"n_fronts":29,"caught":28,"recall":0.965517,"p10":1.0,"prauc":0.983064,"n_honest":77,"honest_l3":0,"scenarios":[{"id":"S0","label":"Hero bakery, normal months (real data)","pass":true},{"id":"S1","label":"Diwali: every bakery and sweet shop x4-5","pass":true},{"id":"S2","label":"Sports bar busy on every match night","pass":true},{"id":"S3","label":"Hero bakery taken over on day T","pass":true},{"id":"S4","label":"Slow ramp: betting share +3 points a week","pass":true},{"id":"S5","label":"Brand-new 'IT services' shell","pass":true},{"id":"E1","label":"Evasion: S3 without round amounts","pass":true},{"id":"E2","label":"Evasion: betting split across 10 small fronts","pass":true},{"id":"E3","label":"Evasion: winners paid off-platform","pass":true}],"ablation":[{"variant":"full","recall":0.965517},{"variant":"without drift","recall":0.896552},{"variant":"without peers","recall":0.965517},{"variant":"without invariants","recall":0.758621},{"variant":"without graph","recall":0.62069}],"ttd_labels":["<1 h","1\u20136 h","6\u201324 h","1\u20134 d","4\u201314 d","14+ d"],"ttd":[3,6,0,3,6,10],"ttd_miss":1,"median_detect":163.0}};
+
+/* =====================================================================================
+   Utilities. Every scene renders as a PURE FUNCTION OF ITS LOCAL TIME t (seconds), so pause,
+   seek, skip and replay are exact: nothing keeps running in the background.
+   ===================================================================================== */
+// query parameters: this frame's own, or (when embedded by Streamlit via srcdoc) the parent page's
+const Q = new URLSearchParams((() => { try { return window.parent !== window && location.protocol === "about:" ? window.parent.location.search : location.search; } catch (e) { return location.search; } })());
+const REDUCED = window.matchMedia("(prefers-reduced-motion: reduce)").matches || Q.get("reduced") === "1";
+const SPEED = Math.max(0.25, Math.min(20, parseFloat(Q.get("speed") || "1")));   // test hook only
+const NS = "http://www.w3.org/2000/svg";
+const clamp = (x, a = 0, b = 1) => Math.max(a, Math.min(b, x));
+const lerp = (a, b, p) => a + (b - a) * p;
+const easeIO = p => p < .5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2;
+const easeOut = p => 1 - Math.pow(1 - p, 3);
+/** progress of a timed event between a and b seconds (eased); reduced motion -> quick fade at a */
+const seg = (t, a, b, ease = easeIO) => REDUCED ? clamp((t - a) / 0.3) : ease(clamp((t - a) / Math.max(1e-6, b - a)));
+function h(tag, attrs, parent, text) {
+  const e = document.createElement(tag);
+  for (const k in (attrs || {})) { if (k === "class") e.className = attrs[k]; else if (k === "style") e.style.cssText = attrs[k]; else e.setAttribute(k, attrs[k]); }
+  if (text != null) e.textContent = text;
+  if (parent) parent.appendChild(e);
+  return e;
+}
+function s(tag, attrs, parent, text) {
+  const e = document.createElementNS(NS, tag);
+  for (const k in (attrs || {})) e.setAttribute(k, attrs[k]);
+  if (text != null) e.textContent = text;
+  if (parent) parent.appendChild(e);
+  return e;
+}
+function show(e, p, dy = 18, dx = 0, sc = 0) {
+  e.style.opacity = p;
+  e.style.transform = `translate(${(1 - p) * dx}px,${(1 - p) * dy}px)` + (sc ? ` scale(${1 - (1 - p) * sc})` : "");
+  e.style.visibility = p <= 0.001 ? "hidden" : "visible";
+}
+function inr(x) {               // Indian digit grouping
+  x = Math.round(x); const neg = x < 0; let s0 = String(Math.abs(x));
+  if (s0.length > 3) { let head = s0.slice(0, -3), tail = s0.slice(-3), parts = []; while (head.length > 2) { parts.unshift(head.slice(-2)); head = head.slice(0, -2); } if (head) parts.unshift(head); s0 = parts.join(",") + "," + tail; }
+  return (neg ? "-" : "") + "₹" + s0;
+}
+const lakh = x => "₹" + (x / 1e5).toFixed(2).replace(/0$/, "") + " lakh";
+function mulberry(a) { return function () { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+function drawPath(path) { const L = path.getTotalLength(); path.style.strokeDasharray = L; path.__L = L; return path; }
+function setDraw(path, p) { path.style.strokeDashoffset = path.__L * (1 - p); path.style.opacity = p > 0 ? 1 : 0; }
+function caption(root, html) { const c = h("div", { class: "caption" }, root); c.innerHTML = html; return c; }
+function badge(root, text, cls = "sim", style = "") { const b = h("div", { class: "badge " + cls, style }, root, text); return b; }
+function kpi(parent, label, sub, style) {
+  const k = h("div", { class: "panel kpi abs", style }, parent);
+  h("div", { class: "l" }, k, label); const v = h("div", { class: "v" }, k, ""); h("div", { class: "s" }, k, sub || "");
+  return { box: k, val: v };
+}
+function heading(root, eyebrow, title, x = 96, y = 70, w = 1100) {
+  const g = h("div", { class: "abs", style: `left:${x}px;top:${y}px;width:${w}px` }, root);
+  const e = h("div", { class: "eyebrow" }, g, eyebrow); const t = h("div", { class: "h2", style: "margin-top:10px" }, g, title);
+  return { g, e, t };
+}
+/** simple SVG bar chart with grow-in; returns {svg, bars, render(p)} */
+function barChart(parent, opts) {
+  const { x, y, w, hgt, series, colors, max, labels, labelEvery = 1, gap = 0.18, stacked = false } = opts;
+  const svg = s("svg", { width: w, height: hgt + 28, style: `position:absolute;left:${x}px;top:${y}px;overflow:visible` }, parent);
+  const n = series[0].length, bw = w / n;
+  for (let g = 0; g <= 4; g++) s("line", { x1: 0, x2: w, y1: hgt - g * hgt / 4, y2: hgt - g * hgt / 4, stroke: "rgba(98,202,195,.12)" }, svg);
+  const bars = [];
+  for (let i = 0; i < n; i++) {
+    let base = 0;
+    series.forEach((ser, k) => {
+      const v = ser[i], bh = v / max * hgt;
+      const sub = stacked ? 1 : series.length, xi = i * bw + bw * gap / 2 + (stacked ? 0 : k * (bw * (1 - gap)) / sub);
+      const r = s("rect", { x: xi, y: hgt - base - bh, width: Math.max(1, (bw * (1 - gap)) / sub), height: Math.max(0, bh), rx: 2, fill: colors[k], class: "bar" }, svg);
+      bars.push({ r, i, k }); if (stacked) base += bh;
+    });
+    if (labels && i % labelEvery === 0) s("text", { x: i * bw + bw / 2, y: hgt + 20, "text-anchor": "middle", class: "axis" }, svg, labels[i]);
+  }
+  return { svg, bars, bw, render(p, stagger = 0.5) { bars.forEach(b => { const q = clamp((p * (1 + stagger) - stagger * b.i / n)); b.r.style.transform = `scaleY(${easeOut(q)})`; b.r.style.opacity = q > 0 ? 1 : 0; }); } };
+}
+function linePath(vals, x, y, w, hgt, lo, hi) {
+  return vals.map((v, i) => `${i ? "L" : "M"}${(x + i * w / (vals.length - 1)).toFixed(1)},${(y + hgt - (v - lo) / (hi - lo) * hgt).toFixed(1)}`).join(" ");
+}
+
+/* =====================================================================================
+   Scenes
+   ===================================================================================== */
+const SC = [];
+
+/* ---------- 1. Opening: money has a blind spot ---------- */
+SC.push({ id: "opening", chapter: "The blind spot", dur: 11, mount(root) {
+  const cv = h("canvas", { width: 1600, height: 900, class: "abs", style: "left:0;top:0" }, root), ctx = cv.getContext("2d");
+  const rnd = mulberry(7);
+  const cust = Array.from({ length: 14 }, (_, i) => ({ x: 170, y: 150 + i * 46 }));
+  const merch = Array.from({ length: 6 }, (_, i) => ({ x: 800, y: 210 + i * 96 }));
+  const gw = { x: 1420, y: 450 };
+  const parts = Array.from({ length: 140 }, (_, i) => ({ c: Math.floor(rnd() * 14), m: Math.floor(rnd() * 6), ph: rnd(), sp: .11 + rnd() * .06 }));
+  const t1 = h("div", { class: "abs h1", style: "left:96px;top:70px;width:1440px;white-space:nowrap" }, root, "Every payment can look legitimate.");
+  const t2 = h("div", { class: "abs h1", style: "left:96px;top:150px;width:1440px;white-space:nowrap;color:var(--neon)" }, root, "The business behind it may not be.");
+  const word = h("div", { class: "abs", style: "left:0;right:0;top:330px;text-align:center" }, root);
+  const w1 = h("div", { style: "font-size:150px;font-weight:800;letter-spacing:.3em;padding-left:.3em;color:#fff" }, word, "PULSE");
+  const w2 = h("div", { class: "lead", style: "font-size:28px;margin-top:6px" }, word, "Behavioural intelligence for payment fraud detection");
+  const lab = h("div", { class: "abs small", style: "left:1330px;top:500px;width:200px;text-align:center" }, root, "Payment gateway");
+  function bez(a, b, p) { const cx = (a.x + b.x) / 2; const x = (1 - p) ** 3 * a.x + 3 * (1 - p) ** 2 * p * cx + 3 * (1 - p) * p * p * cx + p ** 3 * b.x; const y = (1 - p) ** 3 * a.y + 3 * (1 - p) ** 2 * p * a.y + 3 * (1 - p) * p * p * b.y + p ** 3 * b.y; return [x, y]; }
+  return { render(t) {
+    const cam = REDUCED ? 1 : 1 + 0.05 * easeIO(clamp(t / 11));
+    cv.style.transform = `scale(${cam})`;
+    const anom = seg(t, 3.2, 6.0), dimp = 1 - 0.65 * seg(t, 6.3, 7.4);
+    ctx.clearRect(0, 0, 1600, 900); ctx.globalAlpha = dimp;
+    ctx.strokeStyle = "rgba(98,202,195,.10)"; ctx.lineWidth = 1;
+    merch.forEach(m => { ctx.beginPath(); ctx.moveTo(m.x, m.y); ctx.bezierCurveTo(1110, m.y, 1110, gw.y, gw.x, gw.y); ctx.stroke(); });
+    parts.forEach((q, i) => {
+      const u = ((q.ph + t * q.sp) % 1 + 1) % 1, a = cust[q.c], m = merch[q.m];
+      const [x, y] = u < .5 ? bez(a, m, u * 2) : bez(m, gw, (u - .5) * 2);
+      const odd = q.m === 3 && anom > 0 && (i % 3 !== 0);
+      ctx.fillStyle = odd ? `rgba(0,254,137,${.5 + .5 * anom})` : "rgba(98,202,195,.75)";
+      ctx.beginPath(); ctx.arc(x, y, odd ? 2.4 + 1.6 * anom : 2, 0, 6.283); ctx.fill();
+    });
+    cust.forEach(c => { ctx.fillStyle = "rgba(247,247,247,.5)"; ctx.beginPath(); ctx.arc(c.x, c.y, 4, 0, 6.283); ctx.fill(); });
+    merch.forEach((m, i) => { const odd = i === 3; ctx.fillStyle = odd ? `rgba(0,254,137,${.35 + .65 * anom})` : "rgba(0,173,125,.9)"; ctx.fillRect(m.x - 9, m.y - 9, 18, 18);
+      if (odd && anom > 0) { ctx.strokeStyle = `rgba(0,254,137,${.6 * anom})`; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.arc(m.x, m.y, 18 + 10 * ((t * 1.3) % 1), 0, 6.283); ctx.stroke(); } });
+    ctx.fillStyle = "#fff"; ctx.beginPath(); ctx.arc(gw.x, gw.y, 16, 0, 6.283); ctx.fill(); ctx.globalAlpha = 1;
+    show(lab, seg(t, .8, 1.6) * dimp, 0);
+    show(t1, seg(t, .5, 1.6) * (1 - seg(t, 6.0, 6.8)));
+    show(t2, seg(t, 2.6, 3.6) * (1 - seg(t, 6.0, 6.8)));
+    const wp = seg(t, 6.6, 8.2);
+    w1.style.letterSpacing = REDUCED ? ".3em" : `${lerp(.9, .3, wp)}em`; show(word, wp, 0);
+    w1.style.filter = `blur(${(1 - wp) * 8}px)`; show(w2, seg(t, 7.6, 8.8), 12);
+  } };
+} });
+
+/* ---------- 2. Establish normal ---------- */
+SC.push({ id: "normal", chapter: "Meet the merchant", dur: 17, mount(root) {
+  const H = D.hero;
+  const hd = heading(root, "Chapter 1 · Establish normal", `Meet ${H.name}`);
+  const b = badge(root, "Real data", "real", "position:absolute;left:96px;top:190px");
+  const note = h("div", { class: "abs small", style: "left:220px;top:190px;width:1000px;line-height:1.4" }, root, H.source_note);
+  const ks = [["Payments a day", Math.round(H.avg_daily), "average over 162 days", v => Math.round(v)],
+              ["Median bill", H.median_bill, "from the declared price list", v => "₹" + Math.round(v)],
+              ["Local regulars", H.regulars, "paid 4 or more times", v => Math.round(v)],
+              ["From regulars", H.share_regulars * 100, "share of all payments", v => Math.round(v) + "%"],
+              ["Open days", H.days_open, "3 holidays in the original", v => Math.round(v)]];
+  const K = ks.map((k, i) => ({ ...kpi(root, k[0], k[2], `left:${96 + i * 286}px;top:250px;width:266px`), to: k[1], f: k[3] }));
+  const p1 = h("div", { class: "panel abs", style: "left:96px;top:430px;width:900px;height:330px" }, root);
+  h("div", { class: "h3", style: "position:absolute;left:24px;top:18px" }, p1, "Payments by hour of day");
+  const lg = h("div", { class: "small", style: "position:absolute;right:24px;top:24px" }, p1); lg.innerHTML = "<span style='color:var(--jade)'>■</span> weekday &nbsp; <span style='color:var(--mint)'>■</span> weekend";
+  const hrs = Array.from({ length: 18 }, (_, i) => i + 6);
+  const ch = barChart(p1, { x: 30, y: 70, w: 840, hgt: 200, series: [hrs.map(i => H.weekday[i]), hrs.map(i => H.weekend[i])], colors: ["#00AD7D", "#62CAC3"], max: 13, labels: hrs.map(x => x + ":00"), labelEvery: 2 });
+  const quiet = h("div", { class: "abs", style: "left:640px;top:96px;width:236px;height:200px;border:1px dashed rgba(0,254,137,.55);border-radius:12px;background:rgba(0,254,137,.05)" }, p1);
+  h("div", { class: "small", style: "position:absolute;left:12px;top:10px;color:var(--neon);font-weight:600" }, quiet, "Near-silent after 6 PM");
+  const p2 = h("div", { class: "panel abs", style: "left:1020px;top:430px;width:484px;height:330px" }, root);
+  h("div", { class: "h3", style: "position:absolute;left:24px;top:18px" }, p2, "Bill sizes");
+  const n = 20, edges = H.bill_edges.slice(0, n), hist = H.bill_hist.slice(0, n);
+  const ch2 = barChart(p2, { x: 24, y: 70, w: 436, hgt: 200, series: [hist], colors: ["#62CAC3"], max: Math.max(...hist) * 1.08, labels: edges.map(e => e % 200 === 0 ? "₹" + e : ""), gap: .12 });
+  const ann = h("div", { class: "small abs", style: "left:150px;top:64px;color:var(--neon);font-weight:600" }, p2, `${Math.round(H.share_100_300 * 100)}% of bills are ₹100–₹300`);
+  const cap = caption(root, "PULSE learns what <span class='mark'>normal</span> looks like for each merchant.");
+  return { render(t) {
+    show(hd.e, seg(t, .2, .9)); show(hd.t, seg(t, .4, 1.2)); show(b, seg(t, .9, 1.5)); show(note, seg(t, 1.1, 1.8));
+    K.forEach((k, i) => { const p = seg(t, 1.6 + i * .35, 2.4 + i * .35); show(k.box, p); k.val.textContent = k.f(k.to * seg(t, 1.8 + i * .35, 3.6 + i * .35, easeOut)); });
+    show(p1, seg(t, 3.8, 4.6)); ch.render(seg(t, 4.2, 7.2, x => x)); show(quiet, seg(t, 7.4, 8.2), 0, 0, .04);
+    show(p2, seg(t, 6.2, 7.0)); ch2.render(seg(t, 6.6, 9.0, x => x)); show(ann, seg(t, 9.0, 9.8));
+    show(cap, seg(t, 10.6, 11.6));
+  } };
+} });
+
+/* ---------- 3. The takeover ---------- */
+SC.push({ id: "takeover", chapter: "The takeover", dur: 23, mount(root) {
+  const T = D.takeover;
+  const hd = heading(root, "Chapter 2 · Same shop, different behaviour", "Day T: the bakery's QR starts taking bets");
+  const b = badge(root, "Simulated scenario", "sim", "position:absolute;right:96px;top:84px");
+  const chip = h("div", { class: "abs mono", style: "left:96px;top:186px;font-size:16px;color:#CFE3E1" }, root, `${T.date} · ${T.fixture} · starts ${T.kickoff} IST`);
+  // left: live stream of individual payments
+  const feed = h("div", { class: "panel abs", style: "left:96px;top:236px;width:430px;height:470px;overflow:hidden" }, root);
+  h("div", { class: "small", style: "position:absolute;left:20px;top:14px;letter-spacing:.14em;text-transform:uppercase;font-weight:600" }, feed, "Live payment stream");
+  const rows = T.stream.map((r, i) => {
+    const e = h("div", { class: "mono", style: `position:absolute;left:20px;right:20px;height:38px;display:flex;justify-content:space-between;align-items:center;font-size:15px;border-bottom:1px solid rgba(98,202,195,.08)` }, feed);
+    h("span", { style: "color:var(--muted)" }, e, r.t); h("span", { style: "color:#CFE3E1" }, e, r.payer);
+    h("span", { style: `color:${r.match ? "var(--neon)" : "#fff"};font-weight:500;min-width:80px;text-align:right` }, e, inr(r.amount));
+    return e;
+  });
+  const okTag = h("div", { class: "abs small", style: "left:116px;top:716px;width:400px" }, root, "Each payment on its own: ordinary amounts, ordinary UPI IDs.");
+  // right: hourly timeline, built as the clock runs
+  const pnl = h("div", { class: "panel abs", style: "left:550px;top:236px;width:954px;height:470px" }, root);
+  const clock = h("div", { class: "mono", style: "position:absolute;left:24px;top:16px;font-size:15px;color:#CFE3E1" }, pnl);
+  const cnt = h("div", { style: "position:absolute;right:24px;top:10px;text-align:right" }, pnl);
+  const cntV = h("div", { style: "font-size:44px;font-weight:700;color:#fff;font-variant-numeric:tabular-nums" }, cnt);
+  h("div", { class: "small" }, cnt, `payments today · normal ≈ ${T.normal_daily}`);
+  const n = T.hours.length, W = 890, HG = 300, X0 = 32, Y0 = 120, max = Math.max(...T.inside.map((v, i) => v + T.outside[i])) * 1.1;
+  const svg = s("svg", { width: 954, height: 470, style: "position:absolute;left:0;top:0;overflow:visible" }, pnl);
+  const bands = T.windows.map(w => { const r = s("rect", { x: X0 + Math.max(0, w[0]) * W / n, y: Y0 - 10, width: (Math.min(n, w[1]) - Math.max(0, w[0])) * W / n, height: HG + 10, fill: "rgba(0,254,137,.10)", stroke: "rgba(0,254,137,.45)", "stroke-dasharray": "4 4" }, svg);
+    const tx = s("text", { x: X0 + Math.max(0, w[0]) * W / n + 8, y: Y0 + 8, fill: "#00FE89", "font-size": 13, "font-weight": 600 }, svg, "LIVE MATCH WINDOW"); return [r, tx]; });
+  const bars = T.hours.map((lab, i) => {
+    const o = T.outside[i], m = T.inside[i], bw = W / n * .74, x = X0 + i * W / n + W / n * .13;
+    const ro = s("rect", { x, width: bw, y: Y0 + HG - o / max * HG, height: o / max * HG, fill: "#00AD7D", rx: 2, class: "bar" }, svg);
+    const ri = s("rect", { x, width: bw, y: Y0 + HG - (o + m) / max * HG, height: m / max * HG, fill: "#00FE89", rx: 2, class: "bar" }, svg);
+    if (i % 3 === 0) s("text", { x: x + bw / 2, y: Y0 + HG + 22, "text-anchor": "middle", class: "axis" }, svg, lab);
+    return [ro, ri];
+  });
+  const flagX = X0 + T.first_flag_idx * W / n;
+  const flagLine = s("line", { x1: flagX, x2: flagX, y1: Y0 - 26, y2: Y0 + HG, stroke: "#fff", "stroke-width": 1.5, "stroke-dasharray": "3 3" }, svg);
+  const flagTx = s("text", { x: flagX - 8, y: Y0 - 32, fill: "#fff", "font-size": 14, "font-weight": 600, "text-anchor": "end" }, svg, "PULSE flags L2 · " + T.first_flag);
+  const pring = s("circle", { cx: flagX, cy: Y0 - 26, r: 6, fill: "#00FE89" }, svg);
+  const lg = h("div", { class: "small", style: "position:absolute;left:24px;top:42px" }, pnl);
+  lg.innerHTML = "<span style='color:var(--jade)'>■</span> outside match windows &nbsp; <span style='color:var(--neon)'>■</span> inside match windows";
+  // zoom-out KPIs
+  const ks = [["Payments on Day T", `vs about ${T.normal_daily} on a normal day`], ["Inside match windows", "of the day's payments"],
+              ["'Refunds' paid out", `${T.refunds_n} payouts, ${T.refund_window}`], ["First PULSE flag", T.first_flag_same_hour ? "in the same hour as the first bets" : "after the first bets"]];
+  const K = ks.map((k, i) => kpi(root, k[0], k[1], `left:${96 + i * 356}px;top:236px;width:336px`));
+  // refund loop
+  const loop = s("svg", { width: 1408, height: 300, style: "position:absolute;left:96px;top:420px;overflow:visible" }, root);
+  const bake = s("rect", { x: 640, y: 110, width: 128, height: 70, rx: 14, fill: "#03252A", stroke: "#62CAC3" }, loop);
+  s("text", { x: 704, y: 152, "text-anchor": "middle", fill: "#fff", "font-size": 16, "font-weight": 600 }, loop, "Bakery QR");
+  const payers = Array.from({ length: 9 }, (_, i) => ({ x: 120 + i * 145, y: i % 2 ? 26 : 270 }));
+  const arcs = payers.map(p => { const g = s("g", {}, loop);
+    s("circle", { cx: p.x, cy: p.y, r: 13, fill: "#062E33", stroke: "#CFE3E1" }, g);
+    const inP = drawPath(s("path", { d: `M${p.x},${p.y} Q${(p.x + 704) / 2},${p.y < 150 ? 60 : 250} 704,145`, fill: "none", stroke: "#00AD7D", "stroke-width": 2 }, g));
+    const outP = drawPath(s("path", { d: `M704,145 Q${(p.x + 704) / 2 + 40},${p.y < 150 ? 120 : 190} ${p.x},${p.y}`, fill: "none", stroke: "#00FE89", "stroke-width": 2, "stroke-dasharray": "6 6" }, g));
+    return { g, inP, outP }; });
+  const loopTx = h("div", { class: "abs", style: "left:96px;top:730px;width:1408px;text-align:center;font-size:19px;color:#CFE3E1" }, root);
+  loopTx.innerHTML = "Money comes in during the match <span style='color:var(--jade)'>━</span> … and goes back to the same people as 'refunds' <span style='color:var(--neon)'>┅</span>";
+  const cap = caption(root, "Individual transactions look ordinary. <span class='mark'>Their collective behaviour does not.</span>");
+  return { render(t) {
+    show(hd.e, seg(t, .2, .9)); show(hd.t, seg(t, .3, 1.1)); show(b, seg(t, .6, 1.2)); show(chip, seg(t, .8, 1.4));
+    const zoom = seg(t, 12.2, 13.4);               // camera pulls back to the collective pattern
+    const stageOn = 1 - zoom;
+    show(feed, seg(t, 1.2, 2.0) * stageOn, 18, -20); show(okTag, seg(t, 2.4, 3.0) * stageOn); show(pnl, seg(t, 1.4, 2.2) * stageOn, 18, 20);
+    feed.style.transform += ` scale(${1 - .06 * zoom})`; pnl.style.transform += ` scale(${1 - .06 * zoom})`;
+    const clockP = seg(t, 2.2, 11.6, x => x), hourF = clockP * n;   // timeline clock: 06:00 -> 04:00
+    const hr = Math.min(n - 1, Math.floor(hourF));
+    const dayIdxEnd = 24 - T.hour0;   // index of the next midnight
+    clock.textContent = "CLOCK  " + (hr < dayIdxEnd ? T.date : T.date_next) + "  " + T.hours[hr];
+    bars.forEach(([ro, ri], i) => { const q = clamp(hourF - i); ro.style.transform = ri.style.transform = `scaleY(${easeOut(q)})`; ro.style.opacity = ri.style.opacity = q > 0 ? 1 : 0; });
+    // payments today = calendar-day count up to the clock (the few sales before 06:00 are added as the clock starts)
+    let today = 0;
+    for (let i = 0; i < Math.min(dayIdxEnd, n); i++) today += (T.inside[i] + T.outside[i]) * clamp(hourF - i);
+    const early = T.day_total - T.inside.slice(0, dayIdxEnd).reduce((a, v, i) => a + v + T.outside[i], 0);
+    cntV.textContent = Math.round(today + early * clamp(hourF));
+    bands.forEach(([r, tx], k) => { const w = T.windows[k]; const lit = clamp(hourF - Math.max(0, w[0])); r.style.opacity = lit; tx.style.opacity = lit; });
+    const fl = clamp(hourF - T.first_flag_idx - .5);
+    flagLine.style.opacity = flagTx.style.opacity = fl; pring.style.opacity = fl; pring.setAttribute("r", 6 + (REDUCED ? 0 : 10 * ((t * 1.2) % 1)) * fl); pring.style.fillOpacity = 1 - ((t * 1.2) % 1) * .8;
+    rows.forEach((e, i) => { const at = 2.2 + i * (9.0 / rows.length); const q = seg(t, at, at + .35); const visibleIdx = Math.min(rows.length - 1, Math.floor((t - 2.2) / (9.0 / rows.length)));
+      const off = Math.max(0, visibleIdx - 10); e.style.top = (52 + (i - off) * 38) + "px"; e.style.opacity = q * (i < off ? 0 : 1); });
+    // zoom-out: the collective pattern
+    const vals = [T.day_total, Math.round(T.share_inside * 100), T.refunds_inr, 0];
+    K.forEach((k, i) => { const p = seg(t, 13.0 + i * .5, 13.8 + i * .5); show(k.box, p); const c = seg(t, 13.2 + i * .5, 14.8 + i * .5, easeOut);
+      k.val.textContent = i === 0 ? Math.round(lerp(T.normal_daily, vals[0], c)) : i === 1 ? Math.round(vals[1] * c) + "%" : i === 2 ? lakh(vals[2] * c) : T.first_flag; });
+    arcs.forEach((a, i) => { show(a.g, seg(t, 14.6 + i * .08, 15.2 + i * .08), 0); setDraw(a.inP, seg(t, 15.0 + i * .12, 16.4 + i * .12)); setDraw(a.outP, seg(t, 17.0 + i * .12, 18.6 + i * .12)); });
+    show(loop, seg(t, 14.4, 15.0), 0); show(loopTx, seg(t, 16.4, 17.2)); show(cap, seg(t, 18.6, 19.6));
+    bake.setAttribute("stroke", t > 19.5 ? "#00FE89" : "#62CAC3"); bake.setAttribute("stroke-width", t > 19.5 ? 3 : 1);
+  } };
+} });
+
+/* ---------- 4. Four engines ---------- */
+SC.push({ id: "engines", chapter: "Four engines", dur: 29, mount(root) {
+  const E = D.engines;
+  const hd = heading(root, "Chapter 3 · Four engines, one investigation", "Four instruments examine the same night");
+  const b = badge(root, "Simulated · " + E.hour, "sim", "position:absolute;right:96px;top:84px");
+  const pos = [[96, 210], [810, 210], [96, 520], [810, 520]];
+  const names = [["01", "Drift", "Is it acting unlike itself?"], ["02", "Peers", "Are similar shops doing this?"], ["03", "Betting invariants", "Does money loop back to the same people?"], ["04", "Network graph", "Are its customers known bettors?"]];
+  const P = pos.map((p, i) => { const e = h("div", { class: "panel abs", style: `left:${p[0]}px;top:${p[1]}px;width:694px;height:290px` }, root);
+    h("div", { class: "mono", style: "position:absolute;left:22px;top:16px;font-size:13px;color:var(--mint)" }, e, "ENGINE " + names[i][0]);
+    h("div", { class: "h3", style: "position:absolute;left:22px;top:36px" }, e, names[i][1]);
+    h("div", { class: "small", style: "position:absolute;left:22px;top:70px" }, e, names[i][2]);
+    const st = h("div", { style: "position:absolute;right:20px;top:18px;font-size:12px;font-weight:700;letter-spacing:.16em;padding:6px 12px;border-radius:999px;border:1px solid rgba(98,202,195,.3);color:var(--dim)" }, e, "STANDBY");
+    const read = h("div", { style: "position:absolute;right:22px;top:58px;text-align:right;font-size:14px;color:#CFE3E1" }, e);
+    return { e, st, read }; });
+  // 01 drift: last 24 h vs its own normal
+  const dv = s("svg", { width: 650, height: 180, style: "position:absolute;left:22px;top:100px;overflow:visible" }, P[0].e);
+  const dmax = Math.max(...E.drift.cnt, ...E.drift.E) * 1.1;
+  const dbars = E.drift.cnt.map((v, i) => s("rect", { x: i * 650 / 24 + 4, width: 650 / 24 - 8, y: 150 - v / dmax * 150, height: v / dmax * 150, rx: 2, fill: i >= 19 ? "#00FE89" : "#E3E3E3", class: "bar" }, dv));
+  E.drift.labels.forEach((l, i) => { if (i % 4 === 0) s("text", { x: i * 650 / 24 + 650 / 48, y: 170, "text-anchor": "middle", class: "axis" }, dv, l + ":00"); });
+  const dline = drawPath(s("path", { d: linePath(E.drift.E, 650 / 48, 0, 650 - 650 / 24, 150, 0, dmax), fill: "none", stroke: "#00AD7D", "stroke-width": 3 }, dv));
+  P[0].read.innerHTML = `bars: last 24 h · <span style="color:var(--jade)">line: its frozen normal</span>`;
+  // 02 peers
+  const pv = s("svg", { width: 650, height: 180, style: "position:absolute;left:22px;top:100px;overflow:visible" }, P[1].e);
+  const all = E.peers.lift.concat(E.peers.peer), lo = Math.min(...all) - .1, hi = Math.max(...all) + .1;
+  const ppeer = drawPath(s("path", { d: linePath(E.peers.peer, 0, 10, 650, 140, lo, hi), fill: "none", stroke: "#62CAC3", "stroke-width": 3 }, pv));
+  const pme = drawPath(s("path", { d: linePath(E.peers.lift, 0, 10, 650, 140, lo, hi), fill: "none", stroke: "#fff", "stroke-width": 3 }, pv));
+  E.peers.day_labels.forEach((l, i) => s("text", { x: i * 650 / 3 + 20, y: 172, class: "axis" }, pv, l));
+  const pz = P[1].read;
+  // 03 invariants: two sets converging
+  const iv = s("svg", { width: 650, height: 180, style: "position:absolute;left:22px;top:100px;overflow:visible" }, P[2].e);
+  const cA = s("circle", { cy: 88, r: 78, fill: "rgba(0,173,125,.28)", stroke: "#00AD7D", "stroke-width": 2 }, iv);
+  const cB = s("circle", { cy: 88, r: 40, fill: "rgba(0,254,137,.25)", stroke: "#00FE89", "stroke-width": 2 }, iv);
+  const tA = s("text", { y: 94, "text-anchor": "middle", fill: "#fff", "font-size": 22, "font-weight": 700 }, iv, `${E.loop.A}`);
+  const tB = s("text", { y: 94, "text-anchor": "middle", fill: "#fff", "font-size": 20, "font-weight": 700 }, iv, `${E.loop.B}`);
+  const tL = s("text", { x: 0, y: 174, fill: "#8FA6A7", "font-size": 13 }, iv, `${E.loop.A} paid in · ${E.loop.B} were paid back`);
+  const loopTx = h("div", { style: "position:absolute;left:330px;top:120px;width:340px;font-size:18px;line-height:1.45" }, P[2].e);
+  loopTx.innerHTML = `<b class="neon">${E.loop.AB} of ${E.loop.B}</b> refund recipients had paid in first: a closed loop.<div class="small" style="margin-top:8px">Match clock β ${E.loop.beta.toFixed(1)} · placebo p ${E.loop.p < 0.001 ? "< 0.001" : E.loop.p.toFixed(3)} (1,000 shifted calendars)</div>`;
+  // 04 graph
+  const gv = s("svg", { width: 650, height: 180, style: "position:absolute;left:22px;top:100px;overflow:visible" }, P[3].e);
+  const rg = mulberry(11), gnodes = Array.from({ length: E.graph.k }, (_, i) => { const a = Math.PI * (0.15 + 0.7 * i / (E.graph.k - 1)); return { x: 170 + Math.cos(a) * 0 + (i % 8) * 18 - 60, y: 18 + Math.floor(i / 8) * 40 + rg() * 6, i }; });
+  const gS = { x: 30, y: 88 }, gF = { x: 330, y: 88 };
+  const gEdges = gnodes.map(nd => [s("line", { x1: gS.x, y1: gS.y, x2: nd.x, y2: nd.y, stroke: "rgba(247,247,247,.35)" }, gv), s("line", { x1: gF.x, y1: gF.y, x2: nd.x, y2: nd.y, stroke: "rgba(0,254,137,.55)" }, gv)]);
+  const gDots = gnodes.map(nd => s("circle", { cx: nd.x, cy: nd.y, r: 5, fill: "#00FE89" }, gv));
+  s("rect", { x: gS.x - 14, y: gS.y - 14, width: 28, height: 28, rx: 6, fill: "#00AD7D" }, gv); s("text", { x: gS.x, y: gS.y + 36, "text-anchor": "middle", class: "axis" }, gv, "Sunrise");
+  s("path", { d: `M${gF.x - 12},${gF.y - 12} L${gF.x + 12},${gF.y + 12} M${gF.x + 12},${gF.y - 12} L${gF.x - 12},${gF.y + 12}`, stroke: "#fff", "stroke-width": 5 }, gv);
+  s("text", { x: gF.x, y: gF.y + 36, "text-anchor": "middle", class: "axis" }, gv, "Banned front");
+  const gb = s("g", { transform: "translate(420,0)" }, gv), gmax = Math.max(E.graph.k, E.graph.expected) * 1.15;
+  const gbE = s("rect", { x: 10, width: 80, y: 150 - E.graph.expected / gmax * 150, height: E.graph.expected / gmax * 150, fill: "#4F6668", class: "bar" }, gb);
+  const gbO = s("rect", { x: 120, width: 80, y: 150 - E.graph.k / gmax * 150, height: E.graph.k / gmax * 150, fill: "#00FE89", class: "bar" }, gb);
+  const gtE = s("text", { x: 50, y: 150 - E.graph.expected / gmax * 150 - 8, "text-anchor": "middle", fill: "#CFE3E1", "font-size": 15 }, gb, E.graph.expected.toFixed(1));
+  const gtO = s("text", { x: 160, y: 150 - E.graph.k / gmax * 150 - 8, "text-anchor": "middle", fill: "#fff", "font-size": 15, "font-weight": 700 }, gb, E.graph.k);
+  s("text", { x: 50, y: 172, "text-anchor": "middle", class: "axis" }, gb, "by chance"); s("text", { x: 160, y: 172, "text-anchor": "middle", class: "axis" }, gb, "observed");
+  P[3].read.innerHTML = `shared with <b>${E.graph.front}</b>, banned ${E.graph.ban}`;
+  // convergence
+  const conv = s("svg", { width: 1600, height: 900, style: "position:absolute;left:0;top:0;pointer-events:none" }, root);
+  const centre = { x: 800, y: 515 };
+  const cl = pos.map(p => drawPath(s("path", { d: `M${p[0] + 347},${p[1] + 145} Q${(p[0] + 347 + 800) / 2},${(p[1] + 145 + 515) / 2 - 40} ${centre.x},${centre.y}`, stroke: "#00FE89", "stroke-width": 2.5, fill: "none" }, conv)));
+  const core = h("div", { class: "abs", style: "left:640px;top:415px;width:320px;height:200px;border-radius:24px;background:radial-gradient(circle at 50% 40%,#0A3C40,#03252A);border:1px solid #00FE89;box-shadow:0 0 60px rgba(0,254,137,.35);text-align:center;padding-top:34px" }, root);
+  h("div", { style: "font-size:68px;font-weight:800;color:var(--neon);line-height:1" }, core, "4 / 4");
+  h("div", { style: "font-size:16px;color:#CFE3E1;margin-top:10px;letter-spacing:.06em" }, core, "ENGINES AGREE");
+  const conTx = h("div", { class: "abs", style: "left:96px;right:96px;top:650px;text-align:center" }, root);
+  conTx.innerHTML = `<div class="h2">Four independent signals converge.</div><div class="lead" style="margin-top:12px">No single detector decides the outcome. PULSE needs at least two to agree before any visible action, a deliberate guard against false positives.</div>`;
+  const slots = [[2.4, 7.6], [7.6, 12.8], [12.8, 18.0], [18.0, 23.2]];
+  const fired = [E.fired.drift, E.fired.peers, E.fired.invariants, E.fired.graph];
+  return { render(t) {
+    show(hd.e, seg(t, .2, .9)); show(hd.t, seg(t, .3, 1.1)); show(b, seg(t, .5, 1.1));
+    const conv_p = seg(t, 23.6, 25.0);
+    P.forEach((p, i) => {
+      const [a, z] = slots[i], act = seg(t, a, a + .6), on = t >= a + 3.2 && fired[i];
+      show(p.e, seg(t, .8 + i * .15, 1.6 + i * .15) * (1 - .75 * conv_p), 14);
+      p.e.style.borderColor = on ? "rgba(0,254,137,.9)" : act > 0 && t < z ? "rgba(98,202,195,.6)" : "rgba(98,202,195,.18)";
+      p.e.style.boxShadow = on ? `0 0 ${REDUCED ? 0 : 24 + 14 * Math.max(0, 1 - (t - a - 3.2))}px rgba(0,254,137,.28)` : "0 24px 60px rgba(0,0,0,.35)";
+      p.st.textContent = on ? "FIRED" : t >= a ? "ANALYSING" : "STANDBY";
+      p.st.style.color = on ? "#00170F" : t >= a ? "var(--mint)" : "var(--dim)"; p.st.style.background = on ? "var(--neon)" : "transparent";
+      p.st.style.borderColor = on ? "var(--neon)" : "rgba(98,202,195,.3)";
+    });
+    // 01
+    const d1 = seg(t, 2.6, 4.6, x => x);
+    dbars.forEach((r, i) => { const q = clamp(d1 * 1.5 - i / 24 * .5); r.style.transform = `scaleY(${easeOut(q)})`; r.style.opacity = q > 0 ? 1 : 0; });
+    setDraw(dline, seg(t, 4.2, 5.6));
+    if (t >= 5.6) P[0].read.innerHTML = `drift score <b class="neon">${(E.drift.score * seg(t, 5.6, 6.4, easeOut)).toFixed(2)}</b> · fires at ${E.drift.thr.toFixed(2)}`;
+    // 02
+    setDraw(ppeer, seg(t, 7.9, 9.4)); setDraw(pme, seg(t, 8.6, 10.6));
+    pz.innerHTML = t > 10.4 ? `robust z <b class="neon" style="font-size:20px">${(E.peers.z * seg(t, 10.4, 11.4, easeOut)).toFixed(1)}</b> · ${E.peers.persist} of last 6 h above 3` : `<span style="color:#fff">white: Sunrise</span> · <span style="color:var(--mint)">mint: bakery peers</span>`;
+    // 03
+    const c3 = seg(t, 13.2, 15.6);
+    cA.setAttribute("cx", lerp(80, 160, c3)); cB.setAttribute("cx", lerp(320, 205, c3)); tA.setAttribute("x", lerp(80, 120, c3)); tB.setAttribute("x", lerp(320, 205, c3)); tL.style.opacity = c3;
+    show(loopTx, seg(t, 15.6, 16.4));
+    // 04
+    gnodes.forEach((nd, i) => { const q = seg(t, 18.4 + i * .08, 18.8 + i * .08); gDots[i].style.opacity = q; gEdges[i][0].style.opacity = q * .6; gEdges[i][1].style.opacity = seg(t, 20.0 + i * .03, 20.4 + i * .03); });
+    const g4 = seg(t, 20.6, 22.0); [gbE, gbO].forEach(r => r.style.transform = `scaleY(${easeOut(g4)})`); gtE.style.opacity = gtO.style.opacity = g4;
+    // convergence
+    cl.forEach((pth, i) => setDraw(pth, seg(t, 23.6 + i * .15, 24.8 + i * .15)));
+    show(core, seg(t, 24.6, 25.4), 0, 0, .15); show(conTx, seg(t, 25.4, 26.2));
+  } };
+} });
+
+/* ---------- 5. Decision ---------- */
+SC.push({ id: "decision", chapter: "From signals to a decision", dur: 18, mount(root) {
+  const X = D.decision;
+  const hd = heading(root, "Chapter 4 · From signals to a decision", "One calibrated score. Three plain reasons.");
+  const b = badge(root, "Simulated model · " + X.hour, "sim", "position:absolute;right:96px;top:84px");
+  const gp = h("div", { class: "panel abs", style: "left:96px;top:210px;width:480px;height:470px" }, root);
+  const gs = s("svg", { width: 480, height: 300, style: "position:absolute;left:0;top:10px" }, gp);
+  const R = 150, cx = 240, cy = 210;
+  const arc = (a0, a1) => { const p0 = [cx + R * Math.cos(Math.PI * (1 - a0)), cy - R * Math.sin(Math.PI * (1 - a0))], p1 = [cx + R * Math.cos(Math.PI * (1 - a1)), cy - R * Math.sin(Math.PI * (1 - a1))]; return `M${p0[0]},${p0[1]} A${R},${R} 0 0 1 ${p1[0]},${p1[1]}`; };
+  s("path", { d: arc(0, 1), stroke: "rgba(98,202,195,.18)", "stroke-width": 26, fill: "none", "stroke-linecap": "round" }, gs);
+  [["L2", X.thresholds.L2], ["L3", X.thresholds.L3], ["L4", X.thresholds.L4], ["L5", X.thresholds.L5]].forEach(([l, v]) => { const a = Math.PI * (1 - v); s("text", { x: cx + (R + 34) * Math.cos(a), y: cy - (R + 34) * Math.sin(a) + 4, "text-anchor": "middle", class: "axis" }, gs, l); });
+  const garc = drawPath(s("path", { d: arc(0, Math.min(.999, X.p)), stroke: "#00FE89", "stroke-width": 26, fill: "none", "stroke-linecap": "round" }, gs));
+  const gval = s("text", { x: cx, y: cy - 10, "text-anchor": "middle", fill: "#fff", "font-size": 64, "font-weight": 700 }, gs, "");
+  s("text", { x: cx, y: cy + 26, "text-anchor": "middle", fill: "#8FA6A7", "font-size": 15 }, gs, "calibrated probability");
+  const gfoot = h("div", { style: "position:absolute;left:24px;right:24px;top:320px;text-align:center" }, gp);
+  gfoot.innerHTML = `<div style="font-size:18px">${X.n_engines} of 4 engines agree</div><div class="small" style="margin-top:8px">A probability from a model calibrated on <b>simulated</b> data, not a guarantee of real-world fraud. In the simulation every case in this score band was a front.</div>`;
+  const rh = h("div", { class: "abs eyebrow", style: "left:610px;top:216px" }, root, "Why · top three reasons (SHAP)");
+  const RS = X.reasons.map((r, i) => { const e = h("div", { class: "reason abs", style: `left:610px;top:${248 + i * 114}px;width:894px;padding:12px 18px;font-size:18px` }, root); h("div", { class: "e" }, e, `${i + 1} · ${r.engine} engine`); h("div", {}, e, r.text); return e; });
+  const lad = h("div", { class: "abs", style: "left:610px;top:596px;width:894px;display:flex;gap:8px" }, root);
+  const names = ["Watch", "Silent check", "Micro-proof", "Delta reserve", "Restrict", "Exit + STR"];
+  const L = names.map((n, i) => { const e = h("div", { style: "flex:1;padding:10px 8px;border-radius:10px;border:1px solid rgba(98,202,195,.25);text-align:center;font-size:13px;color:var(--muted)" }, lad); e.innerHTML = `<b style="display:block;font-size:17px;color:#CFE3E1">L${i}</b>${n}`; return e; });
+  const ladNote = h("div", { class: "abs small", style: "left:610px;top:672px;width:894px" }, root);
+  ladNote.innerHTML = `<b class="neon">Action now: L${X.auto} ${X.auto_name}</b> (automatic, up to L${X.auto_max}). &nbsp; <b style="color:#fff">L${X.rec} ${X.rec_name}</b> is only a recommendation: it needs analyst approval.`;
+  const pS = X.p >= .995 ? "0.999+" : X.p.toFixed(3);
+  const rule = h("div", { class: "panel abs", style: "left:96px;top:712px;width:1408px;padding:12px 22px;font-size:19px" }, root);
+  rule.innerHTML = `Decision rule: act at L3 only if &nbsp; p × C<sub>fraud</sub> &gt; (1 − p) × C<sub>friction</sub>(L3) &nbsp;→&nbsp; ${pS} × ${X.c_fraud} = <b class="neon">${(X.p * X.c_fraud).toFixed(1)}</b> &nbsp;&gt;&nbsp; ${(1 - X.p).toFixed(3)} × ${X.c_l3} = <b>${((1 - X.p) * X.c_l3).toFixed(2)}</b> &nbsp;✓`;
+  const cap = caption(root, "A risk score is only useful when you can <span class='mark'>explain why it exists</span>.");
+  cap.style.bottom = "38px"; cap.style.fontSize = "26px";
+  return { render(t) {
+    show(hd.e, seg(t, .2, .9)); show(hd.t, seg(t, .3, 1.1)); show(b, seg(t, .5, 1.1)); show(gp, seg(t, .9, 1.7));
+    const gpp = seg(t, 1.6, 4.0); setDraw(garc, gpp);
+    const v = X.p * 100 * gpp; gval.textContent = (X.p >= .995 && gpp > .97) ? "> 99%" : Math.floor(v) + "%";
+    show(gfoot, seg(t, 3.6, 4.4)); show(rh, seg(t, 4.2, 4.8));
+    RS.forEach((e, i) => show(e, seg(t, 4.6 + i * 1.1, 5.4 + i * 1.1), 0, 30));
+    show(lad, seg(t, 8.4, 9.2)); show(ladNote, seg(t, 9.6, 10.4));
+    L.forEach((e, i) => { const auto = i === X.auto && t > 9.4, rec = i === X.rec && t > 9.8;
+      e.style.background = auto ? "var(--neon)" : "transparent"; e.style.color = auto ? "#00170F" : "var(--muted)";
+      e.style.borderColor = rec ? "#fff" : auto ? "var(--neon)" : "rgba(98,202,195,.25)"; e.style.borderStyle = rec ? "dashed" : "solid";
+      e.firstChild.style.color = auto ? "#00170F" : "#CFE3E1"; });
+    show(rule, seg(t, 10.8, 11.6)); show(cap, seg(t, 12.6, 13.6));
+  } };
+} });
+
+/* ---------- 6. Money ---------- */
+SC.push({ id: "money", chapter: "Stop the suspicious surplus", dur: 21, mount(root) {
+  const R = D.reserve;
+  const hd = heading(root, "Chapter 5 · Proportionate action", "Hold the surplus. Pay the bakery on time.");
+  const b = badge(root, "Simulated · L3 delta reserve", "sim", "position:absolute;right:96px;top:84px");
+  const fl = s("svg", { width: 1408, height: 320, style: "position:absolute;left:96px;top:216px;overflow:visible" }, root);
+  const pool = h("div", { class: "panel abs", style: "left:96px;top:250px;width:330px;height:220px;padding:24px" }, root);
+  h("div", { class: "eyebrow" }, pool, "Paid in on Day T"); const pv = h("div", { style: "font-size:52px;font-weight:700;margin-top:10px" }, pool, "");
+  h("div", { class: "small", style: "margin-top:8px" }, pool, "One settlement window (one day, paid T+1)");
+  const topY = 250 - 200 + 70, botY = 250 - 200 + 210;
+  const wS = Math.max(8, 160 * R.settled / R.paid), wH = Math.max(8, 160 * R.held / R.paid);
+  const pathS = drawPath(s("path", { d: `M330,${120 - wH / 2 + 0} C620,120 680,40 1000,40`, stroke: "#00AD7D", "stroke-width": wS, fill: "none", "stroke-linecap": "round", opacity: .9 }, fl));
+  const pathH = drawPath(s("path", { d: `M330,${130} C620,130 680,230 1000,230`, stroke: "#00FE89", "stroke-width": wH, fill: "none", "stroke-linecap": "round", opacity: .85 }, fl));
+  const rnd = mulberry(5), dots = Array.from({ length: 60 }, (_, i) => ({ held: i % 60 < Math.round(60 * R.held / R.paid), ph: rnd(), sp: .25 + rnd() * .1 }));
+  const dEls = dots.map(d => s("circle", { r: 3, fill: d.held ? "#002124" : "#fff", opacity: .8 }, fl));
+  const outS = h("div", { class: "panel abs", style: "left:1110px;top:214px;width:394px;padding:18px 22px;border-color:rgba(0,173,125,.6)" }, root);
+  h("div", { class: "eyebrow", style: "color:var(--jade)" }, outS, "Settles on time (T+1)"); const sv = h("div", { style: "font-size:42px;font-weight:700;margin-top:6px" }, outS, "");
+  h("div", { class: "small" }, outS, "the bakery's real daytime sales");
+  const outH = h("div", { class: "panel abs", style: "left:1110px;top:380px;width:394px;padding:20px 22px;border-color:rgba(0,254,137,.8)" }, root);
+  h("div", { class: "eyebrow", style: "color:var(--neon)" }, outH, "Held in delta reserve"); const hv = h("div", { style: "font-size:42px;font-weight:700;margin-top:6px;color:var(--neon)" }, outH, "");
+  h("div", { class: "small" }, outH, "only payments above Tolerated that carry a betting fingerprint");
+  // hourly view with tolerated
+  const hp = h("div", { class: "panel abs", style: "left:96px;top:560px;width:860px;height:230px" }, root);
+  h("div", { class: "h3", style: "position:absolute;left:22px;top:14px;font-size:18px" }, hp, "Day T, hour by hour (₹)");
+  const settledH = R.amount.map((a, i) => a - R.held_h[i]), mx = Math.max(...R.amount) * 1.08;
+  const hc = barChart(hp, { x: 22, y: 52, w: 816, hgt: 140, series: [settledH, R.held_h], colors: ["#00AD7D", "#00FE89"], max: mx, labels: R.hours.map((x, i) => i % 3 === 0 ? x + ":00" : ""), stacked: true });
+  const tolP = drawPath(s("path", { d: linePath(R.tolerated, 816 / 48, 0, 816 - 816 / 24, 140, 0, mx), fill: "none", stroke: "#fff", "stroke-width": 2, "stroke-dasharray": "5 4" }, hc.svg));
+  h("div", { class: "small", style: "position:absolute;right:22px;top:18px" }, hp).innerHTML = "<span style='color:var(--jade)'>■</span> settles &nbsp; <span style='color:var(--neon)'>■</span> held &nbsp; ┅ Tolerated";
+  // festival panel: tolerated rises with the cohort
+  const fp = h("div", { class: "panel abs", style: "left:980px;top:560px;width:524px;height:230px" }, root);
+  h("div", { class: "h3", style: "position:absolute;left:22px;top:14px;font-size:18px" }, fp, "Why a spike is not punished");
+  const fmax = Math.max(...R.s1_amount, ...R.s1_tol) * 1.1;
+  const fc = barChart(fp, { x: 22, y: 52, w: 300, hgt: 130, series: [R.s1_amount], colors: ["#62CAC3"], max: fmax, labels: R.s1_days, gap: .3 });
+  const ftol = drawPath(s("path", { d: linePath(R.s1_tol, 300 / R.s1_tol.length / 2, 0, 300 - 300 / R.s1_tol.length, 130, 0, fmax), fill: "none", stroke: "#fff", "stroke-width": 2, "stroke-dasharray": "5 4" }, fc.svg));
+  const ftx = h("div", { style: "position:absolute;left:340px;top:56px;width:170px;font-size:14px;line-height:1.5;color:#CFE3E1" }, fp);
+  ftx.innerHTML = `Lakshmi Sweets, Diwali week (even if L3 were forced): Tolerated rises with the whole sweet-shop cohort.<div style="font-size:30px;font-weight:700;color:var(--neon);margin-top:8px">${inr(R.s1_held)} held</div>`;
+  const form = h("div", { class: "abs small", style: "left:96px;top:800px;width:1408px" }, root);
+  form.innerHTML = `Tolerated = baseline × exp(cohort lift + ${R.k}σ). Only part of one day's settlement is held: never the merchant's whole balance. Simulated scenario, not a PayU deployment. Whole simulated case: ${lakh(R.total_case)} held.`;
+  const cap = caption(root, "Protect the payment system <span class='mark'>without punishing legitimate businesses</span>.");
+  cap.style.bottom = "auto"; cap.style.top = "176px"; cap.style.fontSize = "22px"; cap.style.left = "96px"; cap.style.right = "auto";
+  return { render(t) {
+    show(hd.e, seg(t, .2, .9)); show(hd.t, seg(t, .3, 1.1)); show(b, seg(t, .5, 1.1));
+    show(pool, seg(t, .9, 1.7)); pv.textContent = lakh(R.paid * seg(t, 1.2, 2.6, easeOut));
+    setDraw(pathS, seg(t, 2.6, 4.4)); setDraw(pathH, seg(t, 3.0, 4.8));
+    const flow = seg(t, 4.4, 5.2);
+    dots.forEach((d, i) => { const u = ((d.ph + t * d.sp) % 1); const path = d.held ? pathH : pathS; const L = path.__L; const pt = path.getPointAtLength(u * L);
+      dEls[i].setAttribute("cx", pt.x); dEls[i].setAttribute("cy", pt.y); dEls[i].style.opacity = REDUCED ? 0 : flow * .85; });
+    show(outS, seg(t, 4.4, 5.2), 0, 30); sv.textContent = inr(R.settled * seg(t, 4.6, 6.0, easeOut));
+    show(outH, seg(t, 5.0, 5.8), 0, 30); hv.textContent = lakh(R.held * seg(t, 5.2, 6.6, easeOut));
+    show(cap, seg(t, 6.8, 7.6));
+    show(hp, seg(t, 8.2, 9.0)); hc.render(seg(t, 8.6, 11.0, x => x)); setDraw(tolP, seg(t, 11.0, 12.4));
+    show(fp, seg(t, 12.4, 13.2)); fc.render(seg(t, 12.8, 14.4, x => x)); setDraw(ftol, seg(t, 14.4, 15.6)); show(ftx, seg(t, 15.4, 16.2));
+    show(form, seg(t, 16.0, 16.8));
+  } };
+} });
+
+/* ---------- 7. Honest cases ---------- */
+SC.push({ id: "honest", chapter: "Honest businesses protected", dur: 17, mount(root) {
+  const S = D.honest;
+  const hd = heading(root, "Chapter 6 · Context is not fraud", "Two honest spikes. Neither escalates.");
+  const b = badge(root, "Simulated scenarios S1 · S2", "sim", "position:absolute;right:96px;top:84px");
+  function panel(x, title, sub) { const p = h("div", { class: "panel abs", style: `left:${x}px;top:200px;width:694px;height:450px` }, root);
+    h("div", { class: "h3", style: "position:absolute;left:24px;top:18px" }, p, title); h("div", { class: "small", style: "position:absolute;left:24px;top:52px" }, p, sub); return p; }
+  const p1 = panel(96, `${S.s1.name} · Diwali`, "Payments per day vs what its peer group makes normal");
+  const mx1 = Math.max(...S.s1.cnt, ...S.s1.exp) * 1.12;
+  const c1 = barChart(p1, { x: 24, y: 96, w: 646, hgt: 220, series: [S.s1.cnt], colors: ["#62CAC3"], max: mx1, labels: S.s1.labels.map((l, i) => i % 3 === 0 ? l : ""), gap: .25 });
+  c1.bars.forEach(bb => { if (S.s1.fest[bb.i]) bb.r.setAttribute("fill", "#00AD7D"); });
+  const e1 = drawPath(s("path", { d: linePath(S.s1.exp, 646 / S.s1.exp.length / 2, 0, 646 - 646 / S.s1.exp.length, 220, 0, mx1), fill: "none", stroke: "#fff", "stroke-width": 2.5 }, c1.svg));
+  const r1 = h("div", { style: "position:absolute;left:24px;right:24px;bottom:22px;display:flex;gap:12px;align-items:center" }, p1);
+  r1.innerHTML = `<span class="chip" style="background:#E3E3E3;color:#002124">L${S.s1.max_level} · Watch</span><span class="chip" style="background:#03252A;color:var(--neon);border:1px solid var(--neon)">${inr(S.s1.held)} held</span><span class="small">The whole cohort is busy on Diwali (green bars = festival days; white line = peer-adjusted expectation).</span>`;
+  const p2 = panel(810, `${S.s2.name} · match nights`, `Payments per hour, ${S.s2.label0}–${S.s2.label1}; shaded = live match`);
+  const n2 = S.s2.cnt.length, mx2 = Math.max(...S.s2.cnt) * 1.15, W2 = 646;
+  const sv2 = s("svg", { width: W2, height: 240, style: "position:absolute;left:24px;top:96px;overflow:visible" }, p2);
+  const bands = S.s2.windows.map(w => s("rect", { x: Math.max(0, w[0]) * W2 / n2, y: 0, width: (Math.min(n2, w[1]) - Math.max(0, w[0])) * W2 / n2, height: 220, fill: "rgba(0,254,137,.12)" }, sv2));
+  const b2 = S.s2.cnt.map((v, i) => s("rect", { x: i * W2 / n2, width: Math.max(1, W2 / n2 - .6), y: 220 - v / mx2 * 220, height: v / mx2 * 220, fill: "#62CAC3", class: "bar" }, sv2));
+  const r2 = h("div", { style: "position:absolute;left:24px;right:24px;bottom:22px;display:flex;gap:12px;align-items:center" }, p2);
+  r2.innerHTML = `<span class="chip" style="background:#62CAC3;color:#002124">L${S.s2.max_level} · Silent check</span><span class="small">Busy every match night, but its payers are local regulars and nobody is paid back. The shop never notices an L1 check.</span>`;
+  const contrast = h("div", { class: "abs", style: "left:96px;top:672px;width:1408px;display:flex;gap:14px;align-items:center;font-size:17px;color:#CFE3E1" }, root);
+  contrast.innerHTML = `Compare: the taken-over bakery reached <b class="neon">&nbsp;L${S.hero_level} delta reserve&nbsp;</b> within the hour, because its spike came with strangers, round stakes, refunds and banned-front bettors.`;
+  const cap = caption(root, "Detect anomalies. <span class='mark'>Don't punish context.</span>");
+  cap.style.bottom = "70px";
+  return { render(t) {
+    show(hd.e, seg(t, .2, .9)); show(hd.t, seg(t, .3, 1.1)); show(b, seg(t, .5, 1.1));
+    show(p1, seg(t, .9, 1.7), 18, -20); c1.render(seg(t, 1.4, 4.0, x => x)); setDraw(e1, seg(t, 4.0, 5.4)); show(r1, seg(t, 5.4, 6.2));
+    show(p2, seg(t, 3.4, 4.2), 18, 20); bands.forEach(r => r.style.opacity = seg(t, 4.2, 5.0));
+    const q2 = seg(t, 4.4, 7.4, x => x); b2.forEach((r, i) => { const q = clamp(q2 * 1.4 - .4 * i / n2); r.style.transform = `scaleY(${easeOut(q)})`; r.style.opacity = q > 0 ? 1 : 0; });
+    show(r2, seg(t, 7.6, 8.4)); show(contrast, seg(t, 9.2, 10.0)); show(cap, seg(t, 10.8, 11.8));
+  } };
+} });
+
+/* ---------- 8. Network ---------- */
+SC.push({ id: "network", chapter: "The network reveals a new front", dur: 17, mount(root) {
+  const N = D.network, C = N.card;
+  const hd = heading(root, "Chapter 7 · Same bettors, new front", `A brand-new 'IT services' shell, onboarded ${N.onboard}`);
+  const b = badge(root, "Simulated scenario S5", "sim", "position:absolute;right:96px;top:84px");
+  const pnl = h("div", { class: "panel abs", style: "left:96px;top:200px;width:900px;height:600px" }, root);
+  const sv = s("svg", { width: 900, height: 600, style: "position:absolute;left:0;top:0" }, pnl);
+  const nodes = N.ego.nodes, xs = nodes.map(n => n.x), ys = nodes.map(n => n.y);
+  const x0 = Math.min(...xs), x1 = Math.max(...xs), y0 = Math.min(...ys), y1 = Math.max(...ys);
+  const P = {}; nodes.forEach(n => P[n.id] = { ...n, X: 60 + (n.x - x0) / (x1 - x0) * 780, Y: 50 + (n.y - y0) / (y1 - y0) * 480 });
+  const firstOrder = {}; N.first.forEach((f, i) => firstOrder["P" + f.payer_id] = i);
+  const s5id = nodes.find(n => n.role === "s5").id, bfid = nodes.find(n => n.role === "banned").id;
+  const E = N.ego.edges.map(e => { const a = P[e.a], c = P[e.b]; const payer = a.kind === "payer" ? a : c, other = a.kind === "payer" ? c : a;
+    const kind = other.id === s5id ? "s5" : other.id === bfid ? "bf" : "ctx";
+    const ln = s("line", { x1: a.X, y1: a.Y, x2: c.X, y2: c.Y, stroke: kind === "bf" ? "#00FE89" : kind === "s5" ? "rgba(247,247,247,.55)" : "rgba(98,202,195,.22)", "stroke-width": kind === "ctx" ? 1 : 1.6 }, sv);
+    return { ln, ord: firstOrder[payer.id] ?? 0, kind }; });
+  const ND = nodes.map(n => { const p = P[n.id]; let el;
+    if (n.role === "s5") el = s("rect", { x: p.X - 20, y: p.Y - 20, width: 40, height: 40, rx: 8, fill: "#fff" }, sv);
+    else if (n.role === "banned") el = s("path", { d: `M${p.X - 16},${p.Y - 16} L${p.X + 16},${p.Y + 16} M${p.X + 16},${p.Y - 16} L${p.X - 16},${p.Y + 16}`, stroke: "#fff", "stroke-width": 7 }, sv);
+    else if (n.role === "context") el = s("rect", { x: p.X - 8, y: p.Y - 8, width: 16, height: 16, rx: 3, fill: "#2B5A5E" }, sv);
+    else el = s("circle", { cx: p.X, cy: p.Y, r: n.role === "shared" ? 8 : 6, fill: n.role === "shared" ? "#00FE89" : "#62CAC3" }, sv);
+    return { el, n, ord: firstOrder[n.id] }; });
+  const l1 = s("text", { x: P[s5id].X, y: P[s5id].Y - 30, "text-anchor": "middle", fill: "#fff", "font-size": 16, "font-weight": 700, class: "lbl" }, sv, N.s5_name + " (new)");
+  const l2 = s("text", { x: P[bfid].X, y: P[bfid].Y + 42, "text-anchor": "middle", fill: "#00FE89", "font-size": 16, "font-weight": 700, class: "lbl" }, sv, N.front + " (banned " + N.ban + ")");
+  const lg = h("div", { class: "small", style: "position:absolute;left:22px;bottom:16px" }, pnl);
+  lg.innerHTML = "<span style='color:var(--neon)'>●</span> first payer who was also a bettor of the banned front &nbsp; <span style='color:var(--mint)'>●</span> first payer, no link &nbsp; <span style='color:#2B5A5E'>■</span> other shops they use";
+  const kx = 1020;
+  const k1 = kpi(root, "Shared, first 20 payers", "also paid the banned front", `left:${kx}px;top:200px;width:484px`);
+  const k2 = kpi(root, "Expected by chance", `${C.n} × ${C.K.toLocaleString("en-IN")} ÷ ${C.N.toLocaleString("en-IN")} payers`, `left:${kx}px;top:350px;width:484px`);
+  const k3 = kpi(root, "Probability by chance", "hypergeometric tail, simulation pool", `left:${kx}px;top:500px;width:484px`);
+  const oneIn = Math.pow(10, -C.log10_p);
+  const fmtOneIn = oneIn >= 1e9 ? `about 1 in ${Math.round(oneIn / 1e9)} billion` : `about 1 in ${Math.round(oneIn).toLocaleString("en-IN")}`;
+  const txt = h("div", { class: "abs", style: `left:${kx}px;top:650px;width:484px;font-size:16px;line-height:1.55;color:#CFE3E1` }, root);
+  txt.innerHTML = `In a 5-million-payer region chance would give <b>${N.worked.expected.toFixed(3)}</b>. ${N.s5_name} also shares a device ID with the banned front, and PULSE flagged it <b class="neon">${N.detect_h.toFixed(0)} hours</b> after its first payment.`;
+  const cap = caption(root, "Fronts can change their name. <span class='mark'>They can't easily change their customers.</span>");
+  cap.style.bottom = "38px"; cap.style.fontSize = "24px";
+  return { render(t) {
+    show(hd.e, seg(t, .2, .9)); show(hd.t, seg(t, .3, 1.1)); show(b, seg(t, .5, 1.1)); show(pnl, seg(t, .8, 1.6));
+    const s5p = seg(t, 1.4, 2.0), bfp = seg(t, 1.8, 2.4);
+    const per = 7.0 / N.first.length;
+    let shared = 0;
+    ND.forEach(d => { if (d.n.role === "s5") d.el.style.opacity = s5p; else if (d.n.role === "banned") d.el.style.opacity = bfp;
+      else if (d.n.role === "context") d.el.style.opacity = seg(t, 10.0, 11.0) * .9;
+      else { const q = seg(t, 2.6 + d.ord * per, 3.0 + d.ord * per); d.el.style.opacity = q; if (d.n.role === "shared" && q >= 1) shared++; } });
+    E.forEach(e => { e.ln.style.opacity = e.kind === "ctx" ? seg(t, 10.0, 11.0) * .7 : e.kind === "s5" ? seg(t, 2.6 + e.ord * per, 3.0 + e.ord * per) : seg(t, 3.0 + e.ord * per, 3.6 + e.ord * per); });
+    l1.style.opacity = s5p; l2.style.opacity = bfp;
+    show(k1.box, seg(t, 2.4, 3.0)); k1.val.textContent = `${shared} of ${C.n}`;
+    show(k2.box, seg(t, 9.6, 10.2)); k2.val.textContent = C.expected.toFixed(2);
+    show(k3.box, seg(t, 10.6, 11.2)); k3.val.textContent = t > 10.8 ? fmtOneIn : "";
+    k3.val.style.fontSize = "30px";
+    show(txt, seg(t, 11.6, 12.4)); show(cap, seg(t, 12.6, 13.4));
+  } };
+} });
+
+/* ---------- 9. Evidence pack ---------- */
+SC.push({ id: "evidence", chapter: "The analyst's evidence pack", dur: 17, mount(root) {
+  const V = D.evidence;
+  const hd = heading(root, "Chapter 8 · Evidence, assembled", "The case file builds itself. A human decides.");
+  const b = badge(root, "Simulated case", "sim", "position:absolute;right:96px;top:84px");
+  const side = h("div", { class: "panel abs", style: "left:96px;top:200px;width:330px;height:600px;padding:22px" }, root);
+  h("div", { class: "eyebrow" }, side, "Case " + V.case_id);
+  const items = ["Incident timeline", "Four detector readings", "Top three reasons", "Related-front connections", "Payment and refund movement", "Response actions", "Draft STR (not filed)"];
+  const IT = items.map((x, i) => { const e = h("div", { style: `margin-top:${i ? 14 : 22}px;display:flex;gap:12px;align-items:center;font-size:16px;color:var(--muted)` }, side);
+    const c = h("span", { style: "width:22px;height:22px;border-radius:50%;border:1.5px solid var(--dim);display:inline-flex;align-items:center;justify-content:center;font-size:13px" }, e, ""); h("span", {}, e, x); return { e, c }; });
+  const doc = h("div", { class: "abs", style: "left:450px;top:200px;width:1054px;height:600px;border-radius:18px;background:#F7F7F7;color:#002124;overflow:hidden;box-shadow:0 30px 80px rgba(0,0,0,.45)" }, root);
+  const head = h("div", { style: "background:#002124;color:#fff;padding:16px 24px;display:flex;justify-content:space-between;align-items:center" }, doc);
+  h("div", { style: "font-weight:700;font-size:18px" }, head, "Analyst case file · Sunrise Bakery");
+  h("div", { style: "font-size:12px;letter-spacing:.12em;color:#00FE89;font-weight:700" }, head, "SIMULATED DATA");
+  const grid = h("div", { style: "display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:14px 18px" }, doc);
+  function sec(title, inner, span) { const e = h("div", { style: `background:#fff;border:1px solid #E3E3E3;border-radius:12px;padding:12px 14px;${span ? "grid-column:span 2" : ""}` }, grid);
+    h("div", { style: "font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#00AD7D;margin-bottom:6px" }, e, title); const c = h("div", { style: "font-size:12.5px;line-height:1.45" }, e); c.innerHTML = inner; return e; }
+  const S = [
+    sec("1 · Incident timeline", V.timeline.slice(0, 3).map(r => `<div><b>${r.when.replace(" 2025", "")}</b> · ${r.what}</div>`).join("")),
+    sec("2 · Detector readings", V.readings.map(r => `<div style="display:flex;justify-content:space-between"><span>${r.engine}</span><span><b>${r.score.toFixed(2)}</b> ${r.fired ? "· fired" : ""}</span></div>`).join("")),
+    sec("3 · Top three reasons", D.decision.reasons.map((r, i) => `<div>${i + 1}. ${r.text}</div>`).join(""), true),
+    sec("4 · Related-front connections", (V.links.length ? V.links : ["None at flag time"]).map(x => `<div>${x}</div>`).join("")),
+    sec("5 · Money movement (7 days before flag)", V.money.map(x => `<div>${x.replace(/Rs /g, "₹")}</div>`).join("")),
+    sec("6 · Response · two tracks", `<div><b>Merchant sees:</b> OTP + supplier invoice (L2); video KYC, part of the day's settlement delayed (L3)</div><div><b>Compliance only:</b> case opened, evidence frozen, STR drafted. The merchant is not informed.</div>`),
+    sec("7 · Draft STR narrative", `<div style="background:#E3E3E3;border-left:4px solid #002124;padding:6px 10px;margin-bottom:6px;font-weight:600">Draft for compliance review: not filed. Filed within 7 working days per PMLA rules; merchant is not informed.</div><div style="color:#4F6668;font-size:12px;max-height:54px;overflow:hidden">${V.str.replace(/Rs /g, "₹")}</div>`),
+  ];
+  const exp = h("div", { class: "abs small", style: "left:96px;top:812px;width:1408px" }, root, "Real exports exist in the app: Story mode step 7 downloads this case file as Markdown or HTML. Nothing is downloaded or filed during this presentation.");
+  const cap = caption(root, "Machine-prepared evidence. <span class='mark'>Human-reviewed decisions.</span>");
+  cap.style.bottom = "auto"; cap.style.top = "176px"; cap.style.left = "760px"; cap.style.fontSize = "22px"; cap.style.right = "96px"; cap.style.textAlign = "right";
+  return { render(t) {
+    show(hd.e, seg(t, .2, .9)); show(hd.t, seg(t, .3, 1.1)); show(b, seg(t, .5, 1.1)); show(side, seg(t, .8, 1.6), 0, -20); show(doc, seg(t, 1.0, 1.8), 30);
+    S.forEach((e, i) => show(e, seg(t, 2.0 + i * 1.3, 2.7 + i * 1.3), 16, 0, .03));
+    IT.forEach((x, i) => { const done = t >= 2.7 + i * 1.3; x.c.textContent = done ? "✓" : ""; x.c.style.background = done ? "var(--neon)" : "transparent"; x.c.style.color = "#00170F"; x.c.style.borderColor = done ? "var(--neon)" : "var(--dim)"; x.e.style.color = done ? "#fff" : "var(--muted)"; });
+    show(exp, seg(t, 11.6, 12.4)); show(cap, seg(t, 12.2, 13.2));
+  } };
+} });
+
+/* ---------- 10. Validation, limitations, close ---------- */
+SC.push({ id: "close", chapter: "Validation and close", dur: 27, mount(root) {
+  const V = D.eval;
+  const res = h("div", { class: "abs", style: "inset:0" }, root);
+  const hd = heading(res, "Chapter 9 · Validation boundaries", "How it performed on simulated test merchants");
+  const b = badge(res, "Simulated test results", "sim", "position:absolute;right:96px;top:84px");
+  const K = [[`${V.caught} of ${V.n_fronts}`, "simulated fronts caught (L2+)"], [Math.round(V.recall * 100) + "%", "recall"], [V.p10.toFixed(2), "precision@10"],
+             [V.prauc.toFixed(3), "PR-AUC, merchant-days"], [String(V.honest_l3), `of ${V.n_honest} honest test shops at L3+`], [`${V.scenarios.filter(x => x.pass).length} / ${V.scenarios.length}`, "designed scenarios passed"]]
+    .map((k, i) => ({ ...kpi(res, k[1], "", `left:${96 + (i % 3) * 474}px;top:${200 + Math.floor(i / 3) * 132}px;width:454px`), v: k[0] }));
+  const tp = h("div", { class: "panel abs", style: "left:96px;top:470px;width:700px;height:260px" }, res);
+  h("div", { class: "h3", style: "position:absolute;left:22px;top:14px;font-size:18px" }, tp, `Time to detect (median ${Math.round(V.median_detect)} h)`);
+  const tc = barChart(tp, { x: 22, y: 62, w: 656, hgt: 150, series: [V.ttd.concat([V.ttd_miss])], colors: ["#00AD7D"], max: Math.max(...V.ttd, V.ttd_miss) * 1.2, labels: V.ttd_labels.concat(["missed"]), gap: .3 });
+  tc.bars[tc.bars.length - 1].r.setAttribute("fill", "#4F6668");
+  const lim = h("div", { class: "panel abs", style: "left:820px;top:470px;width:684px;height:260px;padding:20px 24px" }, res);
+  lim.innerHTML = `<div class="eyebrow">Limitations we disclose</div><ul style="margin:14px 0 0 18px;font-size:17px;line-height:1.6;color:#CFE3E1">
+    <li>Small or quiet fronts can take <b>days to weeks</b> to detect.</li>
+    <li>The peer detector <b>did not improve</b> results in this simulation.</li>
+    <li>Real data will be noisier. These are <b>not</b> PayU production results.</li></ul>
+    <div class="small" style="margin-top:12px">Recall without the graph engine: ${Math.round(V.ablation.find(a => a.variant === "without graph").recall * 100)}% · without invariants: ${Math.round(V.ablation.find(a => a.variant === "without invariants").recall * 100)}%</div>`;
+  const scl = h("div", { class: "abs", style: "left:96px;top:752px;width:1408px;display:flex;gap:8px" }, res);
+  const SCN = V.scenarios.map(x => { const e = h("div", { style: "flex:1;padding:8px 6px;border-radius:10px;border:1px solid rgba(0,254,137,.4);text-align:center;font-size:13px;color:#CFE3E1" }, scl); e.innerHTML = `<b style="color:var(--neon)">${x.pass ? "✓" : "✗"} ${x.id}</b>`; e.title = x.label; return e; });
+  // closing
+  const cl = h("div", { class: "abs", style: "inset:0;background:radial-gradient(900px 520px at 50% 48%,rgba(0,173,125,.22),#000F11 70%)" }, root);
+  const hb = s("svg", { width: 1600, height: 200, style: "position:absolute;left:0;top:250px" }, cl);
+  const beat = drawPath(s("path", { d: "M0,100 L560,100 L610,100 L640,40 L675,160 L705,70 L730,100 L1600,100", stroke: "#00FE89", "stroke-width": 3, fill: "none", "stroke-linejoin": "round" }, hb));
+  const word = h("div", { style: "position:absolute;left:0;right:0;top:380px;text-align:center;font-size:120px;font-weight:800;letter-spacing:.3em;padding-left:.3em;color:#fff" }, cl, "PULSE");
+  const line = h("div", { class: "h2", style: "position:absolute;left:0;right:0;top:540px;text-align:center;font-size:40px" }, cl);
+  line.innerHTML = "Know what is normal. Detect what changes. <span class='neon'>Respond with evidence.</span>";
+  const sub = h("div", { class: "lead", style: "position:absolute;left:0;right:0;top:612px;text-align:center" }, cl, "Behavioural intelligence. Explainable decisions. Proportionate action.");
+  const foot = h("div", { class: "small", style: "position:absolute;left:0;right:0;bottom:120px;text-align:center" }, cl, "Prototype · simulated scenarios around one real public bakery dataset · Follow the Money: Innovation Challenge");
+  return { render(t) {
+    const out = seg(t, 15.0, 16.2);
+    res.style.opacity = 1 - out;
+    show(hd.e, seg(t, .2, .9)); show(hd.t, seg(t, .3, 1.1)); show(b, seg(t, .5, 1.1));
+    K.forEach((k, i) => { show(k.box, seg(t, 1.0 + i * .45, 1.7 + i * .45)); const c = seg(t, 1.2 + i * .45, 2.4 + i * .45, easeOut);
+      k.val.textContent = c < 1 && /^[\d.]+%?$/.test(k.v) ? (k.v.endsWith("%") ? Math.round(parseFloat(k.v) * c) + "%" : (parseFloat(k.v) * c).toFixed(k.v.includes(".") ? k.v.split(".")[1].length : 0)) : k.v; });
+    show(tp, seg(t, 4.4, 5.2)); tc.render(seg(t, 4.8, 6.8, x => x)); show(lim, seg(t, 6.6, 7.4));
+    SCN.forEach((e, i) => show(e, seg(t, 8.0 + i * .2, 8.4 + i * .2), 10));
+    cl.style.opacity = seg(t, 15.6, 16.8); cl.style.visibility = t > 15.5 ? "visible" : "hidden";
+    setDraw(beat, seg(t, 16.6, 18.6, x => x)); show(word, seg(t, 18.0, 19.4), 0, 0, .06);
+    word.style.letterSpacing = REDUCED ? ".3em" : `${lerp(.55, .3, seg(t, 18.0, 19.8))}em`;
+    show(line, seg(t, 19.6, 20.6)); show(sub, seg(t, 20.8, 21.8)); show(foot, seg(t, 22.0, 23.0));
+  } };
+} });
+
+/* =====================================================================================
+   Central timeline controller (single requestAnimationFrame loop; state machine:
+   cover -> playing <-> paused -> ended). Scenes are mounted lazily and torn down on change.
+   ===================================================================================== */
+const stage = document.getElementById("stage"), scenesEl = document.getElementById("scenes");
+const offsets = [0]; SC.forEach(x => offsets.push(offsets[offsets.length - 1] + x.dur));
+const TOTAL = offsets[offsets.length - 1];
+const S = { mode: "cover", T: 0, cur: -1, inst: null, last: null, autoPaused: false, raf: 0 };
+const $ = id => document.getElementById(id);
+const fmtT = x => { x = Math.max(0, Math.round(x)); return Math.floor(x / 60) + ":" + String(x % 60).padStart(2, "0"); };
+$("coverMeta").textContent = `${SC.length} chapters · ${fmtT(TOTAL)} · plays without any further clicks`;
+
+function sceneAt(T) { for (let i = 0; i < SC.length; i++) if (T < offsets[i + 1]) return i; return SC.length - 1; }
+function renderAt(T) {
+  const i = sceneAt(T);
+  if (i !== S.cur) {
+    if (S.inst) { S.inst.root.remove(); S.inst = null; }
+    S.cur = i; const root = h("div", { class: "scene", "data-scene": SC[i].id }, scenesEl);
+    S.inst = SC[i].mount(root); S.inst.root = root;
+    $("sr").textContent = `Chapter ${i + 1} of ${SC.length}: ${SC[i].chapter}`;
+  }
+  const t = T - offsets[i], dur = SC[i].dur, last = i === SC.length - 1;
+  const fade = REDUCED ? .25 : .6;
+  S.inst.root.style.opacity = Math.min(clamp(t / fade + (T === 0 ? 1 : 0)), last ? 1 : clamp((dur - t) / fade));
+  S.inst.render(t);
+  // atmosphere drifts slowly with global time (deterministic)
+  const g = $("glow"); g.style.left = (350 + 250 * Math.sin(T / 23)) + "px"; g.style.top = (-200 + 160 * Math.cos(T / 31)) + "px";
+  updateUI();
+}
+function updateUI() {
+  const pct = S.T / TOTAL * 100;
+  document.querySelector("#track .fill").style.width = pct + "%"; document.querySelector("#track .knob").style.left = pct + "%";
+  $("track").setAttribute("aria-valuemax", Math.round(TOTAL)); $("track").setAttribute("aria-valuenow", Math.round(S.T));
+  const i = Math.max(0, S.cur);
+  $("chapter").innerHTML = `<b>${i + 1}/${SC.length}</b>${SC[i].chapter}`;
+  $("time").textContent = `${fmtT(S.T)} / ${fmtT(TOTAL)} · ${fmtT(TOTAL - S.T)} left`;
+  const playing = S.mode === "playing";
+  $("bPlay").textContent = playing ? "❚❚" : "▶"; $("bPlay").setAttribute("aria-label", playing ? "Pause" : "Play");
+  $("endcard").style.display = S.mode === "ended" ? "block" : "none";
+  document.body.dataset.mode = S.mode; document.body.dataset.scene = SC[i].id;
+}
+function tick(now) {
+  S.raf = requestAnimationFrame(tick);
+  if (S.mode !== "playing") { S.last = null; return; }
+  if (S.last == null) S.last = now;
+  const dt = Math.min(0.25, (now - S.last) / 1000) * SPEED;   // clamp: a stalled frame never skips content
+  S.last = now;
+  S.T = Math.min(TOTAL, S.T + dt);
+  if (S.T >= TOTAL) { S.mode = "ended"; showControls(true); }
+  renderAt(S.T);
+}
+function start() { $("cover").style.display = "none"; $("controls").classList.add("show"); S.T = 0; S.cur = -1; S.mode = "playing"; S.last = null; renderAt(0); bumpIdle(); }
+function play() { if (S.mode === "cover") return start(); if (S.mode === "ended") return replay(); S.mode = "playing"; S.last = null; S.autoPaused = false; updateUI(); bumpIdle(); }
+function pause() { if (S.mode === "playing") { S.mode = "paused"; updateUI(); showControls(true); } }
+function toggle() { S.mode === "playing" ? pause() : play(); }
+function seek(T, keepMode) { if (S.mode === "cover") { $("cover").style.display = "none"; $("controls").classList.add("show"); S.mode = "paused"; }
+  S.T = clamp(T, 0, TOTAL); if (S.mode === "ended" && S.T < TOTAL) S.mode = "paused"; if (S.T >= TOTAL) S.mode = "ended"; S.last = null; renderAt(S.T); }
+function next() { const i = sceneAt(S.T); seek(i + 1 < SC.length ? offsets[i + 1] : TOTAL); }
+function prev() { const i = sceneAt(S.T); seek(S.T - offsets[i] > 2 || i === 0 ? offsets[i] : offsets[i - 1]); }
+function replay() { S.cur = -1; if (S.inst) { S.inst.root.remove(); S.inst = null; } S.T = 0; S.mode = "playing"; S.last = null; renderAt(0); bumpIdle(); }
+function exitPres() {
+  try { if (document.fullscreenElement || (window.parent !== window && window.parent.document.fullscreenElement)) (document.fullscreenElement ? document : window.parent.document).exitFullscreen(); } catch (e) {}
+  S.mode = "cover"; if (S.inst) { S.inst.root.remove(); S.inst = null; } S.cur = -1; S.T = 0;
+  $("controls").classList.remove("show"); $("cover").style.display = "flex"; $("endcard").style.display = "none";
+  // Embedded in the app: navigate with Streamlit's own page links (client-side routing; the sandboxed frame
+  // may not navigate the top window itself). Standalone file: simply return to the cover screen.
+  try {
+    if (window.parent !== window) {
+      const links = Array.from(window.parent.document.querySelectorAll('a[data-testid="stSidebarNavLink"]'));
+      const story = links.find(a => /\/(story)?\/?$/.test(new URL(a.href).pathname)) || links[0];
+      if (story) story.click();
+    }
+  } catch (e) {}
+}
+function fullscreen() {
+  // Inside the Streamlit iframe, fullscreen the whole page (the presentation already fills the viewport there).
+  let doc = document; try { if (window.parent !== window && window.parent.document) doc = window.parent.document; } catch (e) {}
+  try { if (doc.fullscreenElement) doc.exitFullscreen(); else (doc.documentElement.requestFullscreen ? doc.documentElement.requestFullscreen() : Promise.reject()).catch(() => fsFallback()); } catch (e) { fsFallback(); }
+}
+function fsFallback() { $("hint").textContent = "Fullscreen blocked by the browser: press F11"; $("hint").style.opacity = 1; }
+/* auto-hiding controls */
+let idleTimer = 0;
+function showControls(stick) { $("controls").classList.remove("idle"); $("hint").style.opacity = .9; if (stick) clearTimeout(idleTimer); }
+function bumpIdle() { showControls(); clearTimeout(idleTimer); idleTimer = setTimeout(() => { if (S.mode === "playing") { $("controls").classList.add("idle"); $("hint").style.opacity = 0; } }, 2600); }
+/* keyboard: attached to this frame and (when embedded) the parent page; replaced, never duplicated */
+function onKey(e) {
+  if (e.target && /input|textarea|select/i.test(e.target.tagName)) return;
+  const k = e.key; let used = true;
+  if (k === " " || k === "Spacebar" || k === "k") toggle(); else if (k === "ArrowRight") next(); else if (k === "ArrowLeft") prev();
+  else if (k === "r" || k === "R" || k === "Home") replay(); else if (k === "f" || k === "F") fullscreen(); else if (k === "x" || k === "X") exitPres();
+  else if (k === "Enter" && S.mode === "cover") start(); else used = false;
+  if (used) { e.preventDefault(); e.stopPropagation(); bumpIdle(); }
+}
+window.addEventListener("keydown", onKey, true);
+try { if (window.parent !== window) { const pw = window.parent; if (pw.__pulsePresKey) pw.removeEventListener("keydown", pw.__pulsePresKey, true); pw.__pulsePresKey = onKey; pw.addEventListener("keydown", onKey, true);
+  window.addEventListener("pagehide", () => { try { if (pw.__pulsePresKey === onKey) { pw.removeEventListener("keydown", onKey, true); pw.__pulsePresKey = null; } } catch (e) {} }); } } catch (e) {}
+["mousemove", "mousedown", "touchstart"].forEach(ev => window.addEventListener(ev, () => bumpIdle(), { passive: true }));
+$("playBtn").onclick = start; $("bPlay").onclick = toggle; $("bNext").onclick = next; $("bPrev").onclick = prev; $("bReplay").onclick = replay; $("bExit").onclick = exitPres; $("bFull").onclick = fullscreen;
+$("track").addEventListener("click", e => { const r = e.currentTarget.getBoundingClientRect(); seek((e.clientX - r.left) / r.width * TOTAL); bumpIdle(); });
+$("track").addEventListener("keydown", e => { if (e.key === "ArrowRight") { seek(S.T + 5); e.preventDefault(); e.stopPropagation(); } if (e.key === "ArrowLeft") { seek(S.T - 5); e.preventDefault(); e.stopPropagation(); } }, true);
+offsets.slice(1, -1).forEach(o => h("div", { class: "tick", style: `left:${o / TOTAL * 100}%` }, $("track")));
+/* tab hidden: pause and resume on return, so nothing is skipped or frozen */
+document.addEventListener("visibilitychange", () => { if (document.hidden && S.mode === "playing") { S.mode = "paused"; S.autoPaused = true; updateUI(); } else if (!document.hidden && S.autoPaused) { S.autoPaused = false; play(); } });
+/* fit the 1600x900 stage to any 16:9 (or other) screen */
+function fit() { const k = Math.min(innerWidth / 1600, innerHeight / 900); stage.style.transform = `scale(${k})`; }
+addEventListener("resize", fit); fit();
+window.addEventListener("pagehide", () => cancelAnimationFrame(S.raf));
+S.raf = requestAnimationFrame(tick);
+/* test / automation hooks (read-only state + the same commands as the buttons) */
+window.PULSE_PRES = { start, play, pause, seek, next, prev, replay, exit: exitPres, total: TOTAL, scenes: SC.map((x, i) => ({ id: x.id, chapter: x.chapter, start: offsets[i], dur: x.dur })),
+  state: () => ({ mode: S.mode, T: S.T, scene: S.cur >= 0 ? SC[S.cur].id : null, reduced: REDUCED }) };
+if (Q.get("t") != null) seek(parseFloat(Q.get("t")));
+else if (Q.get("autoplay") === "1") start();
+</script>
+</body>
+</html>
