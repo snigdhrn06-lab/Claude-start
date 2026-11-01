@@ -96,4 +96,4 @@ numbers as a demonstration of the mechanism, not an estimate of real performance
 - Citations in `config/scenarios.yaml` (as supplied in the brief).
 - `data/raw/partner_bakery.csv`, if added: consent and anonymisation.
 
-See `ASSUMPTIONS.md` for every assumption, and `DEMO_SCRIPT.md` for the 2-minute narration.
+**New to the app? Start with [`GUIDE.md`](GUIDE.md)**: every page and chart in plain words, what each means, and what to say. See `ASSUMPTIONS.md` for every assumption, and `DEMO_SCRIPT.md` for the 2-minute narration.
