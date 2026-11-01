@@ -42,6 +42,13 @@ the app then shows "Partner bakery (consented)".
 **Screenshots** need Chromium. The script uses `PLAYWRIGHT_CHROMIUM` or a pre-installed `/opt/pw-browsers` build;
 otherwise run `.venv/bin/playwright install chromium` once.
 
+## Hosting (Render)
+
+The repo includes the prebuilt artifacts (about 11 MB), so a host only serves the app and never retrains it. On Render, create a
+**Web Service** with Root Directory `pulse`, Build Command `pip install -r requirements-app.txt` and Start Command
+`streamlit run app/Home.py --server.port $PORT --server.address 0.0.0.0`, plus the env var `PYTHON_VERSION=3.11.9`. Peak memory
+was about 320 MB in testing, so the free 512 MB plan works. After changing the model, run `make all` locally and commit `artifacts/` again.
+
 ## What is inside
 
 ```

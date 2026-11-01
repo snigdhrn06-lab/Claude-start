@@ -1,0 +1,1512 @@
+{
+ "ego": {
+  "edges": [
+   {
+    "a": "M258",
+    "b": "P13317"
+   },
+   {
+    "a": "M258",
+    "b": "P16270"
+   },
+   {
+    "a": "M258",
+    "b": "P19045"
+   },
+   {
+    "a": "M258",
+    "b": "P19719"
+   },
+   {
+    "a": "M258",
+    "b": "P21397"
+   },
+   {
+    "a": "M258",
+    "b": "P28318"
+   },
+   {
+    "a": "M258",
+    "b": "P29148"
+   },
+   {
+    "a": "M258",
+    "b": "P30261"
+   },
+   {
+    "a": "M258",
+    "b": "P3262"
+   },
+   {
+    "a": "M258",
+    "b": "P34769"
+   },
+   {
+    "a": "M258",
+    "b": "P35184"
+   },
+   {
+    "a": "M258",
+    "b": "P3576"
+   },
+   {
+    "a": "M258",
+    "b": "P38401"
+   },
+   {
+    "a": "M258",
+    "b": "P42348"
+   },
+   {
+    "a": "M258",
+    "b": "P4240"
+   },
+   {
+    "a": "M258",
+    "b": "P45834"
+   },
+   {
+    "a": "M258",
+    "b": "P46354"
+   },
+   {
+    "a": "M258",
+    "b": "P47663"
+   },
+   {
+    "a": "M258",
+    "b": "P48345"
+   },
+   {
+    "a": "M258",
+    "b": "P9421"
+   },
+   {
+    "a": "M3",
+    "b": "P16270"
+   },
+   {
+    "a": "M3",
+    "b": "P19045"
+   },
+   {
+    "a": "M3",
+    "b": "P19719"
+   },
+   {
+    "a": "M3",
+    "b": "P28318"
+   },
+   {
+    "a": "M3",
+    "b": "P29148"
+   },
+   {
+    "a": "M3",
+    "b": "P3262"
+   },
+   {
+    "a": "M3",
+    "b": "P3576"
+   },
+   {
+    "a": "M3",
+    "b": "P42348"
+   },
+   {
+    "a": "M3",
+    "b": "P4240"
+   },
+   {
+    "a": "M3",
+    "b": "P46354"
+   },
+   {
+    "a": "M3",
+    "b": "P48345"
+   },
+   {
+    "a": "M3",
+    "b": "P9421"
+   },
+   {
+    "a": "P13317",
+    "b": "M117"
+   },
+   {
+    "a": "P13317",
+    "b": "M119"
+   },
+   {
+    "a": "P16270",
+    "b": "M106"
+   },
+   {
+    "a": "P16270",
+    "b": "M117"
+   },
+   {
+    "a": "P16270",
+    "b": "M119"
+   },
+   {
+    "a": "P16270",
+    "b": "M300"
+   },
+   {
+    "a": "P19045",
+    "b": "M106"
+   },
+   {
+    "a": "P19045",
+    "b": "M300"
+   },
+   {
+    "a": "P19045",
+    "b": "M309"
+   },
+   {
+    "a": "P19719",
+    "b": "M117"
+   },
+   {
+    "a": "P19719",
+    "b": "M300"
+   },
+   {
+    "a": "P19719",
+    "b": "M309"
+   },
+   {
+    "a": "P21397",
+    "b": "M117"
+   },
+   {
+    "a": "P21397",
+    "b": "M119"
+   },
+   {
+    "a": "P21397",
+    "b": "M300"
+   },
+   {
+    "a": "P21397",
+    "b": "M309"
+   },
+   {
+    "a": "P28318",
+    "b": "M119"
+   },
+   {
+    "a": "P28318",
+    "b": "M309"
+   },
+   {
+    "a": "P30261",
+    "b": "M118"
+   },
+   {
+    "a": "P30261",
+    "b": "M309"
+   },
+   {
+    "a": "P3262",
+    "b": "M300"
+   },
+   {
+    "a": "P34769",
+    "b": "M118"
+   },
+   {
+    "a": "P34769",
+    "b": "M300"
+   },
+   {
+    "a": "P35184",
+    "b": "M118"
+   },
+   {
+    "a": "P35184",
+    "b": "M300"
+   },
+   {
+    "a": "P3576",
+    "b": "M106"
+   },
+   {
+    "a": "P38401",
+    "b": "M118"
+   },
+   {
+    "a": "P38401",
+    "b": "M300"
+   },
+   {
+    "a": "P42348",
+    "b": "M300"
+   },
+   {
+    "a": "P4240",
+    "b": "M106"
+   },
+   {
+    "a": "P4240",
+    "b": "M119"
+   },
+   {
+    "a": "P4240",
+    "b": "M300"
+   },
+   {
+    "a": "P48345",
+    "b": "M300"
+   }
+  ],
+  "nodes": [
+   {
+    "id": "M106",
+    "kind": "merchant",
+    "label": "Restaurant #26",
+    "role": "context",
+    "x": -0.081069,
+    "y": 0.846488
+   },
+   {
+    "id": "M117",
+    "kind": "merchant",
+    "label": "Restaurant #37",
+    "role": "context",
+    "x": 0.72238,
+    "y": 0.65081
+   },
+   {
+    "id": "M118",
+    "kind": "merchant",
+    "label": "Restaurant #38",
+    "role": "context",
+    "x": 0.475307,
+    "y": -1.0
+   },
+   {
+    "id": "M119",
+    "kind": "merchant",
+    "label": "Restaurant #39",
+    "role": "context",
+    "x": 0.506656,
+    "y": 0.568348
+   },
+   {
+    "id": "M258",
+    "kind": "merchant",
+    "label": "S5 shell (new)",
+    "role": "s5",
+    "x": -0.112035,
+    "y": -0.0666
+   },
+   {
+    "id": "M3",
+    "kind": "merchant",
+    "label": "QuickServ IT Solutions (banned)",
+    "role": "banned",
+    "x": -0.26738,
+    "y": 0.184647
+   },
+   {
+    "id": "M300",
+    "kind": "merchant",
+    "label": "It Services F32",
+    "role": "context",
+    "x": 0.095947,
+    "y": -0.151245
+   },
+   {
+    "id": "M309",
+    "kind": "merchant",
+    "label": "Restaurant F41",
+    "role": "context",
+    "x": 0.719954,
+    "y": -0.043587
+   },
+   {
+    "id": "P13317",
+    "kind": "payer",
+    "label": "payer 13317",
+    "role": "other",
+    "x": 0.339019,
+    "y": 0.735131
+   },
+   {
+    "id": "P16270",
+    "kind": "payer",
+    "label": "payer 16270",
+    "role": "shared",
+    "x": 0.176883,
+    "y": 0.472237
+   },
+   {
+    "id": "P19045",
+    "kind": "payer",
+    "label": "payer 19045",
+    "role": "shared",
+    "x": 0.127039,
+    "y": 0.250105
+   },
+   {
+    "id": "P19719",
+    "kind": "payer",
+    "label": "payer 19719",
+    "role": "shared",
+    "x": 0.362619,
+    "y": 0.219164
+   },
+   {
+    "id": "P21397",
+    "kind": "payer",
+    "label": "payer 21397",
+    "role": "other",
+    "x": 0.594475,
+    "y": 0.199218
+   },
+   {
+    "id": "P28318",
+    "kind": "payer",
+    "label": "payer 28318",
+    "role": "shared",
+    "x": 0.350803,
+    "y": 0.052313
+   },
+   {
+    "id": "P29148",
+    "kind": "payer",
+    "label": "payer 29148",
+    "role": "shared",
+    "x": -0.663691,
+    "y": 0.420494
+   },
+   {
+    "id": "P30261",
+    "kind": "payer",
+    "label": "payer 30261",
+    "role": "other",
+    "x": 0.613092,
+    "y": -0.515995
+   },
+   {
+    "id": "P3262",
+    "kind": "payer",
+    "label": "payer 3262",
+    "role": "shared",
+    "x": -0.458598,
+    "y": -0.060934
+   },
+   {
+    "id": "P34769",
+    "kind": "payer",
+    "label": "payer 34769",
+    "role": "other",
+    "x": 0.023966,
+    "y": -0.750886
+   },
+   {
+    "id": "P35184",
+    "kind": "payer",
+    "label": "payer 35184",
+    "role": "other",
+    "x": 0.192895,
+    "y": -0.692028
+   },
+   {
+    "id": "P3576",
+    "kind": "payer",
+    "label": "payer 3576",
+    "role": "shared",
+    "x": -0.404092,
+    "y": 0.618529
+   },
+   {
+    "id": "P38401",
+    "kind": "payer",
+    "label": "payer 38401",
+    "role": "other",
+    "x": 0.349412,
+    "y": -0.586383
+   },
+   {
+    "id": "P42348",
+    "kind": "payer",
+    "label": "payer 42348",
+    "role": "shared",
+    "x": -0.231453,
+    "y": -0.381065
+   },
+   {
+    "id": "P4240",
+    "kind": "payer",
+    "label": "payer 4240",
+    "role": "shared",
+    "x": -0.038161,
+    "y": 0.450194
+   },
+   {
+    "id": "P45834",
+    "kind": "payer",
+    "label": "payer 45834",
+    "role": "other",
+    "x": -0.854516,
+    "y": -0.50216
+   },
+   {
+    "id": "P46354",
+    "kind": "payer",
+    "label": "payer 46354",
+    "role": "shared",
+    "x": -0.788697,
+    "y": -0.041603
+   },
+   {
+    "id": "P47663",
+    "kind": "payer",
+    "label": "payer 47663",
+    "role": "other",
+    "x": -0.544564,
+    "y": -0.796503
+   },
+   {
+    "id": "P48345",
+    "kind": "payer",
+    "label": "payer 48345",
+    "role": "shared",
+    "x": -0.428865,
+    "y": -0.286539
+   },
+   {
+    "id": "P9421",
+    "kind": "payer",
+    "label": "payer 9421",
+    "role": "shared",
+    "x": -0.777327,
+    "y": 0.207848
+   }
+  ]
+ },
+ "ring": {
+  "edges": [
+   {
+    "a": 259,
+    "b": 260,
+    "shared": 31,
+    "shared_bettors": 8
+   },
+   {
+    "a": 259,
+    "b": 261,
+    "shared": 8,
+    "shared_bettors": 8
+   },
+   {
+    "a": 259,
+    "b": 262,
+    "shared": 48,
+    "shared_bettors": 9
+   },
+   {
+    "a": 259,
+    "b": 263,
+    "shared": 11,
+    "shared_bettors": 7
+   },
+   {
+    "a": 259,
+    "b": 264,
+    "shared": 108,
+    "shared_bettors": 12
+   },
+   {
+    "a": 259,
+    "b": 265,
+    "shared": 34,
+    "shared_bettors": 7
+   },
+   {
+    "a": 259,
+    "b": 266,
+    "shared": 39,
+    "shared_bettors": 4
+   },
+   {
+    "a": 259,
+    "b": 267,
+    "shared": 17,
+    "shared_bettors": 10
+   },
+   {
+    "a": 259,
+    "b": 268,
+    "shared": 89,
+    "shared_bettors": 12
+   },
+   {
+    "a": 259,
+    "b": 3,
+    "shared": 128,
+    "shared_bettors": 120
+   },
+   {
+    "a": 259,
+    "b": 258,
+    "shared": 15,
+    "shared_bettors": 5
+   },
+   {
+    "a": 259,
+    "b": 1,
+    "shared": 36,
+    "shared_bettors": 4
+   },
+   {
+    "a": 259,
+    "b": 5,
+    "shared": 61,
+    "shared_bettors": 8
+   },
+   {
+    "a": 259,
+    "b": 8,
+    "shared": 18,
+    "shared_bettors": 1
+   },
+   {
+    "a": 259,
+    "b": 9,
+    "shared": 19,
+    "shared_bettors": 1
+   },
+   {
+    "a": 260,
+    "b": 261,
+    "shared": 11,
+    "shared_bettors": 7
+   },
+   {
+    "a": 260,
+    "b": 262,
+    "shared": 39,
+    "shared_bettors": 10
+   },
+   {
+    "a": 260,
+    "b": 263,
+    "shared": 8,
+    "shared_bettors": 5
+   },
+   {
+    "a": 260,
+    "b": 264,
+    "shared": 32,
+    "shared_bettors": 11
+   },
+   {
+    "a": 260,
+    "b": 265,
+    "shared": 31,
+    "shared_bettors": 10
+   },
+   {
+    "a": 260,
+    "b": 266,
+    "shared": 37,
+    "shared_bettors": 12
+   },
+   {
+    "a": 260,
+    "b": 267,
+    "shared": 6,
+    "shared_bettors": 5
+   },
+   {
+    "a": 260,
+    "b": 268,
+    "shared": 64,
+    "shared_bettors": 14
+   },
+   {
+    "a": 260,
+    "b": 3,
+    "shared": 114,
+    "shared_bettors": 105
+   },
+   {
+    "a": 260,
+    "b": 258,
+    "shared": 21,
+    "shared_bettors": 3
+   },
+   {
+    "a": 260,
+    "b": 1,
+    "shared": 26,
+    "shared_bettors": 3
+   },
+   {
+    "a": 260,
+    "b": 5,
+    "shared": 62,
+    "shared_bettors": 8
+   },
+   {
+    "a": 260,
+    "b": 7,
+    "shared": 6,
+    "shared_bettors": 3
+   },
+   {
+    "a": 260,
+    "b": 8,
+    "shared": 11,
+    "shared_bettors": 1
+   },
+   {
+    "a": 260,
+    "b": 9,
+    "shared": 24,
+    "shared_bettors": 5
+   },
+   {
+    "a": 261,
+    "b": 262,
+    "shared": 13,
+    "shared_bettors": 11
+   },
+   {
+    "a": 261,
+    "b": 263,
+    "shared": 185,
+    "shared_bettors": 22
+   },
+   {
+    "a": 261,
+    "b": 264,
+    "shared": 14,
+    "shared_bettors": 10
+   },
+   {
+    "a": 261,
+    "b": 265,
+    "shared": 9,
+    "shared_bettors": 8
+   },
+   {
+    "a": 261,
+    "b": 266,
+    "shared": 7,
+    "shared_bettors": 7
+   },
+   {
+    "a": 261,
+    "b": 267,
+    "shared": 7,
+    "shared_bettors": 4
+   },
+   {
+    "a": 261,
+    "b": 268,
+    "shared": 16,
+    "shared_bettors": 14
+   },
+   {
+    "a": 261,
+    "b": 3,
+    "shared": 130,
+    "shared_bettors": 130
+   },
+   {
+    "a": 261,
+    "b": 258,
+    "shared": 18,
+    "shared_bettors": 7
+   },
+   {
+    "a": 261,
+    "b": 7,
+    "shared": 97,
+    "shared_bettors": 6
+   },
+   {
+    "a": 262,
+    "b": 263,
+    "shared": 14,
+    "shared_bettors": 9
+   },
+   {
+    "a": 262,
+    "b": 264,
+    "shared": 45,
+    "shared_bettors": 13
+   },
+   {
+    "a": 262,
+    "b": 265,
+    "shared": 49,
+    "shared_bettors": 11
+   },
+   {
+    "a": 262,
+    "b": 266,
+    "shared": 52,
+    "shared_bettors": 6
+   },
+   {
+    "a": 262,
+    "b": 267,
+    "shared": 12,
+    "shared_bettors": 10
+   },
+   {
+    "a": 262,
+    "b": 268,
+    "shared": 100,
+    "shared_bettors": 10
+   },
+   {
+    "a": 262,
+    "b": 3,
+    "shared": 140,
+    "shared_bettors": 132
+   },
+   {
+    "a": 262,
+    "b": 258,
+    "shared": 20,
+    "shared_bettors": 2
+   },
+   {
+    "a": 262,
+    "b": 1,
+    "shared": 48,
+    "shared_bettors": 5
+   },
+   {
+    "a": 262,
+    "b": 5,
+    "shared": 89,
+    "shared_bettors": 7
+   },
+   {
+    "a": 262,
+    "b": 8,
+    "shared": 45,
+    "shared_bettors": 1
+   },
+   {
+    "a": 262,
+    "b": 9,
+    "shared": 38,
+    "shared_bettors": 3
+   },
+   {
+    "a": 263,
+    "b": 264,
+    "shared": 15,
+    "shared_bettors": 14
+   },
+   {
+    "a": 263,
+    "b": 265,
+    "shared": 11,
+    "shared_bettors": 8
+   },
+   {
+    "a": 263,
+    "b": 266,
+    "shared": 16,
+    "shared_bettors": 8
+   },
+   {
+    "a": 263,
+    "b": 267,
+    "shared": 18,
+    "shared_bettors": 11
+   },
+   {
+    "a": 263,
+    "b": 268,
+    "shared": 20,
+    "shared_bettors": 17
+   },
+   {
+    "a": 263,
+    "b": 3,
+    "shared": 194,
+    "shared_bettors": 194
+   },
+   {
+    "a": 263,
+    "b": 258,
+    "shared": 24,
+    "shared_bettors": 4
+   },
+   {
+    "a": 263,
+    "b": 5,
+    "shared": 10,
+    "shared_bettors": 8
+   },
+   {
+    "a": 263,
+    "b": 7,
+    "shared": 207,
+    "shared_bettors": 11
+   },
+   {
+    "a": 263,
+    "b": 9,
+    "shared": 5,
+    "shared_bettors": 4
+   },
+   {
+    "a": 264,
+    "b": 265,
+    "shared": 36,
+    "shared_bettors": 11
+   },
+   {
+    "a": 264,
+    "b": 266,
+    "shared": 46,
+    "shared_bettors": 10
+   },
+   {
+    "a": 264,
+    "b": 267,
+    "shared": 12,
+    "shared_bettors": 10
+   },
+   {
+    "a": 264,
+    "b": 268,
+    "shared": 83,
+    "shared_bettors": 19
+   },
+   {
+    "a": 264,
+    "b": 3,
+    "shared": 151,
+    "shared_bettors": 143
+   },
+   {
+    "a": 264,
+    "b": 258,
+    "shared": 20,
+    "shared_bettors": 3
+   },
+   {
+    "a": 264,
+    "b": 1,
+    "shared": 36,
+    "shared_bettors": 5
+   },
+   {
+    "a": 264,
+    "b": 5,
+    "shared": 74,
+    "shared_bettors": 9
+   },
+   {
+    "a": 264,
+    "b": 7,
+    "shared": 5,
+    "shared_bettors": 5
+   },
+   {
+    "a": 264,
+    "b": 8,
+    "shared": 14,
+    "shared_bettors": 1
+   },
+   {
+    "a": 264,
+    "b": 9,
+    "shared": 38,
+    "shared_bettors": 7
+   },
+   {
+    "a": 265,
+    "b": 266,
+    "shared": 71,
+    "shared_bettors": 12
+   },
+   {
+    "a": 265,
+    "b": 267,
+    "shared": 10,
+    "shared_bettors": 5
+   },
+   {
+    "a": 265,
+    "b": 268,
+    "shared": 89,
+    "shared_bettors": 18
+   },
+   {
+    "a": 265,
+    "b": 3,
+    "shared": 136,
+    "shared_bettors": 124
+   },
+   {
+    "a": 265,
+    "b": 258,
+    "shared": 14,
+    "shared_bettors": 2
+   },
+   {
+    "a": 265,
+    "b": 1,
+    "shared": 27,
+    "shared_bettors": 2
+   },
+   {
+    "a": 265,
+    "b": 5,
+    "shared": 64,
+    "shared_bettors": 8
+   },
+   {
+    "a": 265,
+    "b": 8,
+    "shared": 20,
+    "shared_bettors": 2
+   },
+   {
+    "a": 265,
+    "b": 9,
+    "shared": 28,
+    "shared_bettors": 3
+   },
+   {
+    "a": 266,
+    "b": 267,
+    "shared": 12,
+    "shared_bettors": 8
+   },
+   {
+    "a": 266,
+    "b": 268,
+    "shared": 110,
+    "shared_bettors": 15
+   },
+   {
+    "a": 266,
+    "b": 3,
+    "shared": 153,
+    "shared_bettors": 142
+   },
+   {
+    "a": 266,
+    "b": 258,
+    "shared": 15,
+    "shared_bettors": 3
+   },
+   {
+    "a": 266,
+    "b": 1,
+    "shared": 55,
+    "shared_bettors": 10
+   },
+   {
+    "a": 266,
+    "b": 5,
+    "shared": 78,
+    "shared_bettors": 10
+   },
+   {
+    "a": 266,
+    "b": 8,
+    "shared": 16,
+    "shared_bettors": 1
+   },
+   {
+    "a": 266,
+    "b": 9,
+    "shared": 37,
+    "shared_bettors": 4
+   },
+   {
+    "a": 267,
+    "b": 268,
+    "shared": 12,
+    "shared_bettors": 10
+   },
+   {
+    "a": 267,
+    "b": 3,
+    "shared": 133,
+    "shared_bettors": 133
+   },
+   {
+    "a": 267,
+    "b": 258,
+    "shared": 19,
+    "shared_bettors": 4
+   },
+   {
+    "a": 267,
+    "b": 5,
+    "shared": 8,
+    "shared_bettors": 7
+   },
+   {
+    "a": 267,
+    "b": 6,
+    "shared": 99,
+    "shared_bettors": 7
+   },
+   {
+    "a": 268,
+    "b": 3,
+    "shared": 207,
+    "shared_bettors": 185
+   },
+   {
+    "a": 268,
+    "b": 258,
+    "shared": 24,
+    "shared_bettors": 5
+   },
+   {
+    "a": 268,
+    "b": 1,
+    "shared": 75,
+    "shared_bettors": 8
+   },
+   {
+    "a": 268,
+    "b": 5,
+    "shared": 148,
+    "shared_bettors": 6
+   },
+   {
+    "a": 268,
+    "b": 8,
+    "shared": 55,
+    "shared_bettors": 3
+   },
+   {
+    "a": 268,
+    "b": 9,
+    "shared": 57,
+    "shared_bettors": 4
+   },
+   {
+    "a": 3,
+    "b": 258,
+    "shared": 14,
+    "shared_bettors": 13
+   },
+   {
+    "a": 3,
+    "b": 1,
+    "shared": 50,
+    "shared_bettors": 44
+   },
+   {
+    "a": 3,
+    "b": 5,
+    "shared": 120,
+    "shared_bettors": 93
+   },
+   {
+    "a": 3,
+    "b": 6,
+    "shared": 28,
+    "shared_bettors": 28
+   },
+   {
+    "a": 3,
+    "b": 7,
+    "shared": 41,
+    "shared_bettors": 41
+   },
+   {
+    "a": 3,
+    "b": 8,
+    "shared": 21,
+    "shared_bettors": 18
+   },
+   {
+    "a": 3,
+    "b": 9,
+    "shared": 48,
+    "shared_bettors": 40
+   },
+   {
+    "a": 258,
+    "b": 1,
+    "shared": 6,
+    "shared_bettors": 1
+   },
+   {
+    "a": 258,
+    "b": 5,
+    "shared": 8,
+    "shared_bettors": 2
+   },
+   {
+    "a": 258,
+    "b": 7,
+    "shared": 10,
+    "shared_bettors": 0
+   },
+   {
+    "a": 258,
+    "b": 8,
+    "shared": 6,
+    "shared_bettors": 2
+   },
+   {
+    "a": 1,
+    "b": 5,
+    "shared": 171,
+    "shared_bettors": 11
+   },
+   {
+    "a": 1,
+    "b": 8,
+    "shared": 16,
+    "shared_bettors": 0
+   },
+   {
+    "a": 1,
+    "b": 9,
+    "shared": 27,
+    "shared_bettors": 1
+   },
+   {
+    "a": 5,
+    "b": 8,
+    "shared": 21,
+    "shared_bettors": 1
+   },
+   {
+    "a": 5,
+    "b": 9,
+    "shared": 63,
+    "shared_bettors": 2
+   },
+   {
+    "a": 8,
+    "b": 9,
+    "shared": 19,
+    "shared_bettors": 3
+   }
+  ],
+  "hard_links": [
+   {
+    "a": 259,
+    "b": 260,
+    "type": "device_id"
+   },
+   {
+    "a": 259,
+    "b": 261,
+    "type": "device_id"
+   },
+   {
+    "a": 260,
+    "b": 261,
+    "type": "device_id"
+   },
+   {
+    "a": 3,
+    "b": 258,
+    "type": "device_id"
+   }
+  ],
+  "nodes": [
+   {
+    "id": 259,
+    "label": "Kirana ring member 1 (E2)",
+    "payers": 1119,
+    "role": "ring",
+    "x": -0.307228,
+    "y": 0.166637
+   },
+   {
+    "id": 260,
+    "label": "Bakery ring member 2 (E2)",
+    "payers": 907,
+    "role": "ring",
+    "x": 0.358522,
+    "y": 0.042244
+   },
+   {
+    "id": 261,
+    "label": "Pharmacy ring member 3 (E2)",
+    "payers": 1240,
+    "role": "ring",
+    "x": 0.140178,
+    "y": -0.546094
+   },
+   {
+    "id": 262,
+    "label": "Sweet Shop ring member 4 (E2)",
+    "payers": 1269,
+    "role": "ring",
+    "x": -0.167262,
+    "y": 0.323004
+   },
+   {
+    "id": 263,
+    "label": "Restaurant ring member 5 (E2)",
+    "payers": 2217,
+    "role": "ring",
+    "x": 0.298235,
+    "y": -0.397135
+   },
+   {
+    "id": 264,
+    "label": "Kirana ring member 6 (E2)",
+    "payers": 1148,
+    "role": "ring",
+    "x": -0.131423,
+    "y": 0.050081
+   },
+   {
+    "id": 265,
+    "label": "Bakery ring member 7 (E2)",
+    "payers": 979,
+    "role": "ring",
+    "x": 0.314089,
+    "y": 0.272658
+   },
+   {
+    "id": 266,
+    "label": "Pharmacy ring member 8 (E2)",
+    "payers": 1331,
+    "role": "ring",
+    "x": 0.171072,
+    "y": 0.142582
+   },
+   {
+    "id": 267,
+    "label": "Sweet Shop ring member 9 (E2)",
+    "payers": 1173,
+    "role": "ring",
+    "x": -0.29411,
+    "y": -0.530471
+   },
+   {
+    "id": 268,
+    "label": "Restaurant ring member 10 (E2)",
+    "payers": 2441,
+    "role": "ring",
+    "x": -0.001319,
+    "y": 0.223381
+   },
+   {
+    "id": 3,
+    "label": "QuickServ IT Solutions",
+    "payers": 2387,
+    "role": "banned",
+    "x": 0.038927,
+    "y": -0.088746
+   },
+   {
+    "id": 258,
+    "label": "Nimbus Cloud IT Services (S5)",
+    "payers": 288,
+    "role": "s5",
+    "x": -0.381324,
+    "y": -0.235872
+   },
+   {
+    "id": 1,
+    "label": "Sunrise Bakery (S0 twin, no takeover)",
+    "payers": 1141,
+    "role": "honest",
+    "x": 0.000818,
+    "y": 0.618422
+   },
+   {
+    "id": 5,
+    "label": "Bakery #1",
+    "payers": 2102,
+    "role": "honest",
+    "x": 0.078233,
+    "y": 0.401627
+   },
+   {
+    "id": 6,
+    "label": "Bakery #2",
+    "payers": 661,
+    "role": "honest",
+    "x": -0.576602,
+    "y": -1.0
+   },
+   {
+    "id": 7,
+    "label": "Bakery #3",
+    "payers": 1109,
+    "role": "honest",
+    "x": 0.455346,
+    "y": -0.73555
+   },
+   {
+    "id": 8,
+    "label": "Bakery #4",
+    "payers": 499,
+    "role": "honest",
+    "x": -0.312748,
+    "y": 0.705341
+   },
+   {
+    "id": 9,
+    "label": "Bakery #5",
+    "payers": 952,
+    "role": "honest",
+    "x": 0.316597,
+    "y": 0.587893
+   }
+  ]
+ },
+ "s5_card": {
+  "K": 2102,
+  "N": 50000,
+  "expected": 0.8408,
+  "k": 12,
+  "log10_p": -11.565504,
+  "n": 20,
+  "p_value": 0.0
+ },
+ "s5_first_payers": [
+  {
+   "amount": 2000,
+   "bf2_bettor": true,
+   "payer_id": 19045,
+   "t_min": 205574
+  },
+  {
+   "amount": 500,
+   "bf2_bettor": false,
+   "payer_id": 47663,
+   "t_min": 205616
+  },
+  {
+   "amount": 1000,
+   "bf2_bettor": false,
+   "payer_id": 21397,
+   "t_min": 205633
+  },
+  {
+   "amount": 1000,
+   "bf2_bettor": true,
+   "payer_id": 3576,
+   "t_min": 205640
+  },
+  {
+   "amount": 500,
+   "bf2_bettor": true,
+   "payer_id": 16270,
+   "t_min": 205669
+  },
+  {
+   "amount": 500,
+   "bf2_bettor": true,
+   "payer_id": 28318,
+   "t_min": 205704
+  },
+  {
+   "amount": 2000,
+   "bf2_bettor": true,
+   "payer_id": 19719,
+   "t_min": 205727
+  },
+  {
+   "amount": 1000,
+   "bf2_bettor": false,
+   "payer_id": 35184,
+   "t_min": 205735
+  },
+  {
+   "amount": 500,
+   "bf2_bettor": true,
+   "payer_id": 48345,
+   "t_min": 205745
+  },
+  {
+   "amount": 500,
+   "bf2_bettor": true,
+   "payer_id": 4240,
+   "t_min": 205763
+  },
+  {
+   "amount": 2000,
+   "bf2_bettor": false,
+   "payer_id": 13317,
+   "t_min": 205777
+  },
+  {
+   "amount": 2000,
+   "bf2_bettor": true,
+   "payer_id": 9421,
+   "t_min": 205779
+  },
+  {
+   "amount": 500,
+   "bf2_bettor": true,
+   "payer_id": 3262,
+   "t_min": 205794
+  },
+  {
+   "amount": 1000,
+   "bf2_bettor": true,
+   "payer_id": 46354,
+   "t_min": 205796
+  },
+  {
+   "amount": 1000,
+   "bf2_bettor": true,
+   "payer_id": 29148,
+   "t_min": 205806
+  },
+  {
+   "amount": 2000,
+   "bf2_bettor": true,
+   "payer_id": 42348,
+   "t_min": 205818
+  },
+  {
+   "amount": 2000,
+   "bf2_bettor": false,
+   "payer_id": 34769,
+   "t_min": 205819
+  },
+  {
+   "amount": 2000,
+   "bf2_bettor": false,
+   "payer_id": 38401,
+   "t_min": 205828
+  },
+  {
+   "amount": 2000,
+   "bf2_bettor": false,
+   "payer_id": 30261,
+   "t_min": 205836
+  },
+  {
+   "amount": 500,
+   "bf2_bettor": false,
+   "payer_id": 45834,
+   "t_min": 205907
+  }
+ ],
+ "worked_example": {
+  "K": 2000,
+  "N": 5000000,
+  "expected": 0.008,
+  "k": 12,
+  "log10_p": -35.690642,
+  "n": 20,
+  "p_value": 0.0
+ }
+}

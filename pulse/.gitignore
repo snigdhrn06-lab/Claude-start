@@ -4,7 +4,4 @@ __pycache__/
 .pytest_cache/
 data/raw/bread_basket.csv
 data/processed/
-artifacts/*
-!artifacts/eval/
-!artifacts/screenshots/
-!artifacts/evidence/
+# artifacts/ IS committed (about 11 MB): the hosted app serves these prebuilt files and never retrains.

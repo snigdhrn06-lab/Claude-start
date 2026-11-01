@@ -3,16 +3,16 @@
 # server warnings/errors
 
 # page load seconds
-story_step1: 1.0
-story_step2: 2.24
-story_step3: 0.77
-story_step4: 0.23
-story_step5: 0.78
-story_step6: 1.05
-story_step7: 0.78
-explorer: 0.24
-engines_lab: 0.23
-network: 0.26
-response: 0.28
-evaluation: 0.25
-data_assumptions: 0.23
+story_step1: 0.37
+story_step2: 2.32
+story_step3: 0.27
+story_step4: 0.81
+story_step5: 0.86
+story_step6: 1.04
+story_step7: 0.83
+explorer: 0.31
+engines_lab: 0.25
+network: 0.3
+response: 0.29
+evaluation: 0.28
+data_assumptions: 0.26

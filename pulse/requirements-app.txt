@@ -1,0 +1,8 @@
+# Minimal set to SERVE the app from prebuilt artifacts (used on Render). Python 3.11.
+pandas==2.2.3
+numpy==1.26.4
+scipy==1.13.1
+pyyaml==6.0.2
+pyarrow==17.0.0
+streamlit==1.39.0
+plotly==5.24.1

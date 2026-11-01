@@ -1,0 +1,126 @@
+{
+ "HERO": {
+  "features": {
+   "gst_coverage": 6.780142,
+   "individual_recipients": 0.570552,
+   "supplier_rent_share": 0.429448,
+   "sweep_2h": 0.816065,
+   "sweep_6h": 1.0
+  },
+  "hour": 2707,
+  "label": "Taken-over bakery (S3)",
+  "normal_inr": 641400.0,
+  "p_before": 1.0,
+  "settled_inr": 4593600.0,
+  "tiers": [
+   {
+    "delta_logit": 0.0,
+    "k": 3.0,
+    "name": "No consent",
+    "p": 1.0,
+    "perk": "Standard terms. Refusing consent is never a penalty.",
+    "terms": {},
+    "tier": 0
+   },
+   {
+    "delta_logit": 2.570997,
+    "k": 3.0,
+    "name": "GST linked",
+    "p": 1.0,
+    "perk": "No perks: consented data contradicts the declared business",
+    "terms": {
+     "gst_gap": 2.570997
+    },
+    "tier": 1
+   },
+   {
+    "delta_logit": 5.646911,
+    "k": 3.0,
+    "name": "GST + bank data (Account Aggregator)",
+    "p": 1.0,
+    "perk": "No perks: consented data contradicts the declared business",
+    "terms": {
+     "gst_gap": 2.570997,
+     "individual_recipients": 0.811656,
+     "sweep_2h": 2.264258
+    },
+    "tier": 2
+   },
+   {
+    "delta_logit": 5.646911,
+    "k": 3.0,
+    "name": "Continuous consent",
+    "p": 1.0,
+    "perk": "No perks: consented data contradicts the declared business",
+    "terms": {
+     "gst_gap": 2.570997,
+     "individual_recipients": 0.811656,
+     "sweep_2h": 2.264258
+    },
+    "tier": 3
+   }
+  ]
+ },
+ "HERO_TWIN": {
+  "features": {
+   "gst_coverage": 0.971239,
+   "individual_recipients": 0.234998,
+   "supplier_rent_share": 0.765002,
+   "sweep_2h": 0.094984,
+   "sweep_6h": 0.171061
+  },
+  "hour": 3254,
+  "label": "Honest twin (S0)",
+  "normal_inr": 641400.0,
+  "p_before": 0.006024,
+  "settled_inr": 641400.0,
+  "tiers": [
+   {
+    "delta_logit": 0.0,
+    "k": 3.0,
+    "name": "No consent",
+    "p": 0.006024,
+    "perk": "Standard terms. Refusing consent is never a penalty.",
+    "terms": {},
+    "tier": 0
+   },
+   {
+    "delta_logit": -0.343774,
+    "k": 3.5,
+    "name": "GST linked",
+    "p": 0.004279,
+    "perk": "Settlement T+1 guaranteed; reserve tolerance widened (k = 3.5)",
+    "terms": {
+     "gst_gap": -0.343774
+    },
+    "tier": 1
+   },
+   {
+    "delta_logit": -1.138779,
+    "k": 4.0,
+    "name": "GST + bank data (Account Aggregator)",
+    "p": 0.001937,
+    "perk": "Same-day settlement up to a limit; k = 4",
+    "terms": {
+     "gst_gap": -0.343774,
+     "individual_recipients": -0.195005,
+     "sweep_2h": -0.6
+    },
+    "tier": 2
+   },
+   {
+    "delta_logit": -1.138779,
+    "k": 4.5,
+    "name": "Continuous consent",
+    "p": 0.001937,
+    "perk": "Same-day settlement; higher limits; k = 4.5",
+    "terms": {
+     "gst_gap": -0.343774,
+     "individual_recipients": -0.195005,
+     "sweep_2h": -0.6
+    },
+    "tier": 3
+   }
+  ]
+ }
+}
