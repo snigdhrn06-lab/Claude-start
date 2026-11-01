@@ -20,6 +20,17 @@ make all          # fetch data -> simulate -> train/evaluate -> tests -> screens
 make app          # open the Streamlit app (Story mode is the landing page)
 ```
 
+**Windows (cmd), no `make` needed:**
+
+```bat
+cd pulse
+run.bat setup     :: one time; needs Python 3.11 from python.org
+run.bat all       :: data -> train -> tests -> screenshots
+run.bat app       :: opens http://localhost:8501
+```
+
+`./run.sh` does the same on macOS/Linux if `make` is missing.
+
 Steps one at a time: `make fetch-data`, `make data`, `make train`, `make test` (`make test-fast` skips the
 determinism test), `make app`, `make screenshots`.
 
