@@ -3,5 +3,6 @@ __pycache__/
 *.pyc
 .pytest_cache/
 data/raw/bread_basket.csv
+data/raw/partner_bakery.csv   # real merchant data: never commit
 data/processed/
 # artifacts/ IS committed (about 11 MB): the hosted app serves these prebuilt files and never retrains.
