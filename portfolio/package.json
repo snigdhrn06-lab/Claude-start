@@ -1,0 +1,59 @@
+{
+  "name": "snigdh-portfolio",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Snigdh R.N. — personal portfolio with a database-backed admin CMS",
+  "scripts": {
+    "dev": "next dev -p 3000",
+    "build": "next build",
+    "start": "npm run db:prepare && next start -p ${PORT:-3000}",
+    "start:web": "next start -p ${PORT:-3000}",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:e2e": "node tests/e2e/run.mjs",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "tsx --env-file-if-exists=.env scripts/migrate.ts",
+    "db:seed": "tsx --env-file-if-exists=.env scripts/seed.ts",
+    "db:prepare": "tsx --env-file-if-exists=.env scripts/prepare.ts",
+    "admin:create": "tsx --env-file-if-exists=.env scripts/create-admin.ts",
+    "docs:pdf": "node docs/build-pdf.mjs"
+  },
+  "engines": {
+    "node": ">=20.9.0"
+  },
+  "dependencies": {
+    "@aws-sdk/client-s3": "^3.1161.0",
+    "@fontsource/instrument-serif": "^5.3.0",
+    "clsx": "^2.1.1",
+    "drizzle-orm": "^0.44.7",
+    "framer-motion": "^12.43.0",
+    "geist": "^1.9.0",
+    "lucide-react": "^0.468.0",
+    "next": "^15.5.0",
+    "pg": "^8.23.1",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "react-markdown": "^10.1.0",
+    "remark-gfm": "^4.0.1",
+    "server-only": "^0.0.1",
+    "sharp": "^0.34.5",
+    "tsx": "^4.23.15",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@eslint/eslintrc": "^3.3.7",
+    "@types/node": "^22.20.5",
+    "@types/pg": "^8.23.1",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "autoprefixer": "^10.6.2",
+    "drizzle-kit": "^0.31.11",
+    "eslint": "^9.39.5",
+    "eslint-config-next": "^15.5.0",
+    "postcss": "^8.5.32",
+    "tailwindcss": "^3.4.0",
+    "typescript": "~5.9.0",
+    "vitest": "^3.2.7"
+  }
+}

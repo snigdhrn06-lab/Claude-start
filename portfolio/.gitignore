@@ -1,0 +1,13 @@
+node_modules
+.next
+out
+.env
+.env.local
+.env.*.local
+*.tsbuildinfo
+next-env.d.ts
+.DS_Store
+# Local-only upload storage (STORAGE_DRIVER=local). Never used in production.
+.data
+docs/.build
+tests/e2e/screenshots

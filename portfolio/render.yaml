@@ -1,0 +1,61 @@
+# Render Blueprint for the portfolio (https://render.com/docs/blueprint-spec)
+#
+# This file lives in portfolio/, so when creating the Blueprint in Render set
+# "Blueprint Path" to: portfolio/render.yaml
+# (The repository's root render.yaml belongs to the separate Sentinel app and is untouched.)
+#
+# It creates:
+#   1. a Node web service that builds and runs the Next.js app from the portfolio/ folder
+#   2. a managed PostgreSQL database (content, sessions AND uploaded media live here)
+#
+# Secrets marked `sync: false` are entered in the Render dashboard; they are never committed.
+
+services:
+  - type: web
+    name: snigdh-portfolio
+    runtime: node
+    rootDir: portfolio
+    region: singapore
+    plan: free # "starter" avoids cold starts (free instances sleep after 15 min idle)
+    buildCommand: npm ci --include=dev && npm run build
+    # `npm start` runs migrations, the idempotent seed and admin bootstrap, then starts Next.js.
+    startCommand: npm start
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_VERSION
+        value: "22"
+      - key: NEXT_TELEMETRY_DISABLED
+        value: "1"
+      - key: DATABASE_URL
+        fromDatabase:
+          name: snigdh-portfolio-db
+          property: connectionString
+      - key: APP_SECRET
+        generateValue: true
+      - key: STORAGE_DRIVER
+        value: database
+      # First admin account. Remove ADMIN_PASSWORD after your first successful login.
+      - key: ADMIN_EMAIL
+        sync: false
+      - key: ADMIN_PASSWORD
+        sync: false
+      # Optional: public URL once you have a custom domain (e.g. https://snigdh.in).
+      - key: SITE_URL
+        sync: false
+      # Optional: email copies of contact-form messages via Resend.
+      - key: RESEND_API_KEY
+        sync: false
+      - key: CONTACT_TO_EMAIL
+        sync: false
+      - key: CONTACT_FROM_EMAIL
+        sync: false
+
+databases:
+  - name: snigdh-portfolio-db
+    region: singapore
+    # Free Render Postgres databases expire after 30 days, so a paid plan is used.
+    # Prefer a free external database? Delete this block, and set DATABASE_URL by hand
+    # (e.g. a Neon connection string). See docs/DEPLOYMENT.md.
+    plan: basic-256mb
+    databaseName: portfolio
+    user: portfolio

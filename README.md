@@ -1,3 +1,8 @@
+> **Repository contents.** This repository holds three independent apps:
+> - **`portfolio/`**: Snigdh R.N.'s personal portfolio + admin CMS (Next.js, PostgreSQL). Start with [`portfolio/README.md`](portfolio/README.md); deploy with the Blueprint at `portfolio/render.yaml`; full guide in [`portfolio/docs/Snigdh_Personal_Website_Codebase_Handbook.pdf`](portfolio/docs/Snigdh_Personal_Website_Codebase_Handbook.pdf).
+> - **`sapthagiri-app/`**: the Sapthagiri Enterprises storefront and owner portal (see its README).
+> - **Repository root**: Sentinel, documented below (deployed with the root `render.yaml`).
+
 # Sentinel — the AI financial decision firewall
 
 > Banks protect transactions. Sentinel protects financial decisions.
