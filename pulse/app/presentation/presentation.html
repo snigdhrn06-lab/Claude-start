@@ -51,6 +51,16 @@ svg text{font-family:var(--font)}
 .bar{transform-box:fill-box;transform-origin:50% 100%}
 .disclaim{position:absolute;right:40px;top:30px}
 /* cover */
+/* cinematic effect layers (all driven by the timeline; disabled under reduced motion) */
+#fx{position:absolute;inset:0;pointer-events:none}
+#floor{position:absolute;left:-40%;right:-40%;bottom:-6%;height:62%;transform-origin:50% 100%;transform:perspective(520px) rotateX(74deg);
+  background-image:linear-gradient(rgba(0,254,137,.55) 2px,transparent 2px),linear-gradient(90deg,rgba(0,254,137,.4) 2px,transparent 2px);background-size:90px 90px;
+  mask-image:linear-gradient(to top,#000 0%,rgba(0,0,0,.6) 40%,transparent 85%);opacity:0;pointer-events:none}
+#sweep{position:absolute;top:-20%;height:140%;width:260px;left:0;pointer-events:none;opacity:0;
+  background:linear-gradient(90deg,transparent,rgba(0,254,137,.10) 35%,rgba(255,255,255,.55) 50%,rgba(0,254,137,.10) 65%,transparent);filter:blur(2px);mix-blend-mode:screen}
+#flash{position:absolute;inset:0;pointer-events:none;opacity:0;background:radial-gradient(circle at 50% 50%,rgba(0,254,137,.55),rgba(0,254,137,.12) 45%,transparent 75%);mix-blend-mode:screen}
+#grain{position:absolute;inset:-50px;pointer-events:none;opacity:.07;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>")}
+#vignette{position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse at 50% 50%,transparent 55%,rgba(0,0,0,.55) 100%)}
 #cover{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:26px;z-index:20;background:radial-gradient(900px 520px at 50% 45%,rgba(0,173,125,.18),transparent 70%)}
 #cover .word{font-size:132px;font-weight:800;letter-spacing:.32em;padding-left:.32em;background:linear-gradient(180deg,#fff,#9FE9D7);-webkit-background-clip:text;background-clip:text;color:transparent}
 #cover .tag{font-size:24px;font-weight:300;color:#CFE3E1}
@@ -84,8 +94,10 @@ svg text{font-family:var(--font)}
 <body>
 <div id="viewport">
   <div id="stage" aria-live="off">
-    <div id="atmos"><div class="grid"></div><div class="glow" id="glow"></div></div>
+    <div id="atmos"><div class="grid"></div><div class="glow" id="glow"></div><div id="floor"></div></div>
+    <canvas id="fx" width="1600" height="900"></canvas>
     <div id="scenes"></div>
+    <div id="sweep"></div><div id="flash"></div><div id="grain"></div><div id="vignette"></div>
     <div id="cover" role="dialog" aria-label="PULSE presentation">
       <div class="eyebrow">Follow the Money · Innovation Challenge</div>
       <div class="word">PULSE</div>
@@ -130,6 +142,7 @@ const clamp = (x, a = 0, b = 1) => Math.max(a, Math.min(b, x));
 const lerp = (a, b, p) => a + (b - a) * p;
 const easeIO = p => p < .5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2;
 const easeOut = p => 1 - Math.pow(1 - p, 3);
+const easeBack = p => { const c = 1.9; return p >= 1 ? 1 : 1 + (c + 1) * Math.pow(p - 1, 3) + c * Math.pow(p - 1, 2); };   // overshoot "slam"
 /** progress of a timed event between a and b seconds (eased); reduced motion -> quick fade at a */
 const seg = (t, a, b, ease = easeIO) => REDUCED ? clamp((t - a) / 0.3) : ease(clamp((t - a) / Math.max(1e-6, b - a)));
 function h(tag, attrs, parent, text) {
@@ -147,7 +160,7 @@ function s(tag, attrs, parent, text) {
   return e;
 }
 function show(e, p, dy = 18, dx = 0, sc = 0) {
-  e.style.opacity = p;
+  e.style.opacity = clamp(p);
   e.style.transform = `translate(${(1 - p) * dx}px,${(1 - p) * dy}px)` + (sc ? ` scale(${1 - (1 - p) * sc})` : "");
   e.style.visibility = p <= 0.001 ? "hidden" : "visible";
 }
@@ -201,25 +214,39 @@ function linePath(vals, x, y, w, hgt, lo, hi) {
 const SC = [];
 
 /* ---------- 1. Opening: money has a blind spot ---------- */
-SC.push({ id: "opening", chapter: "The blind spot", dur: 11, mount(root) {
+SC.push({ id: "opening", chapter: "The blind spot", design: 11, dur: 9, energy: .9, mount(root) {
   const cv = h("canvas", { width: 1600, height: 900, class: "abs", style: "left:0;top:0" }, root), ctx = cv.getContext("2d");
   const rnd = mulberry(7);
   const cust = Array.from({ length: 14 }, (_, i) => ({ x: 170, y: 150 + i * 46 }));
   const merch = Array.from({ length: 6 }, (_, i) => ({ x: 800, y: 210 + i * 96 }));
   const gw = { x: 1420, y: 450 };
-  const parts = Array.from({ length: 140 }, (_, i) => ({ c: Math.floor(rnd() * 14), m: Math.floor(rnd() * 6), ph: rnd(), sp: .11 + rnd() * .06 }));
+  const parts = Array.from({ length: 140 }, () => ({ c: Math.floor(rnd() * 14), m: Math.floor(rnd() * 6), ph: rnd(), sp: .11 + rnd() * .06 }));
+  // target points of the PULSE wordmark, sampled once from an offscreen render (deterministic)
+  const off = document.createElement("canvas"); off.width = 1600; off.height = 300; const oc = off.getContext("2d");
+  oc.fillStyle = "#fff"; oc.font = "800 230px Poppins, Arial, sans-serif"; oc.textAlign = "center"; oc.textBaseline = "middle";
+  if (oc.letterSpacing !== undefined) oc.letterSpacing = "60px";
+  oc.fillText("PULSE", 800, 150);
+  const img = oc.getImageData(0, 0, 1600, 300).data, targets = [];
+  for (let y = 0; y < 300; y += 7) for (let x = 0; x < 1600; x += 7) if (img[(y * 1600 + x) * 4 + 3] > 128) targets.push([x, y + 290]);
+  const swarm = targets.map((tg, i) => ({ tx: tg[0], ty: tg[1], sx: rnd() * 1600, sy: rnd() * 900, d: rnd() * .5, w: .6 + rnd() * 1.6 }));
   const t1 = h("div", { class: "abs h1", style: "left:96px;top:70px;width:1440px;white-space:nowrap" }, root, "Every payment can look legitimate.");
   const t2 = h("div", { class: "abs h1", style: "left:96px;top:150px;width:1440px;white-space:nowrap;color:var(--neon)" }, root, "The business behind it may not be.");
   const word = h("div", { class: "abs", style: "left:0;right:0;top:330px;text-align:center" }, root);
-  const w1 = h("div", { style: "font-size:150px;font-weight:800;letter-spacing:.3em;padding-left:.3em;color:#fff" }, word, "PULSE");
+  const w1 = h("div", { style: "font-size:150px;font-weight:800;letter-spacing:.3em;padding-left:.3em;color:#fff;text-shadow:0 0 40px rgba(0,254,137,.45)" }, word, "PULSE");
   const w2 = h("div", { class: "lead", style: "font-size:28px;margin-top:6px" }, word, "Behavioural intelligence for payment fraud detection");
+  const beat = s("svg", { width: 1600, height: 120, style: "position:absolute;left:0;top:640px" }, root);
+  const bp = drawPath(s("path", { d: "M0,60 L600,60 L640,60 L668,10 L700,110 L728,30 L752,60 L1600,60", stroke: "#00FE89", "stroke-width": 3, fill: "none", style: "filter:drop-shadow(0 0 8px #00FE89)" }, beat));
   const lab = h("div", { class: "abs small", style: "left:1330px;top:500px;width:200px;text-align:center" }, root, "Payment gateway");
   function bez(a, b, p) { const cx = (a.x + b.x) / 2; const x = (1 - p) ** 3 * a.x + 3 * (1 - p) ** 2 * p * cx + 3 * (1 - p) * p * p * cx + p ** 3 * b.x; const y = (1 - p) ** 3 * a.y + 3 * (1 - p) ** 2 * p * a.y + 3 * (1 - p) * p * p * b.y + p ** 3 * b.y; return [x, y]; }
-  return { render(t) {
+  function glitch(e, p, t) { const dx = REDUCED ? 0 : 9 * (1 - p) * Math.sin(t * 61) + (p < 1 ? 2 * Math.sin(t * 173) : 0);
+    e.style.textShadow = dx ? `${dx}px 0 rgba(98,202,195,.85), ${-dx}px 0 rgba(0,254,137,.85)` : "none";
+    e.style.clipPath = (!REDUCED && p < 1 && p > 0) ? `inset(${(Math.sin(t * 37) * .5 + .5) * 40 * (1 - p)}% 0 0 0)` : "none"; }
+  return { hits: [6.2, 8.0], render(t) {
     const cam = REDUCED ? 1 : 1 + 0.05 * easeIO(clamp(t / 11));
     cv.style.transform = `scale(${cam})`;
-    const anom = seg(t, 3.2, 6.0), dimp = 1 - 0.65 * seg(t, 6.3, 7.4);
-    ctx.clearRect(0, 0, 1600, 900); ctx.globalAlpha = dimp;
+    const anom = seg(t, 3.2, 6.0), flow = 1 - seg(t, 5.6, 6.4);
+    ctx.clearRect(0, 0, 1600, 900);
+    ctx.globalAlpha = flow;
     ctx.strokeStyle = "rgba(98,202,195,.10)"; ctx.lineWidth = 1;
     merch.forEach(m => { ctx.beginPath(); ctx.moveTo(m.x, m.y); ctx.bezierCurveTo(1110, m.y, 1110, gw.y, gw.x, gw.y); ctx.stroke(); });
     parts.forEach((q, i) => {
@@ -232,18 +259,27 @@ SC.push({ id: "opening", chapter: "The blind spot", dur: 11, mount(root) {
     cust.forEach(c => { ctx.fillStyle = "rgba(247,247,247,.5)"; ctx.beginPath(); ctx.arc(c.x, c.y, 4, 0, 6.283); ctx.fill(); });
     merch.forEach((m, i) => { const odd = i === 3; ctx.fillStyle = odd ? `rgba(0,254,137,${.35 + .65 * anom})` : "rgba(0,173,125,.9)"; ctx.fillRect(m.x - 9, m.y - 9, 18, 18);
       if (odd && anom > 0) { ctx.strokeStyle = `rgba(0,254,137,${.6 * anom})`; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.arc(m.x, m.y, 18 + 10 * ((t * 1.3) % 1), 0, 6.283); ctx.stroke(); } });
-    ctx.fillStyle = "#fff"; ctx.beginPath(); ctx.arc(gw.x, gw.y, 16, 0, 6.283); ctx.fill(); ctx.globalAlpha = 1;
-    show(lab, seg(t, .8, 1.6) * dimp, 0);
-    show(t1, seg(t, .5, 1.6) * (1 - seg(t, 6.0, 6.8)));
-    show(t2, seg(t, 2.6, 3.6) * (1 - seg(t, 6.0, 6.8)));
-    const wp = seg(t, 6.6, 8.2);
-    w1.style.letterSpacing = REDUCED ? ".3em" : `${lerp(.9, .3, wp)}em`; show(word, wp, 0);
-    w1.style.filter = `blur(${(1 - wp) * 8}px)`; show(w2, seg(t, 7.6, 8.8), 12);
+    ctx.fillStyle = "#fff"; ctx.beginPath(); ctx.arc(gw.x, gw.y, 16, 0, 6.283); ctx.fill();
+    // the swarm: payment particles fly in and assemble the wordmark
+    const sw = seg(t, 5.4, 7.6, x => x), fadeSw = 1 - seg(t, 8.0, 8.8);
+    if (sw > 0 && fadeSw > 0 && !REDUCED) {
+      ctx.globalAlpha = fadeSw;
+      swarm.forEach(p => { const q = easeIO(clamp((sw - p.d * .5) / .5)); const wob = (1 - q) * 30 * Math.sin(t * 3 + p.sx);
+        const x = lerp(p.sx, p.tx, q) + wob, y = lerp(p.sy, p.ty, q) + wob * .6;
+        ctx.fillStyle = q > .98 ? "rgba(255,255,255,.95)" : "rgba(0,254,137,.85)"; ctx.fillRect(x, y, p.w + 1.2, p.w + 1.2); });
+    }
+    ctx.globalAlpha = 1;
+    show(lab, seg(t, .8, 1.6) * flow, 0);
+    const p1 = seg(t, .4, 1.4), p2 = seg(t, 2.4, 3.4), outT = 1 - seg(t, 5.4, 6.0);
+    show(t1, p1 * outT); glitch(t1, p1, t); show(t2, p2 * outT); glitch(t2, p2, t);
+    const wp = seg(t, REDUCED ? 6.6 : 7.5, REDUCED ? 8.2 : 8.4);
+    show(word, wp, 0); w1.style.letterSpacing = REDUCED ? ".3em" : `${lerp(.42, .3, wp)}em`; glitch(w1, wp, t);
+    show(w2, seg(t, 8.6, 9.6), 12); setDraw(bp, seg(t, 8.2, 10.2, x => x));
   } };
 } });
 
 /* ---------- 2. Establish normal ---------- */
-SC.push({ id: "normal", chapter: "Meet the merchant", dur: 17, mount(root) {
+SC.push({ id: "normal", chapter: "Meet the merchant", design: 15, dur: 11, energy: .3, mount(root) {
   const H = D.hero;
   const hd = heading(root, "Chapter 1 · Establish normal", `Meet ${H.name}`);
   const b = badge(root, "Real data", "real", "position:absolute;left:96px;top:190px");
@@ -267,7 +303,7 @@ SC.push({ id: "normal", chapter: "Meet the merchant", dur: 17, mount(root) {
   const ch2 = barChart(p2, { x: 24, y: 70, w: 436, hgt: 200, series: [hist], colors: ["#62CAC3"], max: Math.max(...hist) * 1.08, labels: edges.map(e => e % 200 === 0 ? "₹" + e : ""), gap: .12 });
   const ann = h("div", { class: "small abs", style: "left:150px;top:64px;color:var(--neon);font-weight:600" }, p2, `${Math.round(H.share_100_300 * 100)}% of bills are ₹100–₹300`);
   const cap = caption(root, "PULSE learns what <span class='mark'>normal</span> looks like for each merchant.");
-  return { render(t) {
+  return { hits: [], render(t) {
     show(hd.e, seg(t, .2, .9)); show(hd.t, seg(t, .4, 1.2)); show(b, seg(t, .9, 1.5)); show(note, seg(t, 1.1, 1.8));
     K.forEach((k, i) => { const p = seg(t, 1.6 + i * .35, 2.4 + i * .35); show(k.box, p); k.val.textContent = k.f(k.to * seg(t, 1.8 + i * .35, 3.6 + i * .35, easeOut)); });
     show(p1, seg(t, 3.8, 4.6)); ch.render(seg(t, 4.2, 7.2, x => x)); show(quiet, seg(t, 7.4, 8.2), 0, 0, .04);
@@ -277,7 +313,7 @@ SC.push({ id: "normal", chapter: "Meet the merchant", dur: 17, mount(root) {
 } });
 
 /* ---------- 3. The takeover ---------- */
-SC.push({ id: "takeover", chapter: "The takeover", dur: 23, mount(root) {
+SC.push({ id: "takeover", chapter: "The takeover", design: 22, dur: 16, energy: .8, mount(root) {
   const T = D.takeover;
   const hd = heading(root, "Chapter 2 · Same shop, different behaviour", "Day T: the bakery's QR starts taking bets");
   const b = badge(root, "Simulated scenario", "sim", "position:absolute;right:96px;top:84px");
@@ -332,7 +368,7 @@ SC.push({ id: "takeover", chapter: "The takeover", dur: 23, mount(root) {
   const loopTx = h("div", { class: "abs", style: "left:96px;top:730px;width:1408px;text-align:center;font-size:19px;color:#CFE3E1" }, root);
   loopTx.innerHTML = "Money comes in during the match <span style='color:var(--jade)'>━</span> … and goes back to the same people as 'refunds' <span style='color:var(--neon)'>┅</span>";
   const cap = caption(root, "Individual transactions look ordinary. <span class='mark'>Their collective behaviour does not.</span>");
-  return { render(t) {
+  return { hits: [2.2 + (T.first_flag_idx + .5) / n * 9.4, 13.0], render(t) {
     show(hd.e, seg(t, .2, .9)); show(hd.t, seg(t, .3, 1.1)); show(b, seg(t, .6, 1.2)); show(chip, seg(t, .8, 1.4));
     const zoom = seg(t, 12.2, 13.4);               // camera pulls back to the collective pattern
     const stageOn = 1 - zoom;
@@ -355,7 +391,7 @@ SC.push({ id: "takeover", chapter: "The takeover", dur: 23, mount(root) {
       const off = Math.max(0, visibleIdx - 10); e.style.top = (52 + (i - off) * 38) + "px"; e.style.opacity = q * (i < off ? 0 : 1); });
     // zoom-out: the collective pattern
     const vals = [T.day_total, Math.round(T.share_inside * 100), T.refunds_inr, 0];
-    K.forEach((k, i) => { const p = seg(t, 13.0 + i * .5, 13.8 + i * .5); show(k.box, p); const c = seg(t, 13.2 + i * .5, 14.8 + i * .5, easeOut);
+    K.forEach((k, i) => { const p = seg(t, 13.0 + i * .5, 13.8 + i * .5, easeBack); show(k.box, p, 30, 0, .25); const c = seg(t, 13.2 + i * .5, 14.8 + i * .5, easeOut);
       k.val.textContent = i === 0 ? Math.round(lerp(T.normal_daily, vals[0], c)) : i === 1 ? Math.round(vals[1] * c) + "%" : i === 2 ? lakh(vals[2] * c) : T.first_flag; });
     arcs.forEach((a, i) => { show(a.g, seg(t, 14.6 + i * .08, 15.2 + i * .08), 0); setDraw(a.inP, seg(t, 15.0 + i * .12, 16.4 + i * .12)); setDraw(a.outP, seg(t, 17.0 + i * .12, 18.6 + i * .12)); });
     show(loop, seg(t, 14.4, 15.0), 0); show(loopTx, seg(t, 16.4, 17.2)); show(cap, seg(t, 18.6, 19.6));
@@ -364,7 +400,7 @@ SC.push({ id: "takeover", chapter: "The takeover", dur: 23, mount(root) {
 } });
 
 /* ---------- 4. Four engines ---------- */
-SC.push({ id: "engines", chapter: "Four engines", dur: 29, mount(root) {
+SC.push({ id: "engines", chapter: "Four engines", design: 28, dur: 19, energy: .7, mount(root) {
   const E = D.engines;
   const hd = heading(root, "Chapter 3 · Four engines, one investigation", "Four instruments examine the same night");
   const b = badge(root, "Simulated · " + E.hour, "sim", "position:absolute;right:96px;top:84px");
@@ -376,7 +412,8 @@ SC.push({ id: "engines", chapter: "Four engines", dur: 29, mount(root) {
     h("div", { class: "small", style: "position:absolute;left:22px;top:70px" }, e, names[i][2]);
     const st = h("div", { style: "position:absolute;right:20px;top:18px;font-size:12px;font-weight:700;letter-spacing:.16em;padding:6px 12px;border-radius:999px;border:1px solid rgba(98,202,195,.3);color:var(--dim)" }, e, "STANDBY");
     const read = h("div", { style: "position:absolute;right:22px;top:58px;text-align:right;font-size:14px;color:#CFE3E1" }, e);
-    return { e, st, read }; });
+    const ring = h("div", { class: "abs", style: `left:${p[0]}px;top:${p[1]}px;width:694px;height:290px;border-radius:22px;border:2px solid #00FE89;pointer-events:none;opacity:0` }, root);
+    return { e, st, read, ring }; });
   // 01 drift: last 24 h vs its own normal
   const dv = s("svg", { width: 650, height: 180, style: "position:absolute;left:22px;top:100px;overflow:visible" }, P[0].e);
   const dmax = Math.max(...E.drift.cnt, ...E.drift.E) * 1.1;
@@ -427,7 +464,7 @@ SC.push({ id: "engines", chapter: "Four engines", dur: 29, mount(root) {
   conTx.innerHTML = `<div class="h2">Four independent signals converge.</div><div class="lead" style="margin-top:12px">No single detector decides the outcome. PULSE needs at least two to agree before any visible action, a deliberate guard against false positives.</div>`;
   const slots = [[2.4, 7.6], [7.6, 12.8], [12.8, 18.0], [18.0, 23.2]];
   const fired = [E.fired.drift, E.fired.peers, E.fired.invariants, E.fired.graph];
-  return { render(t) {
+  return { hits: [5.6, 10.8, 16.0, 21.2, 24.8], render(t) {
     show(hd.e, seg(t, .2, .9)); show(hd.t, seg(t, .3, 1.1)); show(b, seg(t, .5, 1.1));
     const conv_p = seg(t, 23.6, 25.0);
     P.forEach((p, i) => {
@@ -438,6 +475,8 @@ SC.push({ id: "engines", chapter: "Four engines", dur: 29, mount(root) {
       p.st.textContent = on ? "FIRED" : t >= a ? "ANALYSING" : "STANDBY";
       p.st.style.color = on ? "#00170F" : t >= a ? "var(--mint)" : "var(--dim)"; p.st.style.background = on ? "var(--neon)" : "transparent";
       p.st.style.borderColor = on ? "var(--neon)" : "rgba(98,202,195,.3)";
+      const since = t - (a + 3.2), rg = !REDUCED && fired[i] && since > 0 && since < 1.2 ? since / 1.2 : -1;
+      p.ring.style.opacity = rg < 0 ? 0 : (1 - rg) * .9; p.ring.style.transform = `scale(${1 + rg * .12})`;
     });
     // 01
     const d1 = seg(t, 2.6, 4.6, x => x);
@@ -461,7 +500,7 @@ SC.push({ id: "engines", chapter: "Four engines", dur: 29, mount(root) {
 } });
 
 /* ---------- 5. Decision ---------- */
-SC.push({ id: "decision", chapter: "From signals to a decision", dur: 18, mount(root) {
+SC.push({ id: "decision", chapter: "From signals to a decision", design: 16, dur: 11, energy: .5, mount(root) {
   const X = D.decision;
   const hd = heading(root, "Chapter 4 · From signals to a decision", "One calibrated score. Three plain reasons.");
   const b = badge(root, "Simulated model · " + X.hour, "sim", "position:absolute;right:96px;top:84px");
@@ -488,7 +527,7 @@ SC.push({ id: "decision", chapter: "From signals to a decision", dur: 18, mount(
   rule.innerHTML = `Decision rule: act at L3 only if &nbsp; p × C<sub>fraud</sub> &gt; (1 − p) × C<sub>friction</sub>(L3) &nbsp;→&nbsp; ${pS} × ${X.c_fraud} = <b class="neon">${(X.p * X.c_fraud).toFixed(1)}</b> &nbsp;&gt;&nbsp; ${(1 - X.p).toFixed(3)} × ${X.c_l3} = <b>${((1 - X.p) * X.c_l3).toFixed(2)}</b> &nbsp;✓`;
   const cap = caption(root, "A risk score is only useful when you can <span class='mark'>explain why it exists</span>.");
   cap.style.bottom = "38px"; cap.style.fontSize = "26px";
-  return { render(t) {
+  return { hits: [4.0], render(t) {
     show(hd.e, seg(t, .2, .9)); show(hd.t, seg(t, .3, 1.1)); show(b, seg(t, .5, 1.1)); show(gp, seg(t, .9, 1.7));
     const gpp = seg(t, 1.6, 4.0); setDraw(garc, gpp);
     const v = X.p * 100 * gpp; gval.textContent = (X.p >= .995 && gpp > .97) ? "> 99%" : Math.floor(v) + "%";
@@ -504,7 +543,7 @@ SC.push({ id: "decision", chapter: "From signals to a decision", dur: 18, mount(
 } });
 
 /* ---------- 6. Money ---------- */
-SC.push({ id: "money", chapter: "Stop the suspicious surplus", dur: 21, mount(root) {
+SC.push({ id: "money", chapter: "Stop the suspicious surplus", design: 16, dur: 12, energy: .6, mount(root) {
   const R = D.reserve;
   const hd = heading(root, "Chapter 5 · Proportionate action", "Hold the surplus. Pay the bakery on time.");
   const b = badge(root, "Simulated · L3 delta reserve", "sim", "position:absolute;right:96px;top:84px");
@@ -515,7 +554,7 @@ SC.push({ id: "money", chapter: "Stop the suspicious surplus", dur: 21, mount(ro
   const topY = 250 - 200 + 70, botY = 250 - 200 + 210;
   const wS = Math.max(8, 160 * R.settled / R.paid), wH = Math.max(8, 160 * R.held / R.paid);
   const pathS = drawPath(s("path", { d: `M330,${120 - wH / 2 + 0} C620,120 680,40 1000,40`, stroke: "#00AD7D", "stroke-width": wS, fill: "none", "stroke-linecap": "round", opacity: .9 }, fl));
-  const pathH = drawPath(s("path", { d: `M330,${130} C620,130 680,230 1000,230`, stroke: "#00FE89", "stroke-width": wH, fill: "none", "stroke-linecap": "round", opacity: .85 }, fl));
+  const pathH = drawPath(s("path", { d: `M330,${130} C620,130 680,230 1000,230`, stroke: "#00FE89", "stroke-width": wH, fill: "none", "stroke-linecap": "round", opacity: .85, style: "filter:drop-shadow(0 0 18px rgba(0,254,137,.55))" }, fl));
   const rnd = mulberry(5), dots = Array.from({ length: 60 }, (_, i) => ({ held: i % 60 < Math.round(60 * R.held / R.paid), ph: rnd(), sp: .25 + rnd() * .1 }));
   const dEls = dots.map(d => s("circle", { r: 3, fill: d.held ? "#002124" : "#fff", opacity: .8 }, fl));
   const outS = h("div", { class: "panel abs", style: "left:1110px;top:214px;width:394px;padding:18px 22px;border-color:rgba(0,173,125,.6)" }, root);
@@ -525,25 +564,17 @@ SC.push({ id: "money", chapter: "Stop the suspicious surplus", dur: 21, mount(ro
   h("div", { class: "eyebrow", style: "color:var(--neon)" }, outH, "Held in delta reserve"); const hv = h("div", { style: "font-size:42px;font-weight:700;margin-top:6px;color:var(--neon)" }, outH, "");
   h("div", { class: "small" }, outH, "only payments above Tolerated that carry a betting fingerprint");
   // hourly view with tolerated
-  const hp = h("div", { class: "panel abs", style: "left:96px;top:560px;width:860px;height:230px" }, root);
+  const hp = h("div", { class: "panel abs", style: "left:96px;top:560px;width:1408px;height:230px" }, root);
   h("div", { class: "h3", style: "position:absolute;left:22px;top:14px;font-size:18px" }, hp, "Day T, hour by hour (₹)");
   const settledH = R.amount.map((a, i) => a - R.held_h[i]), mx = Math.max(...R.amount) * 1.08;
-  const hc = barChart(hp, { x: 22, y: 52, w: 816, hgt: 140, series: [settledH, R.held_h], colors: ["#00AD7D", "#00FE89"], max: mx, labels: R.hours.map((x, i) => i % 3 === 0 ? x + ":00" : ""), stacked: true });
-  const tolP = drawPath(s("path", { d: linePath(R.tolerated, 816 / 48, 0, 816 - 816 / 24, 140, 0, mx), fill: "none", stroke: "#fff", "stroke-width": 2, "stroke-dasharray": "5 4" }, hc.svg));
+  const hc = barChart(hp, { x: 22, y: 52, w: 1364, hgt: 140, series: [settledH, R.held_h], colors: ["#00AD7D", "#00FE89"], max: mx, labels: R.hours.map((x, i) => i % 2 === 0 ? x + ":00" : ""), stacked: true });
+  const tolP = drawPath(s("path", { d: linePath(R.tolerated, 1364 / 48, 0, 1364 - 1364 / 24, 140, 0, mx), fill: "none", stroke: "#fff", "stroke-width": 2, "stroke-dasharray": "5 4" }, hc.svg));
   h("div", { class: "small", style: "position:absolute;right:22px;top:18px" }, hp).innerHTML = "<span style='color:var(--jade)'>■</span> settles &nbsp; <span style='color:var(--neon)'>■</span> held &nbsp; ┅ Tolerated";
-  // festival panel: tolerated rises with the cohort
-  const fp = h("div", { class: "panel abs", style: "left:980px;top:560px;width:524px;height:230px" }, root);
-  h("div", { class: "h3", style: "position:absolute;left:22px;top:14px;font-size:18px" }, fp, "Why a spike is not punished");
-  const fmax = Math.max(...R.s1_amount, ...R.s1_tol) * 1.1;
-  const fc = barChart(fp, { x: 22, y: 52, w: 300, hgt: 130, series: [R.s1_amount], colors: ["#62CAC3"], max: fmax, labels: R.s1_days, gap: .3 });
-  const ftol = drawPath(s("path", { d: linePath(R.s1_tol, 300 / R.s1_tol.length / 2, 0, 300 - 300 / R.s1_tol.length, 130, 0, fmax), fill: "none", stroke: "#fff", "stroke-width": 2, "stroke-dasharray": "5 4" }, fc.svg));
-  const ftx = h("div", { style: "position:absolute;left:340px;top:56px;width:170px;font-size:14px;line-height:1.5;color:#CFE3E1" }, fp);
-  ftx.innerHTML = `Lakshmi Sweets, Diwali week (even if L3 were forced): Tolerated rises with the whole sweet-shop cohort.<div style="font-size:30px;font-weight:700;color:var(--neon);margin-top:8px">${inr(R.s1_held)} held</div>`;
   const form = h("div", { class: "abs small", style: "left:96px;top:800px;width:1408px" }, root);
-  form.innerHTML = `Tolerated = baseline × exp(cohort lift + ${R.k}σ). Only part of one day's settlement is held: never the merchant's whole balance. Simulated scenario, not a PayU deployment. Whole simulated case: ${lakh(R.total_case)} held.`;
+  form.innerHTML = `Tolerated = baseline × exp(cohort lift + ${R.k}σ), so a spike the whole peer group shares (a festival) raises it. Only part of one day's settlement is held: never the merchant's whole balance. Simulated scenario, not a PayU deployment. Whole simulated case: ${lakh(R.total_case)} held.`;
   const cap = caption(root, "Protect the payment system <span class='mark'>without punishing legitimate businesses</span>.");
   cap.style.bottom = "auto"; cap.style.top = "176px"; cap.style.fontSize = "22px"; cap.style.left = "96px"; cap.style.right = "auto";
-  return { render(t) {
+  return { hits: [4.6], render(t) {
     show(hd.e, seg(t, .2, .9)); show(hd.t, seg(t, .3, 1.1)); show(b, seg(t, .5, 1.1));
     show(pool, seg(t, .9, 1.7)); pv.textContent = lakh(R.paid * seg(t, 1.2, 2.6, easeOut));
     setDraw(pathS, seg(t, 2.6, 4.4)); setDraw(pathH, seg(t, 3.0, 4.8));
@@ -554,13 +585,12 @@ SC.push({ id: "money", chapter: "Stop the suspicious surplus", dur: 21, mount(ro
     show(outH, seg(t, 5.0, 5.8), 0, 30); hv.textContent = lakh(R.held * seg(t, 5.2, 6.6, easeOut));
     show(cap, seg(t, 6.8, 7.6));
     show(hp, seg(t, 8.2, 9.0)); hc.render(seg(t, 8.6, 11.0, x => x)); setDraw(tolP, seg(t, 11.0, 12.4));
-    show(fp, seg(t, 12.4, 13.2)); fc.render(seg(t, 12.8, 14.4, x => x)); setDraw(ftol, seg(t, 14.4, 15.6)); show(ftx, seg(t, 15.4, 16.2));
-    show(form, seg(t, 16.0, 16.8));
+    show(form, seg(t, 12.6, 13.4));
   } };
 } });
 
 /* ---------- 7. Honest cases ---------- */
-SC.push({ id: "honest", chapter: "Honest businesses protected", dur: 17, mount(root) {
+SC.push({ id: "honest", chapter: "Honest businesses protected", design: 14, dur: 10, energy: .25, mount(root) {
   const S = D.honest;
   const hd = heading(root, "Chapter 6 · Context is not fraud", "Two honest spikes. Neither escalates.");
   const b = badge(root, "Simulated scenarios S1 · S2", "sim", "position:absolute;right:96px;top:84px");
@@ -584,7 +614,7 @@ SC.push({ id: "honest", chapter: "Honest businesses protected", dur: 17, mount(r
   contrast.innerHTML = `Compare: the taken-over bakery reached <b class="neon">&nbsp;L${S.hero_level} delta reserve&nbsp;</b> within the hour, because its spike came with strangers, round stakes, refunds and banned-front bettors.`;
   const cap = caption(root, "Detect anomalies. <span class='mark'>Don't punish context.</span>");
   cap.style.bottom = "70px";
-  return { render(t) {
+  return { hits: [], render(t) {
     show(hd.e, seg(t, .2, .9)); show(hd.t, seg(t, .3, 1.1)); show(b, seg(t, .5, 1.1));
     show(p1, seg(t, .9, 1.7), 18, -20); c1.render(seg(t, 1.4, 4.0, x => x)); setDraw(e1, seg(t, 4.0, 5.4)); show(r1, seg(t, 5.4, 6.2));
     show(p2, seg(t, 3.4, 4.2), 18, 20); bands.forEach(r => r.style.opacity = seg(t, 4.2, 5.0));
@@ -594,7 +624,7 @@ SC.push({ id: "honest", chapter: "Honest businesses protected", dur: 17, mount(r
 } });
 
 /* ---------- 8. Network ---------- */
-SC.push({ id: "network", chapter: "The network reveals a new front", dur: 17, mount(root) {
+SC.push({ id: "network", chapter: "The network reveals a new front", design: 15, dur: 10, energy: .7, mount(root) {
   const N = D.network, C = N.card;
   const hd = heading(root, "Chapter 7 · Same bettors, new front", `A brand-new 'IT services' shell, onboarded ${N.onboard}`);
   const b = badge(root, "Simulated scenario S5", "sim", "position:absolute;right:96px;top:84px");
@@ -609,6 +639,8 @@ SC.push({ id: "network", chapter: "The network reveals a new front", dur: 17, mo
     const kind = other.id === s5id ? "s5" : other.id === bfid ? "bf" : "ctx";
     const ln = s("line", { x1: a.X, y1: a.Y, x2: c.X, y2: c.Y, stroke: kind === "bf" ? "#00FE89" : kind === "s5" ? "rgba(247,247,247,.55)" : "rgba(98,202,195,.22)", "stroke-width": kind === "ctx" ? 1 : 1.6 }, sv);
     return { ln, ord: firstOrder[payer.id] ?? 0, kind }; });
+  const pulses = E.filter(e => e.kind === "bf").map(e => { const x1 = +e.ln.getAttribute("x1"), y1 = +e.ln.getAttribute("y1"), x2 = +e.ln.getAttribute("x2"), y2 = +e.ln.getAttribute("y2");
+    return { e, x1, y1, x2, y2, c: s("circle", { r: 4, fill: "#fff", style: "filter:drop-shadow(0 0 6px #00FE89)" }, sv) }; });
   const ND = nodes.map(n => { const p = P[n.id]; let el;
     if (n.role === "s5") el = s("rect", { x: p.X - 20, y: p.Y - 20, width: 40, height: 40, rx: 8, fill: "#fff" }, sv);
     else if (n.role === "banned") el = s("path", { d: `M${p.X - 16},${p.Y - 16} L${p.X + 16},${p.Y + 16} M${p.X + 16},${p.Y - 16} L${p.X - 16},${p.Y + 16}`, stroke: "#fff", "stroke-width": 7 }, sv);
@@ -629,7 +661,7 @@ SC.push({ id: "network", chapter: "The network reveals a new front", dur: 17, mo
   txt.innerHTML = `In a 5-million-payer region chance would give <b>${N.worked.expected.toFixed(3)}</b>. ${N.s5_name} also shares a device ID with the banned front, and PULSE flagged it <b class="neon">${N.detect_h.toFixed(0)} hours</b> after its first payment.`;
   const cap = caption(root, "Fronts can change their name. <span class='mark'>They can't easily change their customers.</span>");
   cap.style.bottom = "38px"; cap.style.fontSize = "24px";
-  return { render(t) {
+  return { hits: [10.6], render(t) {
     show(hd.e, seg(t, .2, .9)); show(hd.t, seg(t, .3, 1.1)); show(b, seg(t, .5, 1.1)); show(pnl, seg(t, .8, 1.6));
     const s5p = seg(t, 1.4, 2.0), bfp = seg(t, 1.8, 2.4);
     const per = 7.0 / N.first.length;
@@ -637,6 +669,8 @@ SC.push({ id: "network", chapter: "The network reveals a new front", dur: 17, mo
     ND.forEach(d => { if (d.n.role === "s5") d.el.style.opacity = s5p; else if (d.n.role === "banned") d.el.style.opacity = bfp;
       else if (d.n.role === "context") d.el.style.opacity = seg(t, 10.0, 11.0) * .9;
       else { const q = seg(t, 2.6 + d.ord * per, 3.0 + d.ord * per); d.el.style.opacity = q; if (d.n.role === "shared" && q >= 1) shared++; } });
+    pulses.forEach((pl, k) => { const e = pl.e, on = seg(t, 3.6 + e.ord * per, 4.0 + e.ord * per); const u = ((t * .7 + k * .13) % 1);
+      pl.c.setAttribute("cx", lerp(pl.x1, pl.x2, u)); pl.c.setAttribute("cy", lerp(pl.y1, pl.y2, u)); pl.c.style.opacity = REDUCED ? 0 : on; });
     E.forEach(e => { e.ln.style.opacity = e.kind === "ctx" ? seg(t, 10.0, 11.0) * .7 : e.kind === "s5" ? seg(t, 2.6 + e.ord * per, 3.0 + e.ord * per) : seg(t, 3.0 + e.ord * per, 3.6 + e.ord * per); });
     l1.style.opacity = s5p; l2.style.opacity = bfp;
     show(k1.box, seg(t, 2.4, 3.0)); k1.val.textContent = `${shared} of ${C.n}`;
@@ -648,13 +682,13 @@ SC.push({ id: "network", chapter: "The network reveals a new front", dur: 17, mo
 } });
 
 /* ---------- 9. Evidence pack ---------- */
-SC.push({ id: "evidence", chapter: "The analyst's evidence pack", dur: 17, mount(root) {
+SC.push({ id: "evidence", chapter: "The analyst's evidence pack", design: 13.5, dur: 8, energy: .35, mount(root) {
   const V = D.evidence;
   const hd = heading(root, "Chapter 8 · Evidence, assembled", "The case file builds itself. A human decides.");
   const b = badge(root, "Simulated case", "sim", "position:absolute;right:96px;top:84px");
   const side = h("div", { class: "panel abs", style: "left:96px;top:200px;width:330px;height:600px;padding:22px" }, root);
   h("div", { class: "eyebrow" }, side, "Case " + V.case_id);
-  const items = ["Incident timeline", "Four detector readings", "Top three reasons", "Related-front connections", "Payment and refund movement", "Response actions", "Draft STR (not filed)"];
+  const items = ["Incident timeline", "Four detector readings", "Related-front connections", "Payment and refund movement", "Response actions", "Draft STR (not filed)", "Top three reasons (from chapter 4)"];
   const IT = items.map((x, i) => { const e = h("div", { style: `margin-top:${i ? 14 : 22}px;display:flex;gap:12px;align-items:center;font-size:16px;color:var(--muted)` }, side);
     const c = h("span", { style: "width:22px;height:22px;border-radius:50%;border:1.5px solid var(--dim);display:inline-flex;align-items:center;justify-content:center;font-size:13px" }, e, ""); h("span", {}, e, x); return { e, c }; });
   const doc = h("div", { class: "abs", style: "left:450px;top:200px;width:1054px;height:600px;border-radius:18px;background:#F7F7F7;color:#002124;overflow:hidden;box-shadow:0 30px 80px rgba(0,0,0,.45)" }, root);
@@ -667,25 +701,24 @@ SC.push({ id: "evidence", chapter: "The analyst's evidence pack", dur: 17, mount
   const S = [
     sec("1 · Incident timeline", V.timeline.slice(0, 3).map(r => `<div><b>${r.when.replace(" 2025", "")}</b> · ${r.what}</div>`).join("")),
     sec("2 · Detector readings", V.readings.map(r => `<div style="display:flex;justify-content:space-between"><span>${r.engine}</span><span><b>${r.score.toFixed(2)}</b> ${r.fired ? "· fired" : ""}</span></div>`).join("")),
-    sec("3 · Top three reasons", D.decision.reasons.map((r, i) => `<div>${i + 1}. ${r.text}</div>`).join(""), true),
-    sec("4 · Related-front connections", (V.links.length ? V.links : ["None at flag time"]).map(x => `<div>${x}</div>`).join("")),
-    sec("5 · Money movement (7 days before flag)", V.money.map(x => `<div>${x.replace(/Rs /g, "₹")}</div>`).join("")),
-    sec("6 · Response · two tracks", `<div><b>Merchant sees:</b> OTP + supplier invoice (L2); video KYC, part of the day's settlement delayed (L3)</div><div><b>Compliance only:</b> case opened, evidence frozen, STR drafted. The merchant is not informed.</div>`),
-    sec("7 · Draft STR narrative", `<div style="background:#E3E3E3;border-left:4px solid #002124;padding:6px 10px;margin-bottom:6px;font-weight:600">Draft for compliance review: not filed. Filed within 7 working days per PMLA rules; merchant is not informed.</div><div style="color:#4F6668;font-size:12px;max-height:54px;overflow:hidden">${V.str.replace(/Rs /g, "₹")}</div>`),
+    sec("3 · Related-front connections", (V.links.length ? V.links : ["None at flag time"]).map(x => `<div>${x}</div>`).join("")),
+    sec("4 · Money movement (7 days before flag)", V.money.map(x => `<div>${x.replace(/Rs /g, "₹")}</div>`).join("")),
+    sec("5 · Response · two tracks", `<div><b>Merchant sees:</b> OTP + supplier invoice (L2); video KYC, part of the day's settlement delayed (L3)</div><div><b>Compliance only:</b> case opened, evidence frozen, STR drafted. The merchant is not informed.</div>`),
+    sec("6 · Draft STR narrative", `<div style="background:#E3E3E3;border-left:4px solid #002124;padding:6px 10px;margin-bottom:6px;font-weight:600">Draft for compliance review: not filed. Filed within 7 working days per PMLA rules; merchant is not informed.</div><div style="color:#4F6668;font-size:12px;max-height:54px;overflow:hidden">${V.str.replace(/Rs /g, "₹")}</div>`),
   ];
   const exp = h("div", { class: "abs small", style: "left:96px;top:812px;width:1408px" }, root, "Real exports exist in the app: Story mode step 7 downloads this case file as Markdown or HTML. Nothing is downloaded or filed during this presentation.");
   const cap = caption(root, "Machine-prepared evidence. <span class='mark'>Human-reviewed decisions.</span>");
   cap.style.bottom = "auto"; cap.style.top = "176px"; cap.style.left = "760px"; cap.style.fontSize = "22px"; cap.style.right = "96px"; cap.style.textAlign = "right";
-  return { render(t) {
+  return { hits: [], render(t) {
     show(hd.e, seg(t, .2, .9)); show(hd.t, seg(t, .3, 1.1)); show(b, seg(t, .5, 1.1)); show(side, seg(t, .8, 1.6), 0, -20); show(doc, seg(t, 1.0, 1.8), 30);
-    S.forEach((e, i) => show(e, seg(t, 2.0 + i * 1.3, 2.7 + i * 1.3), 16, 0, .03));
-    IT.forEach((x, i) => { const done = t >= 2.7 + i * 1.3; x.c.textContent = done ? "✓" : ""; x.c.style.background = done ? "var(--neon)" : "transparent"; x.c.style.color = "#00170F"; x.c.style.borderColor = done ? "var(--neon)" : "var(--dim)"; x.e.style.color = done ? "#fff" : "var(--muted)"; });
+    S.forEach((e, i) => show(e, seg(t, 2.0 + i * 1.3, 2.7 + i * 1.3, easeBack), 16, 0, .06));
+    IT.forEach((x, i) => { const done = t >= (i < 6 ? 2.7 + i * 1.3 : 2.4); x.c.textContent = done ? "✓" : ""; x.c.style.background = done ? "var(--neon)" : "transparent"; x.c.style.color = "#00170F"; x.c.style.borderColor = done ? "var(--neon)" : "var(--dim)"; x.e.style.color = done ? "#fff" : "var(--muted)"; });
     show(exp, seg(t, 11.6, 12.4)); show(cap, seg(t, 12.2, 13.2));
   } };
 } });
 
 /* ---------- 10. Validation, limitations, close ---------- */
-SC.push({ id: "close", chapter: "Validation and close", dur: 27, mount(root) {
+SC.push({ id: "close", chapter: "Validation and close", design: 25, dur: 14, energy: .9, mount(root) {
   const V = D.eval;
   const res = h("div", { class: "abs", style: "inset:0" }, root);
   const hd = heading(res, "Chapter 9 · Validation boundaries", "How it performed on simulated test merchants");
@@ -714,7 +747,7 @@ SC.push({ id: "close", chapter: "Validation and close", dur: 27, mount(root) {
   line.innerHTML = "Know what is normal. Detect what changes. <span class='neon'>Respond with evidence.</span>";
   const sub = h("div", { class: "lead", style: "position:absolute;left:0;right:0;top:612px;text-align:center" }, cl, "Behavioural intelligence. Explainable decisions. Proportionate action.");
   const foot = h("div", { class: "small", style: "position:absolute;left:0;right:0;bottom:120px;text-align:center" }, cl, "Prototype · simulated scenarios around one real public bakery dataset · Follow the Money: Innovation Challenge");
-  return { render(t) {
+  return { hits: [16.6, 18.2], render(t) {
     const out = seg(t, 15.0, 16.2);
     res.style.opacity = 1 - out;
     show(hd.e, seg(t, .2, .9)); show(hd.t, seg(t, .3, 1.1)); show(b, seg(t, .5, 1.1));
@@ -751,12 +784,48 @@ function renderAt(T) {
     $("sr").textContent = `Chapter ${i + 1} of ${SC.length}: ${SC[i].chapter}`;
   }
   const t = T - offsets[i], dur = SC[i].dur, last = i === SC.length - 1;
-  const fade = REDUCED ? .25 : .6;
-  S.inst.root.style.opacity = Math.min(clamp(t / fade + (T === 0 ? 1 : 0)), last ? 1 : clamp((dur - t) / fade));
-  S.inst.render(t);
+  const td = t * (SC[i].design || dur) / dur;      // each scene is choreographed on its own clock, played at dur seconds
+  const fin = REDUCED ? clamp(t / .25 + (T === 0 ? 1 : 0)) : clamp(t / .7 + (T === 0 ? 1 : 0)), fout = last ? 1 : clamp((dur - t) / (REDUCED ? .25 : .55));
+  const root = S.inst.root;
+  root.style.opacity = Math.min(fin, fout);
+  // impact hits: a flash and a short, decaying camera shake at the scene's key moments
+  let hit = 0; (S.inst.hits || []).forEach(hh => { if (td >= hh) hit = Math.max(hit, Math.exp(-(td - hh) * 3.2)); });
+  if (REDUCED) { root.style.transform = "none"; root.style.filter = "none"; hit = 0; }
+  else {
+    const zin = 1 - easeOut(fin), zout = 1 - fout, sh = hit > .05 ? hit * 7 : 0;
+    root.style.transform = `translate(${sh * Math.sin(t * 83)}px,${sh * Math.cos(t * 71)}px) scale(${1 + .04 * zin + .05 * zout})`;
+    const bl = 9 * zin + 7 * zout; root.style.filter = bl > .3 ? `blur(${bl.toFixed(1)}px)` : "none";
+  }
+  $("flash").style.opacity = (hit * .55).toFixed(3);
+  // light sweep across the frame as each chapter opens
+  const sw = REDUCED || T === 0 ? -1 : clamp(t / .9, 0, 1.01);
+  const sweep = $("sweep"); sweep.style.opacity = sw < 0 || sw > 1 ? 0 : Math.sin(sw * Math.PI); sweep.style.transform = `translateX(${lerp(-300, 1900, sw)}px) skewX(-18deg)`;
+  // perspective grid floor for the opening and the close
+  const fl = SC[i].id === "opening" ? clamp(1 - (t - 5.2) / 1.2) * .5 : SC[i].id === "close" ? seg(td, 15.6, 17.2) * .55 : 0;
+  const floor = $("floor"); floor.style.opacity = REDUCED ? 0 : fl; floor.style.backgroundPosition = `0 ${(T * 60) % 90}px`;
+  $("grain").style.transform = REDUCED ? "none" : `translate(${(Math.floor(T * 24) * 37) % 50 - 25}px,${(Math.floor(T * 24) * 53) % 50 - 25}px)`;
+  drawFX(T, SC[i].energy || .4, hit);
+  S.inst.render(td);
   // atmosphere drifts slowly with global time (deterministic)
   const g = $("glow"); g.style.left = (350 + 250 * Math.sin(T / 23)) + "px"; g.style.top = (-200 + 160 * Math.cos(T / 31)) + "px";
   updateUI();
+}
+/* ambient particle field: deterministic positions as a function of global time; energy follows the chapter */
+const FXC = document.getElementById("fx").getContext("2d");
+const FXP = (() => { const r = mulberry(99); return Array.from({ length: 170 }, () => ({ x: r() * 1600, y: r() * 900, v: .3 + r() * 1.2, a: r() * 6.283, z: .3 + r() * .7 })); })();
+let FXE = .4;
+function drawFX(T, energy, hit) {
+  FXC.clearRect(0, 0, 1600, 900);
+  if (REDUCED) return;
+  FXE += (energy - FXE) * .05;     // smoothed only for looks; positions themselves depend on T alone
+  const sp = 18 + 40 * FXE;
+  FXP.forEach((p, i) => {
+    const x = ((p.x + T * sp * p.v * p.z) % 1660 + 1660) % 1660 - 30, y = p.y + 22 * Math.sin(T * .35 * p.v + p.a);
+    const al = (.12 + .45 * FXE * p.z + .5 * hit) * p.z;
+    FXC.fillStyle = i % 7 === 0 ? `rgba(0,254,137,${al})` : `rgba(98,202,195,${al * .8})`;
+    const len = 1.5 + 10 * FXE * p.z;
+    FXC.fillRect(x, y, len, 1.6 * p.z);
+  });
 }
 function updateUI() {
   const pct = S.T / TOTAL * 100;

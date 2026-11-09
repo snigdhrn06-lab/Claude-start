@@ -45,7 +45,7 @@ otherwise run `.venv/bin/playwright install chromium` once.
 ## Cinematic presentation (hands-free demo)
 
 Sidebar → **Cinematic presentation** (or the button on Story mode) opens a full-window, self-playing version of the whole
-story: 10 chapters, about 3 min 17 s, no clicks after **Play**. Space pauses, ← → move between chapters, R replays, F goes fullscreen, X exits.
+story: 10 chapters, exactly 2 minutes, no clicks after **Play**. Space pauses, ← → move between chapters, R replays, F goes fullscreen, X exits.
 It's built as one HTML/SVG/Canvas document (`app/presentation/presentation.html`) driven by a single deterministic timeline. Every scene is a
 pure function of time, so pause, seek, skip and replay are exact. Its data is built from the same artefacts as the app
 (`app/ui/presentation_data.py`), so the numbers always agree. `make presentation` writes a standalone offline copy to

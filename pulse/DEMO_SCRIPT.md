@@ -1,7 +1,7 @@
 # PULSE demo: 2-minute narration
 
 **Hands-free option:** sidebar → **Cinematic presentation** → press **F** for fullscreen → **Play**. It runs the whole
-story by itself in about 3:17 (10 chapters) and holds the closing frame. Use the click-through script below if you want
+story by itself in exactly 2:00 (10 chapters) and holds the closing frame. Use the click-through script below if you want
 to narrate live instead.
 
 Setup: `make app`, browser at full screen (1440 px wide), Clean display on (default). Start on **Story mode, step 1**.

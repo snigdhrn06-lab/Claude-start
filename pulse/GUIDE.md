@@ -257,7 +257,7 @@ Three tabs.
 
 ## 4a. Cinematic presentation (the hands-free demo)
 
-**What it is:** a full-screen, self-playing version of the whole story, about **3 minutes 17 seconds** long and 10 chapters. Press **Play** once and it runs to the end on its own, like a product video. The visuals are drawn live from the same data as the rest of the app.
+**What it is:** a full-screen, self-playing version of the whole story, exactly **2 minutes** long and 10 chapters. Press **Play** once and it runs to the end on its own, like a product video. The visuals are drawn live from the same data as the rest of the app.
 
 **How to open it:** sidebar → **Cinematic presentation**, or the **▶ Cinematic presentation** button at the top of Story mode. The **⬇ Offline copy (HTML)** button next to it downloads the same presentation as one file that plays in any browser, even without the app running.
 
@@ -281,11 +281,13 @@ Three tabs.
 | 3 | The takeover | 14 Sep: 185 payments, 69% during the match, refunds loop back, flagged at 19:00 |
 | 4 | Four engines | Drift, Peers, Invariants (34 of 34) and Graph (32 vs 8.3) fire one by one, then converge: 4 of 4 agree |
 | 5 | A decision | > 99% score, three real reasons, action L3 now; L5 only with analyst approval |
-| 6 | The money | ₹1.49 lakh in → ₹1.17 lakh held, ₹32,033 paid on time; Diwali Tolerated rises, so ₹0 held |
+| 6 | The money | ₹1.49 lakh in → ₹1.17 lakh held, ₹32,033 paid on time; Tolerated rises when the whole peer group spikes |
 | 7 | Honest cases | Lakshmi Sweets stays L0 on Diwali; the sports bar stays at the L1 silent check |
 | 8 | The network | The new shell: 12 of its first 20 payers vs 0.84 expected (about 1 in 400 billion) |
-| 9 | Evidence pack | The real case file assembles itself; the STR is a draft for humans |
+| 9 | Evidence pack | The real case file assembles itself (reasons are not repeated); the STR is a draft for humans |
 | 10 | Validation and close | 28 of 29, 97%, 1.00, 0.983, 0 honest at L3+, 9/9, plus the limitations, then the closing line |
+
+**Effects:** the PULSE wordmark assembles from flying payment particles, headlines glitch in, a particle field and grid floor drift behind every chapter, chapters open with a light sweep and zoom-blur, and key moments (first flag, each engine firing, 4/4, the score, the money split) hit with a flash and a short camera shake. With "reduce motion" switched on in the operating system, the effects turn off and the same information plays with plain fades.
 
 **Tip for the big screen:** open it, press **F** for fullscreen, press **Play**, and step away. If the browser tab is hidden it pauses and resumes when you come back, so nothing is skipped. At the end it holds the closing frame and does not restart.
 

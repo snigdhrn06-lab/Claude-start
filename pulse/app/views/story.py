@@ -40,7 +40,7 @@ costs = meta["config"]["costs"]
 # ---------------------------------------------------------------- cinematic presentation entry point
 _c1, _c2, _c3 = st.columns([4, 3, 2])
 _c1.markdown("<div class='muted' style='padding-top:10px'>Presenting to judges? The cinematic version plays the whole story "
-             "automatically (about 3 minutes, no clicks after Play).</div>", unsafe_allow_html=True)
+             "automatically (about 2 minutes, no clicks after Play).</div>", unsafe_allow_html=True)
 _c2.page_link("views/presentation.py", label="Cinematic presentation", icon=":material/play_circle:", use_container_width=True)
 
 
