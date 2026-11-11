@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: consultbrain
+    runtime: node
+    plan: free
+    buildCommand: npm install --include=dev && npm run build
+    startCommand: npm start
+    healthCheckPath: /healthz
+    envVars:
+      - key: NODE_VERSION
+        value: 22
+      - key: CB_DISABLE_AI
+        value: "1"

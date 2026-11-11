@@ -17,6 +17,7 @@ import { clean } from './engine/text.js';
 const here = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
 app.use(express.json({ limit: '200kb' }));
+app.get('/healthz', (_req, res) => res.json({ ok: true }));
 const DAY = 86400000;
 const err = (status, message, fields) => Object.assign(new Error(message), { status, fields });
 const wrap = (fn) => (req, res, next) => Promise.resolve(fn(req, res)).then((out) => out !== undefined && res.json(out)).catch(next);
