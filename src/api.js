@@ -9,7 +9,7 @@ export async function api(path, { method = 'GET', body } = {}) {
   let res;
   try {
     res = await fetch('/api' + path, { method, headers: { 'content-type': 'application/json', ...(getToken() ? { authorization: `Bearer ${getToken()}` } : {}) }, body: body ? JSON.stringify(body) : undefined });
-  } catch { throw new ApiError('Cannot reach the ConsultBrain server. Is it running?', 0); }
+  } catch { throw new ApiError('Cannot reach the Consult Brain server. Is it running?', 0); }
   let data = null; try { data = await res.json(); } catch {}
   if (!res.ok) {
     if (res.status === 401 && getToken()) { setToken(null); window.dispatchEvent(new Event('cb-logout')); }

@@ -3,7 +3,10 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { api, post } from '../api.js';
 import { useAuth } from '../App.jsx';
 import { evaluate } from '../../shared/expr.js';
-import { Bar, Empty, ErrorState, Field, Icon, initials, Modal, PageSkeleton, Seg, useToast } from '../components/ui.jsx';
+import { AnimatePresence, motion } from 'motion/react';
+import { Bar, celebrate, CountUp, Empty, ErrorState, Field, Icon, initials, Modal, PageSkeleton, Presence, Seg, Tip, useToast } from '../components/ui.jsx';
+import { CaseArt, caseTheme } from '../components/Art.jsx';
+import { useCelebrate } from '../components/Layers.jsx';
 import { BarChart, LineChart, PALETTE } from '../components/charts.jsx';
 
 const STAGES = [['brief', 'Client brief', 'doc'], ['hyp', 'Hypotheses', 'target'], ['data', 'The Vault', 'data'], ['bench', 'Workbench', 'calc'], ['people', 'Stakeholders', 'chat'], ['synth', 'Synthesis', 'edit'], ['board', 'Boardroom', 'gavel']];
@@ -18,7 +21,7 @@ export default function Investigation() {
   useEffect(() => { load(); }, [load]);
   useEffect(() => { if (a) setDraft({ ...a.alloc }); }, [a && JSON.stringify(a.alloc)]); // eslint-disable-line
   useEffect(() => { localStorage.setItem(`cb_pins_${id}`, JSON.stringify(pins)); }, [pins, id]);
-  useEffect(() => { if (a) { localStorage.setItem(`cb_stage_${id}`, JSON.stringify(stage)); document.title = `${a.case.company} — ConsultBrain`; } }, [stage, a, id]);
+  useEffect(() => { if (a) { localStorage.setItem(`cb_stage_${id}`, JSON.stringify(stage)); document.title = `${a.case.company} — Consult Brain`; } }, [stage, a, id]);
 
   const act = useCallback(async (type, payload, { quiet } = {}) => {
     setBusy(true);
@@ -26,7 +29,7 @@ export default function Investigation() {
     catch (e) { if (!quiet) toast(e.message, 'bad'); throw e; } finally { setBusy(false); }
   }, [id, nav, refresh, toast]);
 
-  if (error) return <ErrorState error={error} retry={load} />; if (!a) return <PageSkeleton />;
+  if (error) return <ErrorState error={error} retry={load} />; if (!a) return <div style={{ height: '100vh', display: 'grid', placeItems: 'center', position: 'relative', zIndex: 1 }}><div className="col" style={{ alignItems: 'center', gap: 14 }}><svg width="54" height="54" viewBox="0 0 54 54" style={{ animation: 'spin 1.6s linear infinite' }}><circle cx="27" cy="27" r="23" fill="none" stroke="var(--line-2)" strokeWidth="3" /><path d="M27 4a23 23 0 0 1 23 23" fill="none" stroke="var(--accent)" strokeWidth="3" strokeLinecap="round" /></svg><span className="eyebrow acc">Opening case file</span><span className="small muted">Loading your engagement and evidence trail</span></div></div>;
   const c = a.case; const locked = a.phase !== 'investigate'; const left = a.budget - a.hoursUsed;
   const colorOf = (driver) => (driver === 'other' ? 'var(--c7)' : PALETTE[c.drivers.findIndex((d) => d.id === driver) % 8]);
   const total = a.hypotheses.reduce((s, h) => s + (Number(draft[h.id]) || 0), 0);
@@ -43,19 +46,18 @@ export default function Investigation() {
         <div className="ws-bar">
           <button className="btn ghost sm" onClick={() => setConfirmExit(true)}><Icon name="back" size={14} />Exit</button>
           <div style={{ minWidth: 0 }} className="grow"><div className="xs muted truncate">{c.company} · {c.industry}</div><div className="truncate" style={{ fontWeight: 600 }}>{c.title}</div></div>
-          <div className="hide-sm" style={{ width: 230 }}><div className="row between xs"><span className="muted">Analyst hours</span><span className="mono"><b style={{ color: left <= 6 ? 'var(--neg)' : 'var(--text)' }}>{left}</b> of {a.budget} left</span></div>
-            <div className="meter-seg mt-4">{Array.from({ length: a.budget / 2 }, (_, i) => <i key={i} className={i < a.hoursUsed / 2 ? (left <= 6 ? 'warn' : 'on') : ''} />)}</div></div>
+          <Budget used={a.hoursUsed} budget={a.budget} />
           {!locked && <button className="btn sm" disabled={busy || a.hints.length >= c.hintCount} title="Each hint reduces case XP by 8%" onClick={() => act('hint').then((r) => toast(r.hints.at(-1))).catch(() => {})}><Icon name="bulb" size={14} />Hint {a.hints.length}/{c.hintCount}</button>}
           {showRail && <button className="btn sm icon railbtn" onClick={() => setRailOpen(!railOpen)} aria-label="Beliefs"><Icon name="target" /></button>}
         </div>
         <nav className="ws-stages" aria-label="Investigation stages">{STAGES.map(([sid, label, icon], i) => { const dis = sid === 'board' ? a.phase !== 'boardroom' : false; return <button key={sid} className={`stage ${stage === sid ? 'on' : ''} ${stageDone[sid] ? 'done' : ''}`} disabled={dis} onClick={() => setStage(sid)}><span className="n">{stageDone[sid] ? '✓' : i + 1}</span>{label}</button>; })}</nav>
       </header>
       <div className={`ws-body ${showRail ? '' : 'solo'}`}>
-        <main className="ws-main"><div className="inner" key={stage}><View {...ctx} /></div></main>
+        <main className="ws-main"><AnimatePresence mode="wait" initial={false}><motion.div className="inner" key={stage} initial={{ opacity: 0, x: 18 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -14 }} transition={{ duration: 0.26, ease: [0.22, 0.8, 0.24, 1] }}><View {...ctx} /></motion.div></AnimatePresence></main>
         {showRail && <aside className={`ws-rail ${railOpen ? 'open' : ''}`}><Rail {...ctx} /></aside>}
       </div>
-      {confirmExit && <Modal onClose={() => setConfirmExit(false)}><div style={{ padding: 22 }}><h2>Leave this investigation?</h2><p className="t2 mt-8">Your progress is saved. You can resume from the Case Vault, or abandon the engagement. Repeatedly abandoning cases reduces XP on later ones.</p>
-        <div className="row end mt-16"><button className="btn danger" onClick={async () => { try { await post(`/attempts/${id}/abandon`); } catch {} nav('/vault'); }}>Abandon case</button><button className="btn" onClick={() => setConfirmExit(false)}>Keep working</button><button className="btn primary" onClick={() => nav('/vault')}>Save & exit</button></div></div></Modal>}
+      <Presence>{confirmExit && <Modal key="exit" onClose={() => setConfirmExit(false)}><div style={{ padding: 22 }}><h2>Leave this investigation?</h2><p className="t2 mt-8">Your progress is saved. You can resume from the Case Vault, or abandon the engagement. Repeatedly abandoning cases reduces XP on later ones.</p>
+        <div className="row end mt-16"><button className="btn danger" onClick={async () => { try { await post(`/attempts/${id}/abandon`); } catch {} nav('/vault'); }}>Abandon case</button><button className="btn" onClick={() => setConfirmExit(false)}>Keep working</button><button className="btn primary" onClick={() => nav('/vault')}>Save & exit</button></div></div></Modal>}</Presence>
     </div>
   );
 }
@@ -79,26 +81,57 @@ function Rail({ a, c, draft, setDraft, total, dirty, commit, busy, colorOf, setS
   </>;
 }
 
-// ------------------------------------------------------------------ Stage 1: Brief
+// ------------------------------------------------------------------ Analyst-hour budget: animates and shows what was just spent
+function Budget({ used, budget }) {
+  const left = budget - used; const prev = useRef(used); const [delta, setDelta] = useState(null);
+  useEffect(() => { if (used > prev.current) { setDelta({ n: used - prev.current, k: Date.now() }); } prev.current = used; }, [used]);
+  return <div className="hide-sm budget" style={{ width: 240 }}><div className="row between xs"><span className="muted row gap-6"><Icon name="clock" size={12} />Analyst hours</span><span className="mono"><motion.b key={left} initial={{ y: -6, opacity: 0 }} animate={{ y: 0, opacity: 1 }} style={{ color: left <= 6 ? 'var(--neg)' : 'var(--text)', display: 'inline-block' }}>{left}</motion.b> of {budget} left</span></div>
+    <div className="meter-seg mt-4">{Array.from({ length: budget / 2 }, (_, i) => <i key={i} className={i < used / 2 ? (left <= 6 ? 'warn' : 'on') : ''} style={{ transitionDelay: `${i * 0.015}s` }} />)}</div>
+    {delta && <span key={delta.k} className="float-delta" style={{ right: 0, top: 18, color: 'var(--accent)' }}>−{delta.n}h</span>}</div>;
+}
+
+// ------------------------------------------------------------------ Stage 1: Executive briefing
 function Brief({ a, c, setStage }) {
-  const b = c.briefing;
-  return <div className="grid g12">
-    <div className="s8">
-      <div className="eyebrow acc mb-8">Engagement letter</div><h1>{b.subject}</h1>
-      <div className="row gap-10 mt-16 mb-16"><span className="avatar" style={{ width: 38, height: 38, fontSize: 13 }}>{initials(b.from.name)}</span><div><div style={{ fontWeight: 600 }}>{b.from.name}</div><div className="xs muted">{b.from.role}</div></div></div>
-      <div className="memo">{b.memo.map((p, i) => <p key={i}>{p}</p>)}</div>
-      <div className="panel pad mt-24"><div className="eyebrow mb-8">Engagement objective</div><p style={{ fontSize: 15 }}>{b.objective}</p></div>
-      <div className="grid g2 mt-16"><div className="panel pad"><div className="eyebrow mb-8">Company background</div><ul className="small t2" style={{ margin: 0, paddingLeft: 16, lineHeight: 1.65 }}>{b.background.map((x) => <li key={x}>{x}</li>)}</ul></div>
-        <div className="panel pad"><div className="eyebrow mb-8">Constraints</div><ul className="small t2" style={{ margin: 0, paddingLeft: 16, lineHeight: 1.65 }}>{b.constraints.map((x) => <li key={x}>{x}</li>)}</ul>
-          <div className="eyebrow mt-16 mb-8">Things you have heard</div><ul className="small t2" style={{ margin: 0, paddingLeft: 16, lineHeight: 1.65 }}>{b.context.map((x) => <li key={x}>{x}</li>)}</ul></div></div>
-    </div>
-    <div className="s4 col" style={{ gap: 14 }}>
-      <div className="panel pad"><div className="eyebrow mb-12">Headline metrics</div><div className="grid g2">{b.metrics.map((m) => <div key={m.label}><div className="xs muted">{m.label}</div><div className="mono mt-4" style={{ fontSize: 20 }}>{m.value}</div><div className={`mono xs ${m.tone === 'up' ? 'pos' : m.tone === 'down' ? 'neg' : 'muted'}`}>{m.delta}</div></div>)}</div></div>
-      <div className="panel pad"><div className="eyebrow mb-8">{b.trend.label}</div><LineChart categories={b.trend.x} series={b.trend.series} height={170} area={false} /><div className="row gap-16 xs t2 mt-4">{b.trend.series.map((s, i) => <span key={i} className="row gap-6"><span className="dot" style={{ background: PALETTE[i] }} />{s.label}</span>)}</div></div>
-      <div className="panel pad"><div className="eyebrow mb-8">How this works</div><ol className="small t2" style={{ margin: 0, paddingLeft: 16, lineHeight: 1.65 }}><li>Form competing hypotheses and commit 100 confidence points.</li><li>Spend {a.budget} analyst hours on data and interviews. You cannot afford everything.</li><li>Update your confidence as evidence arrives.</li><li>Submit a recommendation and defend it.</li></ol>
-        <button className="btn primary mt-16" style={{ width: '100%' }} onClick={() => setStage('hyp')}>Form hypotheses<Icon name="arrow" size={14} /></button></div>
+  const b = c.briefing; const th = caseTheme(c.id);
+  const st = (k) => ({ initial: { opacity: 0, y: 14 }, animate: { opacity: 1, y: 0 }, transition: { delay: 0.08 * k, duration: 0.5, ease: [0.22, 0.8, 0.24, 1] } });
+  const pull = b.memo.at(-1).split(/(?<=\.)\s/)[0];
+  return <div>
+    <motion.div className="case-card" style={{ '--case': th.color, cursor: 'default', marginBottom: 18 }} {...st(0)}>
+      <div className="case-art fade-left" style={{ height: 150 }}><CaseArt id={c.id} initials={c.company.split(' ').map((w) => w[0]).join('').slice(0, 2)} />
+        <div style={{ position: 'absolute', left: 24, bottom: 18, right: 24, zIndex: 1 }} className="row between wrap"><div><div className="eyebrow" style={{ color: th.color }}>Engagement letter · {c.industry}</div><h1 className="mt-8" style={{ fontSize: 32 }}>{b.subject}</h1></div><span className="chip line" style={{ background: 'var(--surface)' }}><Icon name="clock" size={11} />{a.budget} analyst hours</span></div></div>
+    </motion.div>
+    <div className="grid g12">
+      <div className="s8">
+        <motion.div className="row gap-10 mb-16" {...st(1)}><span className="exec-av">{initials(b.from.name)}</span><div><div style={{ fontWeight: 600 }}>{b.from.name}</div><div className="xs muted">{b.from.role}</div></div></motion.div>
+        <motion.div className="memo" {...st(2)}>{b.memo.map((p, i) => <p key={i}>{p}</p>)}</motion.div>
+        <motion.blockquote className="quote mt-24" style={{ margin: '24px 0 0' }} {...st(3)}>“{pull}”<div className="xs muted mt-8" style={{ fontStyle: 'normal', fontFamily: 'var(--sans)' }}>— {b.from.name}</div></motion.blockquote>
+        <motion.div className="panel pad mt-24" style={{ borderColor: 'var(--accent-line)' }} {...st(4)}><div className="eyebrow acc mb-8">Your objective</div><p style={{ fontSize: 16, lineHeight: 1.55 }}>{b.objective}</p></motion.div>
+        <motion.div className="grid g3 mt-16" {...st(5)}>{[['Company background', b.background, 'doc'], ['Constraints', b.constraints, 'lock'], ['Things you have heard', b.context, 'chat']].map(([t, xs, ic]) => <div key={t} className="panel pad"><div className="eyebrow mb-8 row gap-6"><Icon name={ic} size={12} />{t}</div><ul className="small t2" style={{ margin: 0, paddingLeft: 16, lineHeight: 1.65 }}>{xs.map((x) => <li key={x}>{x}</li>)}</ul></div>)}</motion.div>
+      </div>
+      <div className="s4 col" style={{ gap: 14 }}>
+        <motion.div className="panel pad" {...st(2)}><div className="eyebrow mb-12">Headline metrics</div><div className="grid g2" style={{ gap: 14 }}>{b.metrics.map((m, i) => <motion.div key={m.label} initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.3 + i * 0.08 }}><div className="xs muted">{m.label}</div><div className="mono mt-4" style={{ fontSize: 21 }}>{m.value}</div><div className={`mono xs ${m.tone === 'up' ? 'pos' : m.tone === 'down' ? 'neg' : 'muted'}`}>{m.tone === 'up' ? '▲ ' : m.tone === 'down' ? '▼ ' : ''}{m.delta}</div></motion.div>)}</div></motion.div>
+        <motion.div className="panel pad" {...st(3)}><div className="eyebrow mb-8">{b.trend.label}</div><LineChart categories={b.trend.x} series={b.trend.series} height={170} area={false} /><div className="row gap-16 xs t2 mt-4">{b.trend.series.map((s, i) => <span key={i} className="row gap-6"><span className="dot" style={{ background: PALETTE[i] }} />{s.label}</span>)}</div></motion.div>
+        <motion.div className="panel pad" {...st(4)}><div className="eyebrow mb-12">The engagement, in four moves</div>{[['target', 'Commit to competing hypotheses'], ['data', `Spend ${a.budget} hours on evidence`], ['scale', 'Update as evidence arrives'], ['gavel', 'Recommend, then defend']].map(([ic, t], i) => <div key={t} className="row gap-10 small t2" style={{ padding: '6px 0' }}><span className="mono acc xs">0{i + 1}</span><Icon name={ic} size={14} className="muted" />{t}</div>)}
+          <button className="btn primary lg mt-16" style={{ width: '100%' }} onClick={() => setStage('hyp')}>Form hypotheses<Icon name="arrow" size={14} /></button></motion.div>
+      </div>
     </div>
   </div>;
+}
+
+// Logic map: hypotheses (left) linked to the evidence you tied to them (right).
+function LogicMap({ a, c, colorOf, draft }) {
+  const hs = a.hypotheses; const evRefs = [...new Set(hs.flatMap((h) => h.links.map((l) => l.ref)))]; const ev = evRefs.map((r) => a.evidence.find((e) => e.ref === r)).filter(Boolean);
+  if (!hs.length) return null; const H = Math.max(hs.length, ev.length, 2) * 38 + 20; const W = 300;
+  const hy = (i) => 20 + i * ((H - 40) / Math.max(1, hs.length - 1)) ; const ey = (i) => 20 + i * ((H - 40) / Math.max(1, ev.length - 1));
+  return <div className="panel pad"><div className="row between mb-8"><span className="eyebrow">Investigation logic</span><span className="xs muted">{hs.reduce((n, h) => n + h.links.length, 0)} links</span></div>
+    {ev.length === 0 ? <p className="small muted">Link evidence to hypotheses ("Link evidence" on each card) and the logic of your investigation appears here.</p> :
+    <svg viewBox={`0 0 ${W} ${H}`} width="100%" style={{ display: 'block' }}>
+      {hs.map((h, i) => h.links.map((l) => { const k = ev.findIndex((e) => e.ref === l.ref); if (k < 0) return null; const y1 = hs.length === 1 ? H / 2 : hy(i), y2 = ev.length === 1 ? H / 2 : ey(k);
+        return <motion.path key={h.id + l.ref} d={`M70 ${y1} C 150 ${y1}, 150 ${y2}, 226 ${y2}`} fill="none" stroke={l.stance === 'supports' ? 'var(--pos)' : 'var(--neg)'} strokeOpacity="0.7" strokeWidth={1 + (draft[h.id] || 0) / 30} strokeDasharray={l.stance === 'supports' ? '' : '4 3'} initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ duration: 0.7 }} />; }))}
+      {hs.map((h, i) => { const y = hs.length === 1 ? H / 2 : hy(i); return <g key={h.id}><circle cx="62" cy={y} r={5 + (draft[h.id] || 0) / 12} fill={colorOf(h.driver)} fillOpacity="0.85" /><text x="50" y={y + 4} textAnchor="end" fontSize="10.5" fill="var(--text-2)" fontFamily="var(--mono)">H{i + 1}</text></g>; })}
+      {ev.map((e, k) => { const y = ev.length === 1 ? H / 2 : ey(k); return <g key={e.ref}><rect x="226" y={y - 7} width="14" height="14" rx="3" fill="var(--surface-3)" stroke="var(--line-hi)" /><text x="246" y={y + 4} fontSize="10" fill="var(--muted)">{e.label.slice(0, 9)}…</text></g>; })}
+    </svg>}
+    <div className="row gap-16 xs muted mt-8"><span className="row gap-6"><i style={{ width: 14, height: 2, background: 'var(--pos)', display: 'inline-block' }} />supports</span><span className="row gap-6"><i style={{ width: 14, height: 2, borderTop: '2px dashed var(--neg)', display: 'inline-block' }} />contradicts</span><span>node size = confidence</span></div></div>;
 }
 
 // ------------------------------------------------------------------ Stage 2: Hypothesis board
@@ -139,6 +172,7 @@ function Hypotheses({ a, c, act, busy, locked, colorOf, draft, setDraft, total, 
           {!locked && <><div className="row mt-16"><button className="btn sm" disabled={a.hypotheses.length < 2} onClick={even}>Split evenly</button><button className={`btn sm grow ${dirty ? 'primary' : ''}`} disabled={busy || total !== 100 || a.hypotheses.length < 2} onClick={commit}>{dirty ? 'Commit allocation' : a.pendingEvidence.length ? 'Hold position' : 'Committed ✓'}</button></div>
             <p className="xs muted mt-12">{a.hypotheses.length < 2 ? 'Hold at least two competing hypotheses.' : total !== 100 ? `Allocate exactly 100 points (${100 - total > 0 ? `${100 - total} left` : `${total - 100} over`}).` : a.allocCommitted && !dirty ? 'Committed. Every commit is recorded on your evidence trail.' : 'Committing records a snapshot on your evidence trail.'}</p></>}
         </div>
+        <LogicMap a={a} c={c} colorOf={colorOf} draft={draft} />
         <div className="panel pad small t2"><div className="eyebrow mb-8">What good looks like</div><ul style={{ margin: 0, paddingLeft: 16, lineHeight: 1.6 }}><li>Three or more hypotheses before any data.</li><li>Different parts of the business: revenue quality, variable cost, fixed cost.</li><li>A mechanism, not a topic: “X rose because Y”.</li><li>No more than half your points on one idea at the start.</li></ul></div>
       </div>
     </div>
@@ -148,8 +182,8 @@ function Hypotheses({ a, c, act, busy, locked, colorOf, draft, setDraft, total, 
 // ------------------------------------------------------------------ Stage 3: The Vault (data room)
 const REL = { High: 'acc', Medium: 'info', Low: '' };
 function Gate({ a, setStage, what }) { return <div className="panel"><Empty icon="lock" title={`Commit your hypotheses before ${what}`} action={<button className="btn primary sm mt-8" onClick={() => setStage('hyp')}>Go to hypothesis board</button>}>Form a view before you look. Hold at least two hypotheses and commit 100 confidence points; the room opens as soon as you do.</Empty></div>; }
-function DataRoom({ a, c, act, busy, locked, left, pins, pin, setStage }) {
-  const [sel, setSel] = useState(a.requested.at(-1) || c.datasets[0].id); const [mode, setMode] = useState('table');
+function DataRoom({ a, c, act, busy, locked, left, pins, pin, setStage, toast }) {
+  const [sel, setSel] = useState(a.requested.at(-1) || c.datasets[0].id); const [mode, setMode] = useState('table'); const [show, setShow] = useState('all'); const [fq, setFq] = useState('');
   const d = c.datasets.find((x) => x.id === sel); const got = a.datasets[sel];
   const cats = [...new Set(c.datasets.map((x) => x.category))];
   if (!a.allocCommitted && !a.requested.length) return <Gate a={a} setStage={setStage} what="opening The Vault" />;
@@ -157,29 +191,31 @@ function DataRoom({ a, c, act, busy, locked, left, pins, pin, setStage }) {
     <div className="row between wrap gap-16 mb-16"><div><div className="eyebrow acc mb-8">The Vault</div><h1>Investigative data room</h1><p className="t2 mt-8" style={{ maxWidth: 640 }}>{c.datasets.length} datasets are available for {c.datasets.reduce((s, x) => s + x.cost, 0)} analyst hours. You have {a.budget}. Decide what is worth knowing.</p></div>
       <div className="row gap-16"><div className="kpi"><span className="v">{a.requested.length}</span><span className="xs muted">received</span></div><div className="kpi"><span className="v" style={{ color: left <= 6 ? 'var(--neg)' : 'inherit' }}>{left}h</span><span className="xs muted">remaining</span></div></div></div>
     <div className="grid g12">
-      <div className="s4 col" style={{ gap: 14 }}>{cats.map((cat) => <div key={cat}><div className="eyebrow mb-8">{cat}</div><div className="col" style={{ gap: 6 }}>{c.datasets.filter((x) => x.category === cat).map((x) => { const have = a.requested.includes(x.id); return (
+      <div className="s4 col" style={{ gap: 14 }}><div className="col" style={{ gap: 8 }}><Seg value={show} onChange={setShow} options={[{ id: 'all', label: 'All' }, { id: 'open', label: 'Not requested' }, { id: 'got', label: `Received ${a.requested.length}` }]} /><input className="input" placeholder="Filter datasets" value={fq} onChange={(e) => setFq(e.target.value)} aria-label="Filter datasets" /></div>
+        {cats.map((cat) => { const xs = c.datasets.filter((x) => x.category === cat && (show === 'all' || (show === 'got') === a.requested.includes(x.id)) && (!fq || `${x.title} ${x.description}`.toLowerCase().includes(fq.toLowerCase()))); return xs.length === 0 ? null : <div key={cat}><div className="eyebrow mb-8">{cat}</div><div className="col" style={{ gap: 6 }}>{xs.map((x) => { const have = a.requested.includes(x.id); return (
         <button key={x.id} className={`ds ${sel === x.id ? 'on' : ''} ${have ? 'got' : ''}`} onClick={() => setSel(x.id)}>
           <span style={{ fontWeight: 500 }}>{x.title}</span><span className="mono small" style={{ color: have ? 'var(--pos)' : !locked && x.cost > left ? 'var(--neg)' : 'var(--text-2)' }}>{have ? '✓' : `${x.cost}h`}</span>
-          <span className="xs muted" style={{ gridColumn: '1 / -1' }}>{have ? `Received · request #${a.requested.indexOf(x.id) + 1}` : `Expected relevance: ${x.relevance}`}</span></button>); })}</div></div>)}</div>
-      <div className="s8"><div className="panel" style={{ position: 'sticky', top: 0 }}>
+          <span className="xs muted" style={{ gridColumn: '1 / -1' }}>{have ? `Received · request #${a.requested.indexOf(x.id) + 1}` : `Expected relevance: ${x.relevance}`}</span></button>); })}</div></div>; })}</div>
+      <div className="s8"><motion.div key={sel} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.25 }} className="panel terminal" style={{ position: 'sticky', top: 0 }}>
         <div className="panel-h"><div style={{ minWidth: 0 }}><div className="truncate" style={{ fontWeight: 600 }}>{d.title}</div><div className="xs muted">{d.category}</div></div>{got ? got.chart && <Seg value={mode} onChange={setMode} options={[{ id: 'table', label: 'Table' }, { id: 'chart', label: 'Chart' }]} /> : <span className={`chip ${REL[d.relevance]}`}>Expected relevance: {d.relevance}</span>}</div>
         {!got ? <div className="panel-b"><p className="t2">{d.description}</p>
           <div className="grid g3 mt-16"><div><div className="xs muted">Cost</div><div className="mono mt-4" style={{ fontSize: 20 }}>{d.cost}h</div></div><div><div className="xs muted">Hours after request</div><div className="mono mt-4" style={{ fontSize: 20, color: left - d.cost < 0 ? 'var(--neg)' : 'inherit' }}>{left - d.cost}h</div></div><div><div className="xs muted">Status</div><div className="mt-4">Not requested</div></div></div>
           <p className="xs muted mt-16">“Expected relevance” is the analyst team's guess before pulling the data. It is sometimes wrong.</p>
           {locked ? <div className="callout mt-12">The investigation closed when you submitted your recommendation.</div> : a.pendingEvidence.length > 0 ? <div className="callout mt-12 small">You have evidence you have not responded to. Requesting now records that you moved on without updating. <b>Update or hold in the belief ledger first</b> — or proceed.</div> : null}
-          {!locked && <button className="btn primary mt-16" disabled={busy || d.cost > left} onClick={() => act('data_request', { datasetId: d.id }).then(() => setMode('table')).catch(() => {})}><Icon name="data" size={14} />{d.cost > left ? 'Not enough hours' : `Request for ${d.cost} analyst hours`}</button>}</div>
+          {!locked && <button className="btn primary mt-16" disabled={busy || d.cost > left} onClick={() => act('data_request', { datasetId: d.id }).then(() => { setMode('table'); toast(`Received: ${d.title} · −${d.cost}h`, 'good'); }).catch(() => {})}><Icon name="data" size={14} />{d.cost > left ? 'Not enough hours' : `Request for ${d.cost} analyst hours`}</button>}</div>
         : mode === 'chart' && got.chart ? <div className="panel-b">{got.chart.type === 'line' ? <LineChart categories={got.chart.categories} series={got.chart.series} unit="" height={260} yMin={Math.floor(Math.min(...got.chart.series.flatMap((s) => s.values)) * 0.9)} /> : <BarChart categories={got.chart.categories} series={got.chart.series} unit={got.chart.unit} height={280} />}</div>
         : <><div className="scroll-x"><table className="table"><thead><tr>{got.table.columns.map((col) => <th key={col.key} className={col.fmt === 'text' ? '' : 'n'}>{col.label}</th>)}</tr></thead>
-          <tbody>{got.table.rows.map((r, ri) => <tr key={ri}>{got.table.columns.map((col, ci) => { const v = r[col.key]; const numeric = col.fmt !== 'text' && typeof v === 'number'; const label = `${r[got.table.columns[0].key]} · ${col.label}`; const on = numeric && pins.some((p) => p.value === v && p.label === label);
-            return <td key={col.key} className={`${col.fmt === 'text' ? '' : 'n'} ${numeric ? 'pin' : ''} ${on ? 'pinned' : ''}`} style={ci === 0 ? { fontWeight: 500 } : null} title={numeric ? 'Click to pin to the workbench' : undefined} onClick={() => numeric && pin(v, label)}>{fmtCell(v, col.fmt)}</td>; })}</tr>)}</tbody></table></div>
+          <tbody>{got.table.rows.map((r, ri) => <motion.tr key={ri} initial={{ opacity: 0, x: -6 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: ri * 0.03 }}>{got.table.columns.map((col, ci) => { const v = r[col.key]; const numeric = col.fmt !== 'text' && typeof v === 'number'; const label = `${r[got.table.columns[0].key]} · ${col.label}`; const on = numeric && pins.some((p) => p.value === v && p.label === label);
+            return <td key={col.key} className={`${col.fmt === 'text' ? '' : 'n'} ${numeric ? 'pin' : ''} ${on ? 'pinned' : ''}`} style={ci === 0 ? { fontWeight: 500 } : null} title={numeric ? 'Click to pin to the workbench' : undefined} onClick={() => numeric && pin(v, label)}>{fmtCell(v, col.fmt)}</td>; })}</motion.tr>)}</tbody></table></div>
           <div className="row between xs muted" style={{ padding: '9px 14px', borderTop: '1px solid var(--line)' }}><span><Icon name="pin" size={12} style={{ verticalAlign: -2 }} /> Click any number to pin it to the workbench as a variable.</span><button className="btn ghost sm" onClick={() => setStage('bench')}>Workbench<Icon name="arrow" size={12} /></button></div></>}
-      </div></div>
+      </motion.div></div>
     </div>
   </div>;
 }
 
 // ------------------------------------------------------------------ Stage 4: Quantitative workbench
 function Workbench({ a, c, act, busy, locked, pins, setPins, setStage, toast }) {
+  const reward = (r, q) => { const st = r.quant[q.id]; if (st.correct) { toast(st.tries === 1 ? 'Correct on the first attempt — full credit' : 'Correct', 'good'); if (st.tries === 1) celebrate({ count: 36, origin: { x: 0.72, y: 0.4 } }); } else toast(st.tries >= 3 ? 'Out of attempts — the working is shown' : `Not within tolerance · ${3 - st.tries} left`, 'bad'); };
   const [expr, setExpr] = useState(''); const [label, setLabel] = useState(''); const [ans, setAns] = useState({});
   const [lev, setLev] = useState(() => Object.fromEntries(c.scenario.levers.map((l) => [l.key, l.default])));
   const vars = Object.fromEntries(pins.map((p) => [p.name, p.value]));
@@ -209,14 +245,14 @@ function Workbench({ a, c, act, busy, locked, pins, setPins, setStage, toast }) 
       </div>
       <div className="s5"><div className="panel"><div className="panel-h"><span className="eyebrow">Required analyses</span><span className="mono small">{Object.values(a.quant).filter((q) => q.correct).length}/{c.quant.length}</span></div>
         <div>{c.quant.map((q, i) => { const st = a.quant[q.id]; const missing = q.requires.filter((r) => !a.requested.includes(r)); const closed = st?.correct || st?.tries >= 3; return (
-          <div key={q.id} style={{ padding: '12px 16px', borderBottom: i < c.quant.length - 1 ? '1px solid var(--line)' : 0, opacity: missing.length ? 0.6 : 1 }}>
+          <motion.div key={q.id} animate={st?.correct ? { backgroundColor: ['rgba(76,192,141,0.18)', 'rgba(76,192,141,0)'] } : {}} transition={{ duration: 1.2 }} style={{ padding: '12px 16px', borderBottom: i < c.quant.length - 1 ? '1px solid var(--line)' : 0, opacity: missing.length ? 0.6 : 1 }}>
             <div className="row gap-6" style={{ alignItems: 'flex-start' }}><span className="mono xs muted" style={{ paddingTop: 2 }}>Q{i + 1}</span><span className="small" style={{ lineHeight: 1.45 }}>{q.prompt}</span></div>
             {missing.length ? <div className="xs muted mt-8"><Icon name="lock" size={11} style={{ verticalAlign: -1 }} /> Needs: {missing.map((r) => c.datasets.find((d) => d.id === r).title).join('; ')}</div>
               : closed ? <div className={`callout ${st.correct ? 'pos' : 'neg'} small mt-8`}><b>{st.correct ? `Correct${st.tries === 1 ? ' on the first attempt' : ''}.` : `Not within tolerance (you entered ${st.value}).`}</b> {st.explain}</div>
-              : <div className="row mt-8"><input className="input num" style={{ width: 130 }} inputMode="decimal" placeholder={q.unit} value={ans[q.id] ?? ''} onChange={(e) => setAns({ ...ans, [q.id]: e.target.value })} onKeyDown={(e) => e.key === 'Enter' && ans[q.id] && act('quant_answer', { qid: q.id, value: Number(String(ans[q.id]).replace(/[,%₹$]/g, '')) }).then((r) => toast(r.quant[q.id].correct ? 'Correct' : 'Not within tolerance', r.quant[q.id].correct ? 'good' : 'bad')).catch(() => {})} aria-label={`Answer to question ${i + 1}`} /><span className="xs muted">{q.unit}</span>
-                <button className="btn sm" disabled={busy || locked || !ans[q.id]} onClick={() => act('quant_answer', { qid: q.id, value: Number(String(ans[q.id]).replace(/[,%₹$]/g, '')) }).then((r) => toast(r.quant[q.id].correct ? 'Correct' : 'Not within tolerance', r.quant[q.id].correct ? 'good' : 'bad')).catch(() => {})}>Check</button>
+              : <div className="row mt-8"><input className="input num" style={{ width: 130 }} inputMode="decimal" placeholder={q.unit} value={ans[q.id] ?? ''} onChange={(e) => setAns({ ...ans, [q.id]: e.target.value })} onKeyDown={(e) => e.key === 'Enter' && ans[q.id] && act('quant_answer', { qid: q.id, value: Number(String(ans[q.id]).replace(/[,%₹$]/g, '')) }).then((r) => reward(r, q)).catch(() => {})} aria-label={`Answer to question ${i + 1}`} /><span className="xs muted">{q.unit}</span>
+                <button className="btn sm" disabled={busy || locked || !ans[q.id]} onClick={() => act('quant_answer', { qid: q.id, value: Number(String(ans[q.id]).replace(/[,%₹$]/g, '')) }).then((r) => reward(r, q)).catch(() => {})}>Check</button>
                 <span className="xs muted" style={{ marginLeft: 'auto' }}>{st ? `${3 - st.tries} attempt${3 - st.tries === 1 ? '' : 's'} left` : '3 attempts'}</span></div>}
-          </div>); })}</div></div>
+          </motion.div>); })}</div></div>
         <p className="xs muted mt-12">Full credit on the first attempt, 60% on the second, 30% on the third. Correct answers become citable evidence.</p></div>
     </div>
   </div>;
@@ -250,6 +286,7 @@ function People({ a, c, act, busy, locked, left, setStage }) {
 // ------------------------------------------------------------------ Stage 6: Synthesis
 const Sec = ({ n, title, hint, children, err }) => <section className="panel pad" style={err ? { borderColor: 'var(--neg)' } : null}><div className="row gap-10 mb-12" style={{ alignItems: 'baseline' }}><span className="mono acc">{n}</span><div><h3 style={{ fontSize: 14.5 }}>{title}</h3>{hint && <div className="xs muted mt-4">{hint}</div>}</div></div>{children}{err && <div className="small neg mt-8">{err}</div>}</section>;
 function Synthesis({ a, c, act, busy, locked, setStage }) {
+  // eslint-disable-next-line
   const key = `cb_rec_${a.id}`; const [f, setF] = useState(() => a.recommendation ? { ...a.recommendation, priorities: [...a.recommendation.priorities] } : ls(key, { leadHypIds: [], diagnosis: '', evidence: [], basis: '', impact: '', optionId: '', rationale: '', priorities: ['', '', ''], risks: '', nextSteps: '' }));
   const [errs, setErrs] = useState({}); const [confirm, setConfirm] = useState(false);
   useEffect(() => { if (!locked) localStorage.setItem(key, JSON.stringify(f)); }, [f, key, locked]);
@@ -279,38 +316,63 @@ function Synthesis({ a, c, act, busy, locked, setStage }) {
     </div></fieldset>
     {!locked ? <div className="panel pad mt-16 row between wrap" style={{ position: 'sticky', bottom: 0, boxShadow: '0 -12px 30px var(--bg)' }}><div className="small t2"><b>{a.budget - a.hoursUsed} analyst hours unspent.</b> Submitting closes the investigation and takes you into the boardroom.</div><button className="btn primary lg" disabled={busy} onClick={() => setConfirm(true)}>Submit to the client<Icon name="arrow" size={14} /></button></div>
       : <div className="callout mt-16">Submitted. <button className="btn sm" style={{ marginLeft: 8 }} onClick={() => setStage('board')}>Go to the boardroom</button></div>}
-    {confirm && <Modal onClose={() => setConfirm(false)}><div style={{ padding: 22 }}><h2>Submit your recommendation?</h2><p className="t2 mt-8">You will not be able to request more data, interview anyone or change your hypotheses. {a.pendingEvidence.length > 0 && <b>You have evidence you have not updated on — commit or hold first if you want that recorded.</b>}</p><div className="row end mt-16"><button className="btn" onClick={() => setConfirm(false)}>Keep investigating</button><button className="btn primary" onClick={submit}>Submit and face the board</button></div></div></Modal>}
+    <Presence>{confirm && <Modal key="prev" width={720} onClose={() => setConfirm(false)} label="Recommendation preview"><div style={{ padding: '22px 26px' }}>
+      <div className="row between"><span className="eyebrow acc">Preview · what the client will read</span><span className="chip line">{a.budget - a.hoursUsed}h unspent</span></div>
+      <h2 className="mt-12" style={{ fontSize: 26 }}>{c.options.find((o) => o.id === f.optionId)?.label || 'No direction chosen'}</h2>
+      <div className="mono acc mt-4">{f.impact === '' ? '—' : f.impact} {c.impactUnit}</div>
+      <div className="col mt-16" style={{ gap: 12 }}>{[['Diagnosis', f.diagnosis], ['Financial implications', f.basis], ['Why this direction', f.rationale], ['Risks and trade-offs', f.risks], ['Next steps', f.nextSteps]].map(([k, v]) => <div key={k}><div className="eyebrow mb-4">{k}</div><p className="small t2" style={{ lineHeight: 1.6 }}>{v || <span className="neg">Missing</span>}</p></div>)}
+        <div><div className="eyebrow mb-4">Priorities</div><ol className="small t2" style={{ margin: 0, paddingLeft: 18 }}>{f.priorities.filter((x) => x.trim()).map((x, k) => <li key={k}>{x}</li>)}</ol></div>
+        <div><div className="eyebrow mb-4">Evidence cited · confidence at close</div><div className="row wrap gap-6">{f.evidence.map((r) => <span key={r} className="chip line">{a.evidence.find((e) => e.ref === r)?.label.slice(0, 40)}</span>)}{f.leadHypIds.map((id) => <span key={id} className="chip acc">{a.alloc[id] || 0} pts on lead hypothesis</span>)}</div></div></div>
+      {a.pendingEvidence.length > 0 && <div className="callout mt-16 small">You have evidence you have not responded to on the belief ledger. Commit or hold first if you want that recorded.</div>}
+      <div className="callout info mt-16 small">Submitting closes the investigation: no more data, interviews or hypothesis changes.</div>
+      <div className="row end mt-16"><button className="btn" onClick={() => setConfirm(false)}>Keep editing</button><button className="btn primary lg" onClick={submit}><Icon name="gavel" size={14} />Submit and face the board</button></div></div></Modal>}</Presence>
   </div>;
 }
 
 // ------------------------------------------------------------------ Stage 7: Boardroom defence
+function Typewriter({ text, speed = 14, onDone }) {
+  const [n, setN] = useState(0); const reduce = typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  useEffect(() => { if (reduce) { setN(text.length); onDone?.(); return; } setN(0); let k = 0; const t = setInterval(() => { k += 2; setN(k); if (k >= text.length) { clearInterval(t); onDone?.(); } }, speed); return () => clearInterval(t); }, [text]); // eslint-disable-line
+  return <>{text.slice(0, n)}{n < text.length && <span style={{ opacity: 0.5 }}>▍</span>}</>;
+}
+function Ceo({ children, name }) { return <motion.div className="exec" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}><span className="exec-av">{initials(name)}</span><div className="bubble them" style={{ maxWidth: '86%' }}>{children}</div></motion.div>; }
+function You({ children }) { return <motion.div className="row" style={{ justifyContent: 'flex-end' }} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}><div className="bubble you">{children}</div></motion.div>; }
 function Boardroom({ a, c, act, busy }) {
-  const b = a.boardroom; const [text, setText] = useState(''); const [stance, setStance] = useState(''); const [shown, setShown] = useState(b?.done.length || 0);
+  const b = a.boardroom; const [text, setText] = useState(''); const [stance, setStance] = useState(''); const [typed, setTyped] = useState(false); const end = useRef(null); const ta = useRef(null);
+  const cur = b?.current?.id || (b?.twist && !b.twist.answer ? 'twist' : 'done');
+  useEffect(() => { setTyped(false); setText(''); }, [cur]);
+  useEffect(() => { end.current?.scrollIntoView({ behavior: 'smooth', block: 'end' }); }, [b?.done.length, busy, typed]);
   if (!b) return <div className="panel"><Empty icon="gavel" title="The boardroom opens after you submit a recommendation" /></div>;
-  const lastDone = b.done.at(-1); const reviewing = shown < b.done.length; // show reaction before the next challenge
-  const wc = text.trim().split(/\s+/).filter(Boolean).length; const n = b.done.length + 1;
-  return <div style={{ maxWidth: 820, margin: '0 auto' }}>
-    <div className="row between mb-16"><div className="row gap-10"><span className="avatar" style={{ width: 44, height: 44, fontSize: 15, borderColor: 'var(--accent)' }}>{initials(b.ceo.name)}</span><div><div style={{ fontWeight: 600 }}>{b.ceo.name}</div><div className="xs muted">{b.ceo.role}, {c.company} · Boardroom defence</div></div></div>
-      <div className="row gap-6">{Array.from({ length: b.total + 1 }, (_, i) => <i key={i} style={{ width: 26, height: 4, borderRadius: 2, background: i < b.done.length + (b.twist?.answer ? 1 : 0) ? 'var(--accent)' : i === b.done.length && !reviewing ? 'var(--text-2)' : 'var(--surface-3)' }} />)}</div></div>
-    <div className="panel pad small t2 mb-16"><span className="eyebrow" style={{ marginRight: 8 }}>You recommended</span><b style={{ color: 'var(--text)' }}>{a.recommendation.optionLabel}</b> · expected impact {a.recommendation.impact} {c.impactUnit}</div>
-    {reviewing ? <div key={'r' + shown} style={{ animation: 'rise 0.35s' }}>
-      <div className="eyebrow mb-8">{lastDone.kind} challenge — response heard</div>
-      <p className="board-q">“{lastDone.reaction}”</p>
-      <div className="panel pad mt-16"><div className="row between"><span className="eyebrow">How it landed</span><span className="mono" style={{ fontSize: 20, color: lastDone.score >= 0.6 ? 'var(--pos)' : lastDone.score >= 0.35 ? 'var(--accent)' : 'var(--neg)' }}>{Math.round(lastDone.score * 100)}</span></div><Bar value={lastDone.score * 100} className="mt-8" color={lastDone.score >= 0.6 ? 'var(--pos)' : lastDone.score >= 0.35 ? 'var(--accent)' : 'var(--neg)'} />
-        <p className="xs muted mt-8">Addressed {lastDone.covered} of {lastDone.of} things a strong answer covers · assessed by {lastDone.mode}. Full feedback follows in the replay.</p></div>
-      <button className="btn primary lg mt-16" onClick={() => { setShown(b.done.length); setText(''); }}>{b.current ? 'Next challenge' : 'Continue'}<Icon name="arrow" size={14} /></button></div>
-    : b.current ? <div key={b.current.id} style={{ animation: 'rise 0.35s' }}>
-      <div className="eyebrow acc mb-8">Challenge {n} of {b.total} · {b.current.kind}</div>
-      <p className="board-q">“{b.current.prompt}”</p>
-      <textarea className="textarea mt-16" style={{ minHeight: 150, fontSize: 14.5 }} placeholder="Answer as you would in the room. Use your evidence and your numbers." value={text} onChange={(e) => setText(e.target.value)} autoFocus />
-      <div className="row between mt-8"><span className="xs muted">{wc} words{wc < 25 ? ' · aim for 40–120' : ''}</span><button className="btn primary lg" disabled={busy || wc < 12} onClick={() => act('defend', { response: text }).catch(() => {})}>{busy ? 'The room is listening…' : 'Respond'}</button></div></div>
-    : b.twist && !b.twist.answer ? <div style={{ animation: 'rise 0.35s' }}>
-      <div className="eyebrow neg mb-8">Something has changed · {b.twist.title}</div>
-      <p className="board-q">“{b.twist.prompt}”</p>
-      <div className="panel pad mt-16"><div className="eyebrow mb-8">New facts on the table</div><ul className="small t2" style={{ margin: 0, paddingLeft: 16, lineHeight: 1.7 }}>{b.twist.facts.map((x) => <li key={x}>{x}</li>)}</ul></div>
-      <div className="col mt-16" style={{ gap: 6 }}>{b.twist.stances.map((s) => <label key={s.id} className={`ds ${stance === s.id ? 'on' : ''}`} style={{ cursor: 'pointer' }}><span className="row gap-10"><input type="radio" name="st" checked={stance === s.id} onChange={() => setStance(s.id)} /><span>{s.label}</span></span></label>)}</div>
-      <textarea className="textarea mt-12" style={{ minHeight: 120, fontSize: 14.5 }} placeholder="Explain your position. What does this change, and what does it not?" value={text} onChange={(e) => setText(e.target.value)} />
-      <div className="row between mt-8"><span className="xs muted">{wc} words</span><button className="btn primary lg" disabled={busy || !stance || wc < 12} onClick={() => act('twist', { stance, text }).catch(() => {})}>{busy ? 'Scoring your investigation…' : 'Give final answer'}</button></div></div>
-    : <div className="panel"><Empty icon="check" title="Defence complete">Preparing your evidence trail…</Empty></div>}
+  const ceo = b.ceo; const wc = text.trim().split(/\s+/).filter(Boolean).length; const tone = (s) => (s >= 0.6 ? 'var(--pos)' : s >= 0.35 ? 'var(--accent)' : 'var(--neg)');
+  const cite = (label) => { setText((t) => `${t}${t && !t.endsWith(' ') ? ' ' : ''}${label} `); ta.current?.focus(); };
+  return <div className="boardroom" style={{ maxWidth: 880, margin: '0 auto' }}>
+    <div className="hero" style={{ padding: '18px 22px', marginBottom: 18 }}>
+      <div className="row between wrap gap-16" style={{ position: 'relative' }}><div className="row gap-16"><span className="exec-av" style={{ width: 56, height: 56, fontSize: 20 }}>{initials(ceo.name)}</span><div><div className="eyebrow acc">Boardroom defence</div><div className="serif" style={{ fontSize: 22 }}>{ceo.name}</div><div className="xs muted">{ceo.role}, {c.company}</div></div></div>
+        <div className="col" style={{ alignItems: 'flex-end', gap: 6 }}><span className="xs muted">Challenge {Math.min(b.done.length + 1, b.total)} of {b.total} · then one twist</span><div className="row gap-4">{Array.from({ length: b.total + 1 }, (_, i) => { const d = b.done[i]; const done = i < b.done.length || (i === b.total && b.twist?.answer); return <motion.i key={i} animate={{ width: i === b.done.length ? 34 : 22 }} style={{ height: 5, borderRadius: 3, display: 'block', background: d ? tone(d.score) : done ? 'var(--accent)' : i === b.done.length ? 'var(--text-2)' : 'var(--surface-3)' }} />; })}</div></div></div>
+      <div className="small t2 mt-12" style={{ position: 'relative' }}><span className="eyebrow" style={{ marginRight: 8 }}>On the table</span><b style={{ color: 'var(--text)' }}>{a.recommendation.optionLabel}</b> · {a.recommendation.impact} {c.impactUnit}</div>
+    </div>
+    <div className="col" style={{ gap: 14 }}>
+      {b.done.map((d, i) => <React.Fragment key={d.id}>
+        <Ceo key={'q' + i} name={ceo.name}><div className="eyebrow mb-4">{d.kind} challenge</div><span className="serif" style={{ fontSize: 16.5 }}>“{d.prompt}”</span></Ceo>
+        <You>{d.response}</You>
+        <Ceo key={'r' + i} name={ceo.name}><span className="serif" style={{ fontSize: 16 }}>“{d.reaction}”</span><div className="row gap-10 mt-8"><div className="bar thin grow"><motion.i initial={{ width: 0 }} animate={{ width: `${d.score * 100}%` }} transition={{ duration: 0.9 }} style={{ background: tone(d.score) }} /></div><span className="mono xs" style={{ color: tone(d.score) }}>{Math.round(d.score * 100)}</span><Tip label={`Covered ${d.covered} of ${d.of} points a strong answer makes · ${d.mode}`}><Icon name="info" size={13} className="muted" /></Tip></div></Ceo>
+      </React.Fragment>)}
+      {busy && <motion.div className="exec" initial={{ opacity: 0 }} animate={{ opacity: 1 }}><span className="exec-av">{initials(ceo.name)}</span><div className="bubble them"><span className="xs muted" style={{ marginRight: 8 }}>{ceo.name.split(' ')[0]} is weighing your answer</span><span className="typing"><i /><i /><i /></span></div></motion.div>}
+      {!busy && b.current && <Ceo key={'cur' + b.current.id} name={ceo.name}><div className="eyebrow acc mb-4">{b.current.kind} challenge · {b.done.length + 1} of {b.total}</div><span className="board-q" style={{ fontSize: 20 }}>“<Typewriter text={b.current.prompt} onDone={() => setTyped(true)} />”</span></Ceo>}
+      {!busy && !b.current && b.twist && !b.twist.answer && <motion.div initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }}>
+        <div className="row gap-10 mb-12" style={{ justifyContent: 'center' }}><span style={{ height: 1, flex: 1, background: 'linear-gradient(90deg, transparent, var(--neg))' }} /><span className="chip neg"><Icon name="bolt" size={11} />{b.twist.title}</span><span style={{ height: 1, flex: 1, background: 'linear-gradient(90deg, var(--neg), transparent)' }} /></div>
+        <Ceo key="twist" name={ceo.name}><span className="board-q" style={{ fontSize: 20 }}>“<Typewriter text={b.twist.prompt} onDone={() => setTyped(true)} />”</span>
+          <div className="panel pad mt-12" style={{ background: 'var(--bg-2)', padding: 12 }}><div className="eyebrow mb-8">New facts on the table</div>{b.twist.facts.map((x) => <div key={x} className="row gap-6 small t2" style={{ padding: '3px 0' }}><Icon name="arrow" size={11} className="neg" />{x}</div>)}</div></Ceo></motion.div>}
+    </div>
+    {(b.current || (b.twist && !b.twist.answer)) && !busy && <motion.div className="panel pad mt-16" style={{ borderColor: typed ? 'var(--accent-line)' : undefined }} initial={{ opacity: 0, y: 12 }} animate={{ opacity: typed ? 1 : 0.55, y: 0 }}>
+      {!b.current && <div className="col mb-12" style={{ gap: 6 }}>{b.twist.stances.map((s) => <label key={s.id} className={`ds ${stance === s.id ? 'on' : ''}`} style={{ cursor: 'pointer' }}><span className="row gap-10"><input type="radio" name="st" checked={stance === s.id} onChange={() => setStance(s.id)} /><span className="small">{s.label}</span></span></label>)}</div>}
+      <div className="row wrap gap-6 mb-8"><span className="xs muted">Cite your evidence:</span>{a.evidence.slice(0, 8).map((e) => <button key={e.ref} type="button" className="chip line btnlike" onClick={() => cite(e.label.split(',')[0].split(' — ').slice(-1)[0])}><Icon name={e.kind === 'data' ? 'data' : e.kind === 'interview' ? 'chat' : 'calc'} size={10} />{e.label.split(',')[0].slice(0, 30)}</button>)}</div>
+      <textarea ref={ta} onKeyDown={(e) => { if ((e.metaKey || e.ctrlKey) && e.key === 'Enter' && wc >= 12 && !busy) { if (b.current) act('defend', { response: text }).catch(() => {}); else if (stance) act('twist', { stance, text }).catch(() => {}); } }} className="textarea" style={{ minHeight: 120, fontSize: 14.5 }} placeholder={b.current ? 'Answer as you would in the room. Use your evidence and your numbers.' : 'What does this change, and what does it not?'} value={text} onChange={(e) => setText(e.target.value)} />
+      <div className="row between mt-8"><span className="xs muted">{wc} words{wc < 25 ? ' · aim for 40–120' : ''} · ⌘↵ to send</span>
+        {b.current ? <button className="btn primary lg" disabled={busy || wc < 12} onClick={() => act('defend', { response: text }).catch(() => {})}><Icon name="arrow" size={14} />Respond</button>
+          : <button className="btn primary lg" disabled={busy || !stance || wc < 12} onClick={() => act('twist', { stance, text }).catch(() => {})}><Icon name="gavel" size={14} />Give final answer</button>}</div>
+    </motion.div>}
+    {busy && !b.current && b.twist && <div className="panel pad mt-16 row gap-10"><span className="typing"><i /><i /><i /></span><span className="small t2">Scoring your investigation and building your evidence trail…</span></div>}
+    <div ref={end} style={{ height: 1 }} />
   </div>;
 }

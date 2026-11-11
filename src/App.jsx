@@ -2,6 +2,7 @@ import React, { createContext, useCallback, useContext, useEffect, useState } fr
 import { Navigate, Route, Routes, useLocation } from 'react-router-dom';
 import { api, getToken, post, setToken } from './api.js';
 import { ToastHost, PageSkeleton } from './components/ui.jsx';
+import { CelebrationHost } from './components/Layers.jsx';
 import Shell from './components/Shell.jsx';
 import Login from './pages/Login.jsx';
 import Dashboard from './pages/Dashboard.jsx';
@@ -31,7 +32,7 @@ export default function App() {
   const ctx = { user, setUser, refresh, signIn, signOut, theme, setTheme, ai };
   const home = user?.role === 'professor' ? '/classroom' : '/';
   return (
-    <AuthCtx.Provider value={ctx}><ToastHost>
+    <AuthCtx.Provider value={ctx}><ToastHost><CelebrationHost><div className="ambient" aria-hidden="true" />
       <Routes>
         <Route path="/verify/:code?" element={<Verify />} />
         {!user ? <Route path="*" element={<Login />} /> : <>
@@ -52,6 +53,6 @@ export default function App() {
             <Route path="*" element={<Navigate to={home} replace />} />
           </Route></>}
       </Routes>
-    </ToastHost></AuthCtx.Provider>
+    </CelebrationHost></ToastHost></AuthCtx.Provider>
   );
 }

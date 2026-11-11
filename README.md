@@ -1,4 +1,4 @@
-# ConsultBrain
+# Consult Brain
 
 A consulting investigation laboratory with a competitive learning ecosystem.
 Learners take a client brief, commit confidence to competing hypotheses, spend a limited budget of analyst hours on data and interviews, size the problem, recommend, and defend the recommendation in a boardroom. The **Evidence Trail Replay** then shows how their beliefs moved, which evidence mattered, what they missed, and how their route compares with two expert routes.
@@ -67,6 +67,14 @@ The key is read only by the server and never reaches the browser.
 
 Demo data is labelled as such everywhere. The demo class's trails were produced by running scripted learner archetypes through the real engine (`server/engine/simulate.js`), so the classroom analytics are computed, not drawn.
 
+## Interface
+
+- Dark-first design system in `src/styles.css`: layered surfaces, an ambient light-and-grid field, brass and signal-teal accents, Newsreader display, IBM Plex Sans and Mono.
+- Motion uses `motion` (Framer Motion): page and stage transitions, shared-layout tabs and navigation, staggered reveals, animated counters and charts. All of it respects `prefers-reduced-motion`.
+- Interaction layers in `src/components/Layers.jsx`: ⌘K command palette, notifications derived from real records, profile menu, first-visit onboarding, a once-a-day Daily Diagnostic announcement (never shown inside an investigation), a rank-up ceremony and achievement toasts. Dismissals are remembered.
+- Generative case and Arena artwork in `src/components/Art.jsx`.
+- Missions (daily and weekly) and personal records are computed server-side from real activity (`missions()` and `records()` in `server/engine/progression.js`).
+
 ## Architecture
 
 ```
@@ -130,7 +138,7 @@ Each case lists several acceptable diagnoses and scores six strategic options on
 
 XP = case reward × score, plus bonuses (disciplined updating, efficient investigation, held the boardroom, quant clean sheet, strong hypotheses), times multipliers (repeat attempts 50% / 25% / 10%, each hint −8%, three abandons in a week −15%, low-effort −80%). Arena modes pay in full once a day, then 40%, 15%, 0.
 
-Ranks: Bronze, Silver, Gold, Expert, Master, Grandmaster. Each needs XP **and** a minimum rating in every skill; from Expert up, also high scores on advanced cases. Grandmaster needs 14,000 XP, every skill at 80+, two advanced cases at 88+, an average best of 85+ and a 14-day streak.
+Ranks: Bronze, Silver, Gold, Master, Expert, Grandmaster. Each needs XP **and** a minimum rating in every skill; from Master up, also high scores on advanced cases. Grandmaster needs 14,000 XP, every skill at 80+, two advanced cases at 88+, an average best of 85+ and a 14-day streak.
 
 ## Feature status
 
@@ -158,7 +166,7 @@ Ranks: Bronze, Silver, Gold, Expert, Master, Grandmaster. Each needs XP **and** 
 - The tournament bonus is displayed but not paid out by a scheduled job.
 - Live session polls every four seconds; there are no websockets.
 - Institutional sign-on, email verification and password reset are not implemented.
-- Certificates are ConsultBrain achievements. They are not academic credentials and are not issued or accredited by IIM Bangalore or any other institution.
+- Certificates are Consult Brain achievements. They are not academic credentials and are not issued or accredited by IIM Bangalore or any other institution.
 - Market-size and business claims belong in the separate go/no-go document, not in this product.
 
 ## Adding a case

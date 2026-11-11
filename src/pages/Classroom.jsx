@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { api, download, post } from '../api.js';
 import { useAuth } from '../App.jsx';
-import { Bar, DemoTag, Drawer, Empty, ErrorState, Field, fmtDate, Icon, Modal, PageSkeleton, scoreTone, SKILL_COLOR, Skeleton, Tabs, useApi, useToast } from '../components/ui.jsx';
+import { Bar, CopyButton, DemoTag, Drawer, Empty, ErrorState, Field, fmtDate, Icon, Modal, PageSkeleton, Presence, scoreTone, SKILL_COLOR, Skeleton, Tabs, useApi, useToast } from '../components/ui.jsx';
 import { DistCompare, PALETTE, Radar } from '../components/charts.jsx';
 
 export default function Classroom() { const { user } = useAuth(); return user.role === 'professor' ? <Professor /> : <Student />; }
@@ -28,10 +28,10 @@ function Professor() {
   useEffect(() => { if (list?.classrooms.length && !id) setId(list.classrooms[0].id); }, [list, id]);
   if (loading) return <PageSkeleton />; if (error) return <ErrorState error={error} retry={reload} />;
   return <div className="page">
-    <div className="page-h"><div><div className="eyebrow mb-8">Classroom</div><h1>Teaching console</h1><p className="t2 mt-8">See how each student investigated, not only what they concluded.</p></div>
+    <div className="page-h"><div><div className="eyebrow mb-8">Classroom</div><h1 className="display" style={{ fontSize: 'clamp(32px, 3.6vw, 48px)' }}>Teaching <em>console</em>.</h1><p className="t2 mt-8">See how each student investigated, not only what they concluded.</p></div>
       <div className="row">{list.classrooms.length > 1 && <select className="select" style={{ width: 'auto' }} value={id || ''} onChange={(e) => setId(e.target.value)} aria-label="Classroom">{list.classrooms.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}</select>}<button className="btn" onClick={() => setCreating(true)}><Icon name="plus" size={13} />New classroom</button></div></div>
     {!id ? <div className="panel"><Empty icon="class" title="Create your first classroom" action={<button className="btn primary sm mt-8" onClick={() => setCreating(true)}>New classroom</button>}>Students join with a code. Assign a case and watch trails arrive.</Empty></div> : <Room key={id} id={id} />}
-    {creating && <Modal onClose={() => setCreating(false)}><form style={{ padding: 22 }} onSubmit={(e) => { e.preventDefault(); post('/classrooms', { name }).then((r) => { setCreating(false); setName(''); setId(r.id); reload(); toast('Classroom created', 'good'); }).catch((x) => toast(x.message, 'bad')); }}><h2>New classroom</h2><Field label="Name"><input className="input mt-8" autoFocus value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. PGP Strategy — Term 3" /></Field><div className="row end mt-16"><button type="button" className="btn" onClick={() => setCreating(false)}>Cancel</button><button className="btn primary" disabled={name.trim().length < 3}>Create</button></div></form></Modal>}
+    <Presence>{creating && <Modal key="new" onClose={() => setCreating(false)}><form style={{ padding: 22 }} onSubmit={(e) => { e.preventDefault(); post('/classrooms', { name }).then((r) => { setCreating(false); setName(''); setId(r.id); reload(); toast('Classroom created', 'good'); }).catch((x) => toast(x.message, 'bad')); }}><h2>New classroom</h2><Field label="Name"><input className="input mt-8" autoFocus value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. PGP Strategy — Term 3" /></Field><div className="row end mt-16"><button type="button" className="btn" onClick={() => setCreating(false)}>Cancel</button><button className="btn primary" disabled={name.trim().length < 3}>Create</button></div></form></Modal>}</Presence>
   </div>;
 }
 
@@ -72,8 +72,8 @@ function Room({ id }) {
         {tab === 'recs' && <div className="col" style={{ gap: 12 }}>{an.rows.filter((r) => r.rec).map((r) => <div key={r.userId} className="panel pad"><div className="row between wrap"><span className="row gap-10"><b>{r.name}</b><span className="xs muted">{r.team}</span><span className="chip">{r.rec.optionLabel}</span></span><span className="row gap-10"><span className="mono" style={{ color: scoreTone(r.overall), fontSize: 16 }}>{r.overall}</span><button className="btn sm" onClick={() => setStudent(r)}>Review</button></span></div><p className="small t2 mt-8">{r.rec.diagnosis}</p>{r.diagnosis ? <div className="xs pos mt-4">Engine recognised: {r.diagnosis}</div> : <div className="xs neg mt-4">No supported diagnosis recognised by the engine</div>}</div>)}{!an.rows.some((r) => r.rec) && <div className="panel"><Empty icon="edit" title="No recommendations submitted yet" /></div>}</div>}
         {tab === 'live' && <Live id={id} caseId={an.case.id} demo={c.demo} />}
       </div></>}
-    {assign && <Assign id={id} cases={data.cases} taken={c.assignments.map((a) => a.caseId)} onClose={() => setAssign(false)} onDone={() => { setAssign(false); reload(); }} />}
-    {student && <StudentDrawer r={student} an={an} classId={id} onClose={() => setStudent(null)} onChange={() => { reload(); }} />}
+    <Presence>{assign && <Assign id={id} cases={data.cases} taken={c.assignments.map((a) => a.caseId)} onClose={() => setAssign(false)} onDone={() => { setAssign(false); reload(); }} />}</Presence>
+    <Presence>{student && <StudentDrawer r={student} an={an} classId={id} onClose={() => setStudent(null)} onChange={() => { reload(); }} />}</Presence>
   </>;
 }
 

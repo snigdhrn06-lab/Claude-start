@@ -1,6 +1,8 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom';
-import { Bar, CountUp, DemoTag, ErrorState, Icon, PageSkeleton, RankEmblem, rankMeta, scoreTone, Seg, SKILL_COLOR, Tabs, useApi } from '../components/ui.jsx';
+import { motion } from 'motion/react';
+import { Bar, CountUp, DemoTag, ErrorState, Icon, PageSkeleton, RankEmblem, rankMeta, scoreTone, Seg, SKILL_COLOR, Tabs, Tip, useApi } from '../components/ui.jsx';
+import { useCelebrate } from '../components/Layers.jsx';
 import { BeliefStream, PALETTE, Ring } from '../components/charts.jsx';
 
 const V = { strong: ['Strong move', 'pos'], good: ['Sound', 'pos'], neutral: ['Neutral', ''], missed: ['Missed moment', 'neg'], waste: ['Low value', 'acc'] };
@@ -10,7 +12,9 @@ const time = (t, t0) => { const m = Math.max(0, Math.round((t - t0) / 60000)); r
 export default function Replay() {
   const { id } = useParams(); const [sp] = useSearchParams(); const fresh = sp.get('fresh'); const nav = useNavigate();
   const { data, loading, error, reload } = useApi(`/attempts/${id}/result`); const [tab, setTab] = useState('trail');
-  useEffect(() => { document.title = 'Evidence Trail Replay — ConsultBrain'; }, []);
+  const { report } = useCelebrate();
+  useEffect(() => { document.title = 'Evidence Trail Replay — Consult Brain'; }, []);
+  useEffect(() => { if (data && fresh && data.result.applied) report(data.result.applied, { key: `att_${id}`, xp: data.result.xp.total }); }, [data, fresh]); // eslint-disable-line
   if (loading) return <PageSkeleton />; if (error) return <ErrorState error={error} retry={reload} />;
   const { result: r, case: c, attempt: at, learner } = data; const ap = r.applied; const final = r.override?.score ?? r.overall;
   const ranked = fresh && ap && ap.rankAfter > ap.rankBefore;
@@ -55,7 +59,17 @@ function Trail({ r, at, autoplay }) {
   const shown = T.filter((x) => filter === 'all' || (filter === 'key' && x.verdict !== 'neutral') || (filter === 'missed' && (x.verdict === 'missed' || x.verdict === 'waste')));
   const e = T[sel]; const best = [...rp.paths].sort((a, b) => b.match - a.match)[0];
   const colorOf = (label) => PALETTE[Object.values(rp.drivers).indexOf(label) % 8];
+  const spent = T.filter((x) => x.cost); const byV = (v) => spent.filter((x) => (v === 'waste' ? x.verdict === 'waste' : v === 'strong' ? x.verdict === 'strong' : x.verdict !== 'waste' && x.verdict !== 'strong')).reduce((n, x) => n + x.cost, 0);
   return <div className="col" style={{ gap: 14 }}>
+    <div className="panel" style={{ overflow: 'hidden' }}>
+      <div className="panel-h"><div><span className="eyebrow acc">The trail</span><div className="xs muted mt-4">Every move in order. Colour shows how it served the investigation; numbers above show hours spent.</div></div>
+        <div className="row gap-16 xs t2 hide-sm"><span className="row gap-6"><i className="dot" style={{ background: 'var(--pos)' }} />strong</span><span className="row gap-6"><i className="dot" style={{ border: '1.5px solid var(--pos)' }} />sound</span><span className="row gap-6"><i className="dot" style={{ background: 'var(--neg)' }} />missed moment</span><span className="row gap-6"><i className="dot" style={{ background: 'var(--warn)' }} />low value</span></div></div>
+      <div className="trail-strip">{T.map((x, k) => <React.Fragment key={x.i}>{k > 0 && <motion.span className="trail-link" initial={{ scaleX: 0 }} animate={{ scaleX: 1 }} transition={{ delay: 0.02 * k }} style={{ transformOrigin: 'left', background: cursor != null && x.i > cursor ? 'var(--line)' : 'var(--line-hi)' }} />}
+        <Tip label={x.title}><button className={`trail-node v-${x.verdict} ${sel === x.i ? 'on' : ''} ${cursor != null && x.i > cursor ? 'dim' : ''}`} onClick={() => { setPlaying(false); setSel(x.i); }} aria-label={x.title}>
+          {x.cost ? <span className="trail-cost">{x.cost}h</span> : null}<motion.span className="n" initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ delay: 0.03 * k, type: 'spring', stiffness: 300, damping: 18 }}><Icon name={KIND_ICON[x.kind]} size={12} /></motion.span></button></Tip></React.Fragment>)}</div>
+      <div style={{ padding: '0 18px 14px' }}><div className="row between xs muted mb-8"><span>Where the {rp.hours.used} analyst hours went</span><span className="mono">{rp.hours.budget - rp.hours.used}h unspent</span></div>
+        <div className="row" style={{ height: 10, borderRadius: 5, overflow: 'hidden', gap: 2, background: 'var(--surface-3)' }}>{[['strong', 'var(--pos)', 'Decisive evidence'], ['ok', 'color-mix(in srgb, var(--pos) 45%, var(--surface-3))', 'Useful or neutral'], ['waste', 'var(--warn)', 'Could not discriminate']].map(([v, col, lab]) => { const h = byV(v); return h ? <Tip key={v} label={`${lab}: ${h}h`}><motion.i initial={{ width: 0 }} animate={{ width: `${(h / rp.hours.budget) * 100}%` }} transition={{ duration: 1 }} style={{ display: 'block', height: 10, background: col, minWidth: 6 }} /></Tip> : null; })}</div></div>
+    </div>
     <div className="panel">
       <div className="panel-h"><div><span className="eyebrow">How your beliefs moved</span><div className="xs muted mt-4">Each column is a committed confidence allocation. The dashed column is where the full evidence points.</div></div>
         <div className="row"><button className="btn sm" onClick={() => { if (playing) setPlaying(false); else { setCursor(cursor == null || cursor >= T.length - 2 ? 0 : cursor); setPlaying(true); } }}><Icon name={playing ? 'pause' : 'play'} size={12} />{playing ? 'Pause' : 'Play investigation'}</button>{cursor != null && <button className="btn ghost sm" onClick={() => { setPlaying(false); setCursor(null); }}>Show all</button>}</div></div>
@@ -107,8 +121,23 @@ function Score({ r, data }) {
   </div>;
 }
 
+function Compare({ r }) {
+  const yours = r.replay.timeline.filter((x) => ['data', 'interview', 'calc', 'recommend'].includes(x.kind) && x.title && !x.title.startsWith('Miscalculated') && !x.title.startsWith('Ran a'));
+  const label = (t) => t.replace(/^(Requested|Interviewed|Calculated|Recommended): /, '').replace(/ disclosed:.*/, '');
+  return <div className="panel mb-16"><div className="panel-h"><span className="eyebrow acc">Route comparison</span><span className="xs muted">your sequence vs each expert route</span></div>
+    <div className="panel-b col" style={{ gap: 18, overflowX: 'auto' }}>
+      {[{ name: 'Your investigation', nodes: yours.map((x) => ({ label: label(x.title), done: true, v: x.verdict, kind: x.kind })) }, ...r.replay.paths.map((p) => ({ name: p.name, match: p.match, nodes: p.steps.filter((s) => s.type !== 'hypothesis' && s.type !== 'update').map((s) => ({ label: s.label, done: s.done, kind: s.type === 'data' ? 'data' : s.type === 'interview' ? 'interview' : s.type === 'calc' ? 'calc' : 'recommend' })) }))].map((row, ri) =>
+        <div key={row.name} className="row gap-16" style={{ alignItems: 'flex-start', minWidth: 'max-content' }}>
+          <div style={{ width: 170, flex: 'none' }}><div style={{ fontWeight: 600 }} className={ri === 0 ? 'acc' : ''}>{row.name}</div>{row.match != null && <div className="xs muted">{row.match}% overlap with you</div>}</div>
+          <div className="row" style={{ gap: 0, alignItems: 'flex-start' }}>{row.nodes.map((n, k) => <React.Fragment key={k}>{k > 0 && <span style={{ width: 18, height: 1.5, background: 'var(--line-hi)', marginTop: 13 }} />}
+            <Tip label={n.label}><motion.div className="col" style={{ alignItems: 'center', gap: 4, width: 62 }} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: ri * 0.15 + k * 0.04 }}>
+              <span className="avatar" style={{ width: 28, height: 28, color: ri === 0 ? (n.v === 'waste' ? 'var(--warn)' : n.v === 'missed' ? 'var(--neg)' : 'var(--accent)') : n.done ? 'var(--pos)' : 'var(--muted)', borderColor: ri === 0 ? 'var(--accent-line)' : n.done ? 'var(--pos)' : 'var(--line-2)', background: ri > 0 && n.done ? 'var(--pos-soft)' : undefined, borderStyle: ri > 0 && !n.done ? 'dashed' : 'solid' }}><Icon name={KIND_ICON[n.kind]} size={12} /></span>
+              <span className="xs t2" style={{ textAlign: 'center', lineHeight: 1.2, maxWidth: 62, overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', fontSize: 10 }}>{n.label}</span></motion.div></Tip></React.Fragment>)}</div></div>)}
+      <div className="xs muted">Expert-route nodes are solid where your investigation included the step, dashed where it did not.</div>
+    </div></div>;
+}
 function Paths({ r }) {
-  return <div><p className="t2 mb-16" style={{ maxWidth: 720 }}>There is more than one defensible way through this case. These are two. A tick means your investigation included that step.</p>
+  return <div><Compare r={r} /><p className="t2 mb-16" style={{ maxWidth: 720 }}>There is more than one defensible way through this case. These are two. A tick means your investigation included that step.</p>
     <div className="grid g2">{r.replay.paths.map((p) => <div key={p.id} className="panel"><div className="panel-h"><div><b>{p.name}</b><div className="xs muted mt-4">{p.summary}</div></div><div className="kpi" style={{ alignItems: 'flex-end' }}><span className="v" style={{ fontSize: 22, color: scoreTone(p.match) }}>{p.match}%</span><span className="xs muted">overlap</span></div></div>
       <div className="panel-b">{p.steps.map((s, i) => <div key={i} className="path-step"><span className="avatar" style={{ width: 20, height: 20, fontSize: 10, background: s.done ? 'var(--pos-soft)' : 'transparent', color: s.done ? 'var(--pos)' : 'var(--faint)', borderColor: s.done ? 'transparent' : 'var(--line-2)' }}>{s.done ? '✓' : i + 1}</span><div><div className="small" style={{ fontWeight: 500 }}><span className="eyebrow" style={{ marginRight: 6 }}>{s.type}</span>{s.label}</div>{s.why && <div className="xs muted mt-4">{s.why}</div>}</div></div>)}</div></div>)}</div></div>;
 }

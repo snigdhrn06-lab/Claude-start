@@ -1,5 +1,5 @@
 // Progression engine: XP ledger, six ranks with balanced-skill gates, skill ratings,
-// streaks, achievements and milestone certificates (ConsultBrain-issued; not an academic accreditation).
+// streaks, achievements and milestone certificates (Consult Brain-issued; not an academic accreditation).
 import crypto from 'node:crypto';
 import { CASES } from '../cases/index.js';
 import { SKILLS } from './scoring.js';
@@ -9,8 +9,8 @@ export const RANKS = [
   { id: 'bronze', name: 'Bronze', xp: 0, minSkill: 0, color: '#B8794A', unlocks: ['Brewly and Northstar cases', 'Daily Diagnostic', 'Issue Tree Arena', 'Margin Detective'] },
   { id: 'silver', name: 'Silver', xp: 800, minSkill: 35, cases: 1, color: '#AEB7C2', unlocks: ['CloudAxis (expert case)', 'Hypothesis Duel', 'Boardroom Blitz'] },
   { id: 'gold', name: 'Gold', xp: 2200, minSkill: 48, cases: 2, color: '#E2B84A', unlocks: ['Market Strategy Challenge', 'Weekly tournament entry'] },
-  { id: 'expert', name: 'Expert', xp: 4500, minSkill: 60, cases: 3, hard: { n: 1, score: 70 }, color: '#45B5A4', unlocks: ['Expert division on leaderboards', 'Expert certificate'] },
-  { id: 'master', name: 'Master', xp: 8000, minSkill: 70, cases: 3, hard: { n: 2, score: 80 }, avgBest: 75, color: '#D9605A', unlocks: ['Master division', 'Master certificate'] },
+  { id: 'master', name: 'Master', xp: 4500, minSkill: 60, cases: 3, hard: { n: 1, score: 70 }, color: '#D9605A', unlocks: ['Master division on leaderboards', 'Master certificate'] },
+  { id: 'expert', name: 'Expert', xp: 8000, minSkill: 70, cases: 3, hard: { n: 2, score: 80 }, avgBest: 75, color: '#45B5A4', unlocks: ['Expert division', 'Expert certificate'] },
   { id: 'grandmaster', name: 'Grandmaster', xp: 14000, minSkill: 80, cases: 3, hard: { n: 2, score: 88 }, avgBest: 85, bestStreak: 14, color: '#F1E9D8', unlocks: ['Grandmaster hall of fame', 'Grandmaster certificate'] },
 ];
 export const ACHIEVEMENTS = [
@@ -125,3 +125,43 @@ export function applyGame(user, mode, { score, xp, skills, label }, t = Date.now
 }
 export function consultingIQ(user) { return Math.round(SKILLS.reduce((s, k) => s + user.skills[k.id] * k.weight, 0)); }
 export { dayKey };
+
+// Daily and weekly missions, computed from real activity only.
+export function missions(user) {
+  const DAYMS = 86400000; const today = dayKey();
+  const d = new Date(); d.setUTCHours(0, 0, 0, 0); d.setUTCDate(d.getUTCDate() - ((d.getUTCDay() + 6) % 7)); const ws = d.getTime();
+  const games = all('games').filter((g) => g.userId === user.id && !g.seeded);
+  const atts = all('attempts').filter((a) => a.userId === user.id && !a.seeded);
+  const gToday = games.filter((g) => dayKey(g.t) === today), gWeek = games.filter((g) => g.t >= ws);
+  const commitsToday = atts.reduce((n, a) => n + a.events.filter((e) => e.type === 'conf_commit' && dayKey(e.t) === today).length, 0);
+  const doneWeek = atts.filter((a) => a.status === 'completed' && a.completedAt >= ws);
+  const m = (id, label, cur, target, xp, to) => ({ id, label, cur: Math.min(cur, target), target, done: cur >= target, xp, to });
+  return {
+    daily: [
+      m('d_diag', 'Solve today\'s Daily Diagnostic', gToday.filter((g) => g.mode === 'daily').length, 1, 60, '/daily'),
+      m('d_arena', 'Play two different Arena modes', new Set(gToday.map((g) => g.mode)).size, 2, 0, '/arena'),
+      m('d_update', 'Commit three evidence-driven belief updates', commitsToday, 3, 0, '/vault'),
+    ],
+    weekly: [
+      m('w_case', 'Complete an investigation', doneWeek.length, 1, 0, '/vault'),
+      m('w_quality', 'Score 75+ on a case this week', Math.max(0, ...doneWeek.map((a) => a.result.overall)) >= 75 ? 1 : 0, 1, 0, '/vault'),
+      m('w_modes', 'Try four Arena modes this week', new Set(gWeek.map((g) => g.mode)).size, 4, 0, '/arena'),
+      m('w_streak', 'Keep a five-day streak', liveStreakOf(user), 5, 0, '/daily'),
+    ],
+    resetsAt: { daily: new Date(today + 'T00:00:00Z').getTime() + DAYMS, weekly: ws + 7 * DAYMS },
+    note: 'Missions track real activity. They point you to work worth doing; only the Daily Diagnostic itself awards XP.',
+  };
+}
+function liveStreakOf(u) { const s = u.streak; return s.lastDay === dayKey() || s.lastDay === dayKey(Date.now() - 86400000) ? s.current : 0; }
+export function records(user) {
+  const atts = completedAttempts(user.id); const games = all('games').filter((g) => g.userId === user.id);
+  const bestAtt = atts.reduce((b, a) => (!b || a.result.overall > b.result.overall ? a : b), null);
+  const bestXp = atts.reduce((b, a) => (!b || a.result.xp.total > b.result.xp.total ? a : b), null);
+  const modes = {}; for (const g of games) modes[g.mode] = Math.max(modes[g.mode] ?? 0, g.score);
+  return {
+    bestCase: bestAtt ? { score: bestAtt.result.overall, caseId: bestAtt.caseId, attemptId: bestAtt.id, t: bestAtt.completedAt } : null,
+    mostXp: bestXp ? { xp: bestXp.result.xp.total, caseId: bestXp.caseId, attemptId: bestXp.id } : null,
+    bestStreak: user.streak.best, arena: modes,
+    peakSkills: Object.fromEntries(Object.keys(user.skills).map((k) => [k, Math.round(Math.max(user.skills[k], ...user.skillHistory.map((h) => h.skills[k] ?? 0)))])),
+  };
+}

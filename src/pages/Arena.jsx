@@ -2,7 +2,10 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, Navigate, useNavigate, useParams } from 'react-router-dom';
 import { post } from '../api.js';
 import { useAuth } from '../App.jsx';
-import { Bar, CountUp, DemoTag, Empty, ErrorState, Icon, PageSkeleton, RankEmblem, scoreTone, Skeleton, useApi, useToast } from '../components/ui.jsx';
+import { motion } from 'motion/react';
+import { Bar, celebrate, CountUp, DemoTag, Empty, ErrorState, Icon, PageSkeleton, RankEmblem, scoreTone, Skeleton, spotlight, Tip, useApi, useToast } from '../components/ui.jsx';
+import { ModeArt, MODE_THEME } from '../components/Art.jsx';
+import { useCelebrate } from '../components/Layers.jsx';
 import { LineChart, PALETTE, Ring, Waterfall } from '../components/charts.jsx';
 
 const MODE_ICON = { daily: 'daily', 'issue-tree': 'tree', margin: 'search', duel: 'scale', blitz: 'bolt', market: 'chess' };
@@ -14,14 +17,17 @@ export function Arena() {
   const t = d.tournament;
   return (
     <div className="page">
-      <div className="page-h"><div><div className="eyebrow mb-8">Arena</div><h1>Short drills, real skills</h1><p className="t2 mt-8">Each mode trains named skills and feeds the same ratings as full cases. XP is paid in full on the first play of the day and tapers after, so repetition is for practice, not points.</p></div></div>
-      <div className="grid g3 stagger">{d.modes.map((m) => <article key={m.id} className={`panel ${m.locked ? '' : 'hover'}`} onClick={() => !m.locked && nav(m.id === 'daily' ? '/daily' : `/arena/${m.id}`)} style={m.locked ? { opacity: 0.62 } : null}>
-        <div className="panel-b col" style={{ height: '100%' }}>
-          <div className="row between"><span className="avatar" style={{ width: 36, height: 36, background: 'var(--accent-soft)', borderColor: 'transparent', color: 'var(--accent)' }}><Icon name={MODE_ICON[m.id]} size={18} /></span>{m.locked ? <span className="chip"><Icon name="lock" size={11} />{m.minRankName}</span> : m.best != null ? <span className="chip">Best <b className="mono" style={{ color: scoreTone(m.best) }}>{m.best}</b></span> : <span className="chip acc">New</span>}</div>
-          <h2 style={{ fontSize: 20 }}>{m.name}</h2><p className="small t2" style={{ flex: 1 }}>{m.tagline}</p>
+      <div className="page-h"><div><div className="eyebrow acc mb-8">Arena</div><h1 className="display" style={{ fontSize: 'clamp(32px, 3.6vw, 48px)' }}>Short drills, <em>real</em> skills.</h1><p className="t2 mt-8">Each mode trains named skills and feeds the same ratings as full cases. XP is paid in full on the first play of the day and tapers after, so repetition is for practice, not points.</p></div></div>
+      <div className="grid g3">{d.modes.map((m, k) => <motion.article key={m.id} className={`mode-card ${m.locked ? 'locked' : ''}`} style={{ '--mode': MODE_THEME[m.id].color }} onClick={() => !m.locked && nav(m.id === 'daily' ? '/daily' : `/arena/${m.id}`)} tabIndex={m.locked ? -1 : 0} onKeyDown={(e) => e.key === 'Enter' && !m.locked && nav(m.id === 'daily' ? '/daily' : `/arena/${m.id}`)}
+          initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: k * 0.06, duration: 0.45 }}>
+        <div className="mode-top"><ModeArt id={m.id} /><span style={{ position: 'absolute', top: 12, right: 12 }}>{m.locked ? <span className="chip" style={{ background: 'var(--surface)' }}><Icon name="lock" size={11} />{m.minRankName}</span> : m.best != null ? <span className="chip" style={{ background: 'var(--surface)' }}>Best <b className="mono" style={{ color: scoreTone(m.best) }}>{m.best}</b></span> : <span className="chip acc">New</span>}</span></div>
+        <div className="panel-b col" style={{ gap: 10 }}>
+          <div className="eyebrow" style={{ color: MODE_THEME[m.id].color }}>{MODE_THEME[m.id].label}</div>
+          <h2 style={{ fontSize: 22 }}>{m.name}</h2><p className="small t2" style={{ minHeight: 40 }}>{m.tagline}</p>
           <div className="row wrap gap-6">{m.skillLabels.map((s) => <span key={s} className="chip line">{s}</span>)}</div>
-          <div className="row between xs muted"><span className="row gap-4"><Icon name="clock" size={12} />{m.minutes} min</span><span>{m.playsToday === 0 ? <span className="acc mono">up to +{m.xp} XP</span> : m.playsToday < 3 ? `reduced XP today (${m.playsToday} played)` : 'practice only today'}</span></div>
-        </div></article>)}</div>
+          <div className="row between xs muted" style={{ borderTop: '1px solid var(--line)', paddingTop: 10 }}><span className="row gap-4"><Icon name="clock" size={12} />{m.minutes} min · {m.plays} play{m.plays === 1 ? '' : 's'}</span><span>{m.locked ? `Unlocks at ${m.minRankName}` : m.playsToday === 0 ? <span className="acc mono">up to +{m.xp} XP</span> : m.playsToday < 3 ? `reduced XP (${m.playsToday} today)` : 'practice only today'}</span></div>
+        </div></motion.article>)}</div>
+      <div className="grid g2 mt-16">{[['Daily missions', d.missions.daily], ['Weekly missions', d.missions.weekly]].map(([t, list]) => <div key={t} className="panel"><div className="panel-h"><span className="eyebrow">{t}</span><span className="mono xs muted">{list.filter((x) => x.done).length}/{list.length}</span></div><div className="panel-b col" style={{ gap: 10 }}>{list.map((x) => <div key={x.id}><div className="row between small"><span className="row gap-6" style={{ color: x.done ? 'var(--text-2)' : 'var(--text)' }}><Icon name={x.done ? 'check' : 'minus'} size={13} className={x.done ? 'pos' : 'muted'} />{x.label}</span><span className="mono xs muted">{x.cur}/{x.target}</span></div><Bar value={x.cur} max={x.target} className="thin mt-4" color={x.done ? 'var(--pos)' : undefined} /></div>)}</div></div>)}</div>
 
       <div className="grid g12 mt-24">
         <div className="panel s5"><div className="panel-h"><span className="eyebrow">Weekly tournament</span><span className="xs muted">ends {new Date(t.endsAt).toLocaleDateString('en-GB', { weekday: 'long' })}</span></div><div className="panel-b">
@@ -42,17 +48,37 @@ export function Arena() {
 }
 
 // ------------------------------------------------------------------ shared play frame
-function Frame({ mode, title, sub, children, onRestart }) {
-  return <div className="page" style={{ maxWidth: 1040 }}><div className="page-h"><div><Link to="/arena" className="xs muted row gap-4 mb-8"><Icon name="back" size={12} />Arena</Link><div className="eyebrow acc mb-8">{title}</div>{sub && <h1 style={{ fontSize: 26 }}>{sub}</h1>}</div>{onRestart && <button className="btn sm" onClick={onRestart}><Icon name="replay" size={13} />New puzzle</button>}</div>{children}</div>;
+const RULES = {
+  daily: ['Allocate 100 confidence points across four explanations.', 'Look at exactly one piece of evidence.', 'Choose a decision. Scored on the look, your final confidence and the decision.'],
+  'issue-tree': ['Break the problem into branches and sub-issues.', 'Siblings must not overlap and should cover their parent.', 'Flag up to three priorities. Scored on completeness, hierarchy, MECE and prioritisation.'],
+  margin: ['Profit moved; seven drivers explain it.', 'You have four probes to reveal a driver\'s effect.', 'Name the two largest drivers and size the biggest.'],
+  duel: ['Two hypotheses, five pieces of evidence revealed one at a time.', 'After each, set how likely A is.', 'Scored against a Bayesian reference — move as far as the evidence warrants.'],
+  blitz: ['Three board objections, 45 seconds each.', 'Pick the reply that holds the room.', 'Running out of time scores zero for that round.'],
+  market: ['Four quarters against a competitor that reacts.', 'Set price, marketing and capacity each quarter.', 'Scored against every possible policy in the same model.'],
+};
+const MODE_NAME = { daily: 'Daily Diagnostic', 'issue-tree': 'Issue Tree Arena', margin: 'Margin Detective', duel: 'Hypothesis Duel', blitz: 'Boardroom Blitz', market: 'Market Strategy Challenge' };
+function Frame({ mode, title, sub, children, onRestart, progress, done }) {
+  const th = MODE_THEME[mode] || MODE_THEME.daily;
+  return <div className="page" style={{ maxWidth: 1080 }}>
+    <motion.div className="mode-banner mb-16" style={{ '--mode': th.color }} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
+      <div className="mode-art"><ModeArt id={mode} /></div>
+      <div style={{ position: 'relative', maxWidth: '62%' }}>
+        <Link to="/arena" className="xs muted row gap-4 mb-8"><Icon name="back" size={12} />Arena</Link>
+        <div className="eyebrow" style={{ color: th.color }}>{title} · {th.label}</div>{sub && <h1 className="mt-8" style={{ fontSize: 26 }}>{sub}</h1>}
+        {!done && RULES[mode] && <ol className="small t2 mt-12" style={{ margin: '12px 0 0', paddingLeft: 18, lineHeight: 1.6 }}>{RULES[mode].map((r) => <li key={r}>{r}</li>)}</ol>}
+        <div className="row gap-16 mt-12">{progress != null && <div style={{ width: 200 }}><div className="row between xs muted"><span>Progress</span><span className="mono">{Math.round(progress * 100)}%</span></div><div className="bar thin mt-4"><motion.i animate={{ width: `${progress * 100}%` }} style={{ background: th.color }} /></div></div>}{onRestart && <button className="btn sm" onClick={onRestart}><Icon name="replay" size={13} />New puzzle</button>}</div>
+      </div>
+    </motion.div>{children}</div>;
 }
 function Result({ res, onAgain, children }) {
-  const ap = res.applied;
+  const ap = res.applied; const { report } = useCelebrate();
+  useEffect(() => { if (res.score >= 80) celebrate({ count: res.score >= 95 ? 160 : 90, origin: { x: 0.25, y: 0.4 } }); report(ap, { key: `game_${res.sid}`, xp: ap.earned }); }, []); // eslint-disable-line
   return <div style={{ animation: 'rise 0.4s var(--ease)' }}>
-    <div className="panel pad row gap-24 wrap mb-16"><Ring value={res.score} size={104} color={scoreTone(res.score)}><div><div className="mono" style={{ fontSize: 30, lineHeight: 1 }}><CountUp value={res.score} /></div><div className="xs muted">/ 100</div></div></Ring>
-      <div className="grow"><div className="row gap-16 wrap"><div className="kpi"><span className="eyebrow">XP earned</span><span className="v acc">+{ap.earned + ap.streakBonus}</span></div>{ap.streakBonus > 0 && <div className="kpi"><span className="eyebrow">Streak</span><span className="v row gap-6"><Icon name="flame" size={18} style={{ color: 'var(--warn)' }} />{ap.streak} days</span></div>}
+    <motion.div className="panel pad row gap-24 wrap mb-16" style={{ borderColor: res.score >= 80 ? 'var(--pos)' : undefined }} initial={{ scale: 0.97, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ type: 'spring', stiffness: 260, damping: 22 }}><Ring value={res.score} size={104} color={scoreTone(res.score)}><div><div className="mono" style={{ fontSize: 30, lineHeight: 1 }}><CountUp value={res.score} /></div><div className="xs muted">/ 100</div></div></Ring>
+      <div className="grow"><div className="row gap-16 wrap"><div className="kpi"><span className="eyebrow">{res.score >= 80 ? 'Excellent · XP earned' : 'XP earned'}</span><span className="v acc">+<CountUp value={ap.earned + ap.streakBonus} duration={1100} /></span></div>{ap.streakBonus > 0 && <div className="kpi"><span className="eyebrow">Streak</span><span className="v row gap-6"><Icon name="flame" size={18} style={{ color: 'var(--warn)' }} />{ap.streak} days</span></div>}
         {ap.deltas.map((d) => { const ch = Math.round((d.after - d.before) * 10) / 10; return <div key={d.skill} className="kpi"><span className="eyebrow">{d.label}</span><span className="v" style={{ fontSize: 20 }}>{Math.round(d.after)} <span className={`xs ${ch >= 0 ? 'pos' : 'neg'}`}>{ch >= 0 ? '+' : ''}{ch}</span></span></div>; })}</div>
         <p className="xs muted mt-12">{ap.factor === 1 ? 'First play of this mode today: full XP.' : ap.factor > 0 ? `Play ${ap.plays} of this mode today: XP at ${Math.round(ap.factor * 100)}%.` : 'Fourth or later play today: practice only, no XP.'}{ap.achievements.map((a) => ` Achievement: ${a.name}.`)}</p></div>
-      <div className="col"><button className="btn primary" onClick={onAgain}>Play another</button><Link to="/arena" className="btn">Back to Arena</Link></div></div>
+      <div className="col"><button className="btn primary" onClick={onAgain}>Play another</button><Link to="/arena" className="btn">Back to Arena</Link></div></motion.div>
     {res.feedback.parts && <div className="panel mb-16"><div className="panel-h"><span className="eyebrow">How this was scored</span></div>{res.feedback.parts.map((p) => <div key={p.label} style={{ padding: '9px 16px', borderBottom: '1px solid var(--line)' }}><div className="row between small"><span>{p.label} <span className="muted xs">· {p.weight}%</span></span><span className="mono">{p.score}</span></div><Bar value={p.score} className="thin mt-4" color={scoreTone(p.score)} /></div>)}</div>}
     {children}</div>;
 }
@@ -60,7 +86,7 @@ function useGame(mode) {
   const [p, setP] = useState(null); const [err, setErr] = useState(null); const [res, setRes] = useState(null); const [busy, setBusy] = useState(false); const n = useRef(0); const { refresh } = useAuth(); const toast = useToast();
   const start = () => { setP(null); setRes(null); setErr(null); post(`/games/${mode}/start`, { n: n.current++ }).then((d) => setP(d.puzzle)).catch(setErr); };
   useEffect(start, [mode]); // eslint-disable-line
-  const submit = async (answer) => { setBusy(true); try { const d = await post(`/games/${mode}/submit`, { sessionId: p.sessionId, answer }); setRes(d); refresh(); } catch (e) { toast(e.message, 'bad'); } setBusy(false); };
+  const submit = async (answer) => { setBusy(true); try { const d = await post(`/games/${mode}/submit`, { sessionId: p.sessionId, answer }); setRes({ ...d, sid: p.sessionId }); refresh(); } catch (e) { toast(e.message, 'bad'); } setBusy(false); };
   const step = (body) => post(`/games/${mode}/step`, { sessionId: p.sessionId, ...body });
   return { p, err, res, busy, start, submit, step, toast };
 }
@@ -71,7 +97,7 @@ export function Play() {
   const G = { 'issue-tree': IssueTree, margin: Margin, duel: Duel, blitz: Blitz, market: Market, daily: DailyGame }[mode];
   return G ? <G /> : <Navigate to="/arena" replace />;
 }
-const Guard = ({ g, title, children }) => (g.err ? <Frame title={title}><div className="panel"><Empty icon="lock" title={g.err.message} action={<Link className="btn sm mt-8" to="/arena">Back to Arena</Link>} /></div></Frame> : !g.p ? <PageSkeleton /> : children);
+const Guard = ({ g, title, children }) => (g.err ? <Frame mode={Object.keys(MODE_NAME).find((k) => MODE_NAME[k] === title) || 'daily'} done title={title}><div className="panel"><Empty icon="lock" title={g.err.message} action={<Link className="btn sm mt-8" to="/arena">Back to Arena</Link>} /></div></Frame> : !g.p ? <PageSkeleton /> : children);
 
 // ------------------------------------------------------------------ Daily Diagnostic
 function AllocRow({ items, alloc, setAlloc, disabled, truth }) {
@@ -84,7 +110,7 @@ function DailyGame() {
   const g = useGame('daily'); const [alloc, setAlloc] = useState({}); const [clue, setClue] = useState(null); const [dec, setDec] = useState(''); const [phase, setPhase] = useState(0);
   useEffect(() => { if (g.p) { const n = g.p.hyps.length; setAlloc(Object.fromEntries(g.p.hyps.map((h) => [h.id, 100 / n]))); setClue(null); setDec(''); setPhase(0); } }, [g.p]);
   const total = g.p ? g.p.hyps.reduce((s, h) => s + (alloc[h.id] || 0), 0) : 0;
-  return <Guard g={g} title="Daily Diagnostic">{g.p && <Frame title={`Daily Diagnostic · ${g.p.day}`} sub={g.p.title}>
+  return <Guard g={g} title="Daily Diagnostic">{g.p && <Frame mode="daily" done={!!g.res} progress={g.res ? 1 : phase / 3} title={`Daily Diagnostic · ${g.p.day}`} sub={g.p.title}>
     {g.res ? <Result res={g.res} onAgain={g.start}><div className="grid g2"><div className="panel pad"><div className="eyebrow mb-12">Confidence vs the evidence</div><AllocRow items={g.p.hyps} alloc={alloc} setAlloc={() => {}} disabled truth={g.res.feedback.truth} /></div>
       <div className="panel pad"><div className="eyebrow mb-8">Debrief</div><p>{g.res.feedback.explain}</p><div className="callout pos mt-12 small"><b>Most diagnostic look:</b> {g.res.feedback.bestClue}</div><div className="callout mt-8 small"><b>Strongest decision:</b> {g.res.feedback.bestDecision}</div>
         <div className="eyebrow mt-16 mb-8">What each look would have shown</div>{g.res.feedback.clues.map((c) => <div key={c.id} className="small t2 mb-8"><b style={{ color: 'var(--text)' }}>{c.label}.</b> {c.text}</div>)}</div></div></Result>
@@ -118,7 +144,7 @@ function IssueTree() {
         {n.id !== 'root' && <><button className="btn ghost sm icon" title="Flag as a priority to investigate first" style={n.priority ? { color: 'var(--accent)' } : null} onClick={() => (n.priority || prioCount < 3) && setNodes((ns) => ns.map((x) => (x.id === n.id ? { ...x, priority: !x.priority } : x)))}><Icon name="star" size={13} /></button><button className="btn ghost sm icon" title="Remove" onClick={() => remove(n.id)}><Icon name="x" size={13} /></button></>}</>}</div>
     {kids(n.id).length > 0 && <ul>{kids(n.id).map((k) => renderNode(k, depth + 1))}</ul>}</li>;
   const fb = g.res?.feedback;
-  return <Guard g={g} title="Issue Tree Arena">{g.p && <Frame title="Issue Tree Arena" sub={g.p.prompt} onRestart={!g.res ? g.start : null}>
+  return <Guard g={g} title="Issue Tree Arena">{g.p && <Frame mode="issue-tree" done={!!g.res} progress={g.res ? 1 : Math.min(1, (nodes.filter((n) => n.label?.trim()).length - 1) / 10)} title="Issue Tree Arena" sub={g.p.prompt} onRestart={!g.res ? g.start : null}>
     {g.res && <Result res={g.res} onAgain={g.start}><div className="grid g2"><div className="panel pad"><div className="eyebrow mb-8">Logic notes</div>{fb.issues.length ? fb.issues.map((x, i) => <div key={i} className="row gap-6 small t2 mb-8" style={{ alignItems: 'flex-start' }}><Icon name="minus" size={13} className="neg" style={{ marginTop: 3, flex: 'none' }} />{x}</div>) : <div className="small pos">No structural issues found.</div>}
       <div className="eyebrow mt-16 mb-8">Covered</div><div className="row wrap gap-6">{fb.matched.map((x) => <span key={x} className="chip pos">{x}</span>)}</div><div className="eyebrow mt-16 mb-8">Not covered</div><div className="row wrap gap-6">{fb.missed.map((x) => <span key={x} className="chip">{x}</span>)}{!fb.missed.length && <span className="small muted">Nothing material.</span>}</div></div>
       <div className="panel pad"><div className="eyebrow mb-8">One strong reference structure</div><div className="tree"><ul><li><div className="tnode"><b className="small" style={{ padding: '3px 4px' }}>{fb.reference.root}</b></div><ul>{fb.reference.nodes.filter((n) => !n.parent).map((n) => <li key={n.id}><div className={`tnode ${n.priority ? 'prio' : ''}`}><span className="small" style={{ padding: '3px 4px' }}>{n.label}</span></div><ul>{fb.reference.nodes.filter((k) => k.parent === n.id).map((k) => <li key={k.id}><div className={`tnode ${k.priority ? 'prio' : ''}`}><span className="small" style={{ padding: '3px 4px' }}>{k.label}{k.priority && <Icon name="star" size={11} className="acc" style={{ marginLeft: 6, verticalAlign: -1 }} />}</span></div></li>)}</ul></li>)}</ul></li></ul></div><p className="xs muted mt-12">Other structures can be equally valid. Labels are matched on meaning, not exact wording.</p></div></div></Result>}
@@ -137,7 +163,7 @@ function Margin() {
   return <Guard g={g} title="Margin Detective">{g.p && (() => { const p = g.p; const fb = g.res?.feedback;
     const items = [{ label: 'Prior-year profit', value: p.from, total: true }, ...(fb ? fb.bridge : p.drivers).map((d) => ({ id: d.id, label: d.label, value: fb ? d.effect : probed[d.id] ?? 0, hidden: !fb && !(d.id in probed) })), { label: 'This-year profit', value: p.to, total: true }];
     const known = Object.values(probed).reduce((s, v) => s + v, 0);
-    return <Frame title="Margin Detective" sub={`${p.company}: operating profit ${p.from} → ${p.to} ${p.unit}`} onRestart={!g.res ? g.start : null}>
+    return <Frame mode="margin" done={!!g.res} progress={g.res ? 1 : (p.probes - left) / p.probes} title="Margin Detective" sub={`${p.company}: operating profit ${p.from} → ${p.to} ${p.unit}`} onRestart={!g.res ? g.start : null}>
       {g.res && <Result res={g.res} onAgain={g.start}><div className="callout mb-16"><b>What happened.</b> {fb.lesson}</div></Result>}
       <div className="grid g12"><div className="s8 panel"><div className="panel-h"><span className="eyebrow">Profit bridge</span>{!g.res && <span className="chip acc">{left} probe{left === 1 ? '' : 's'} left</span>}</div><div className="panel-b"><p className="small t2 mb-12">{p.context} Revenue {p.revFrom} → {p.revTo} {p.unit}. {!g.res && 'Click a hidden bar to spend a probe on it.'}</p>
         <Waterfall items={items} unit={p.unit} height={270} onPick={(b) => !g.res && b.hidden && left > 0 && probe(b.id)} />
@@ -157,7 +183,7 @@ function Duel() {
   const g = useGame('duel'); const [i, setI] = useState(0); const [p, setP] = useState(50); const [path, setPath] = useState([]); const [pick, setPick] = useState('');
   useEffect(() => { if (g.p) { setI(0); setP(50); setPath([]); setPick(''); } }, [g.p]);
   return <Guard g={g} title="Hypothesis Duel">{g.p && (() => { const d = g.p; const n = d.cards.length; const fb = g.res?.feedback; const done = path.length === n;
-    return <Frame title="Hypothesis Duel" sub={d.scenario} onRestart={!g.res ? g.start : null}>
+    return <Frame mode="duel" done={!!g.res} progress={g.res ? 1 : path.length / n} title="Hypothesis Duel" sub={d.scenario} onRestart={!g.res ? g.start : null}>
       {g.res && <Result res={g.res} onAgain={g.start}><div className="grid g2"><div className="panel pad"><div className="eyebrow mb-8">Your confidence in A vs a Bayesian reference</div><LineChart categories={['Start', ...d.cards.map((_, k) => `E${k + 1}`)]} series={[{ label: 'You', values: [50, ...fb.yours] }, { label: 'Reference', values: [50, ...fb.reference], dashed: true, color: 'var(--c2)' }]} yMax={100} area={false} unit="%" height={200} /><div className="row gap-16 xs t2 mt-4"><span className="row gap-6"><span className="dot" style={{ background: PALETTE[0] }} />You</span><span className="row gap-6"><span className="dot" style={{ background: 'var(--c2)' }} />Reference</span></div></div>
         <div className="panel pad"><div className="eyebrow mb-8">What each piece of evidence was worth</div>{fb.strengths.map((s, k) => <div key={k} className="small mb-8"><span className={`chip ${s.strength === 'strong' ? 'acc' : ''}`} style={{ marginRight: 6 }}>{s.strength} for {s.favours}</span><span className="t2">{s.text}</span></div>)}<div className="callout pos mt-12">The evidence favours hypothesis <b>{fb.verdict}</b>.</div></div></div></Result>}
       <div className="grid g2 mb-16">{[['A', d.A, 'var(--c1)'], ['B', d.B, 'var(--c4)']].map(([k, t, col]) => <div key={k} className="panel pad" style={{ borderTop: `2px solid ${col}` }}><div className="eyebrow mb-8" style={{ color: col }}>Hypothesis {k}</div><p style={{ fontSize: 15 }}>{t}</p></div>)}</div>
@@ -176,7 +202,7 @@ function Blitz() {
   const next = (choice) => { const r = g.p.rounds[i]; const np = { ...picks, [r.id]: choice }; setPicks(np); if (i < g.p.rounds.length - 1) { setI(i + 1); setT(g.p.seconds); } else { setGo(false); g.submit({ picks: np }); } };
   useEffect(() => { if (!go || g.res) return; if (t <= 0) { next(null); return; } const k = setTimeout(() => setT((x) => x - 1), 1000); return () => clearTimeout(k); }, [go, t, g.res]); // eslint-disable-line
   return <Guard g={g} title="Boardroom Blitz">{g.p && (() => { const r = g.p.rounds[i]; const fb = g.res?.feedback;
-    return <Frame title="Boardroom Blitz" sub={g.res ? 'Debrief' : go ? `Objection ${i + 1} of ${g.p.rounds.length}` : 'Three objections. Forty-five seconds each.'}>
+    return <Frame mode="blitz" done={!!g.res} progress={g.res ? 1 : go ? i / g.p.rounds.length : 0} title="Boardroom Blitz" sub={g.res ? 'Debrief' : go ? `Objection ${i + 1} of ${g.p.rounds.length}` : 'Three objections. Forty-five seconds each.'}>
       {g.res ? <Result res={g.res} onAgain={g.start}><div className="col" style={{ gap: 12 }}>{fb.rounds.map((x, k) => <div key={x.id} className="panel pad"><div className="row between"><span className="eyebrow">Objection {k + 1}</span><span className="mono" style={{ color: scoreTone(x.quality * 100) }}>{Math.round(x.quality * 100)}</span></div><p className="serif mt-8" style={{ fontSize: 17 }}>{x.objection}</p>
         <div className={`callout mt-12 small ${x.quality === 1 ? 'pos' : 'neg'}`}><b>You said:</b> {x.chosen || 'Nothing — time ran out.'}</div>{x.quality < 1 && <div className="callout pos mt-8 small"><b>Strongest reply:</b> {x.best}</div>}<p className="xs muted mt-8">{x.why}</p></div>)}</div></Result>
       : !go ? <div className="panel pad" style={{ maxWidth: 620 }}><p className="t2">A board member objects to a recommendation you have made. Choose the reply that best holds the room. The strongest replies concede what is true, bring a number and adjust rather than retreat. Running out of time scores zero for that round.</p><button className="btn primary lg mt-16" onClick={() => setGo(true)}><Icon name="play" size={14} />Start the clock</button></div>
@@ -192,7 +218,7 @@ function Market() {
   const play = async () => { const nd = [...ds, cur]; try { const out = await g.step({ decisions: nd }); setDs(nd); setRows(out.rows); setCur({ ...cur, expand: false }); } catch (e) { g.toast(e.message, 'bad'); } };
   const expanded = ds.some((d) => d.expand);
   return <Guard g={g} title="Market Strategy Challenge">{g.p && (() => { const p = g.p; const fb = g.res?.feedback; const q = ds.length + 1; const last = rows.at(-1);
-    return <Frame title="Market Strategy Challenge" sub={g.res ? `Cumulative profit: ${fb.cumulative}` : q <= p.quarters ? `Quarter ${q} of ${p.quarters}` : 'Four quarters played'} onRestart={!g.res ? g.start : null}>
+    return <Frame mode="market" done={!!g.res} progress={g.res ? 1 : ds.length / p.quarters} title="Market Strategy Challenge" sub={g.res ? `Cumulative profit: ${fb.cumulative}` : q <= p.quarters ? `Quarter ${q} of ${p.quarters}` : 'Four quarters played'} onRestart={!g.res ? g.start : null}>
       {g.res && <Result res={g.res} onAgain={g.start}><div className="panel pad mb-16"><div className="grid g4"><div className="kpi"><span className="eyebrow">You</span><span className="v">{fb.cumulative}</span></div><div className="kpi"><span className="eyebrow">Median policy</span><span className="v">{fb.benchmark.median}</span></div><div className="kpi"><span className="eyebrow">Top-decile policy</span><span className="v">{fb.benchmark.p90}</span></div><div className="kpi"><span className="eyebrow">Best possible</span><span className="v">{fb.benchmark.best}</span></div></div><p className="small t2 mt-12">Scored against every one of the 104,976 possible four-quarter policies in the same deterministic model. {fb.lesson}</p></div></Result>}
       <div className="grid g12"><div className="s5 col" style={{ gap: 14 }}>
         <div className="panel pad small t2">{p.brief}</div>

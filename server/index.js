@@ -1,4 +1,4 @@
-// ConsultBrain API server. All scoring, XP and progression logic runs here; the client is a view.
+// Consult Brain API server. All scoring, XP and progression logic runs here; the client is a view.
 import express from 'express';
 import crypto from 'node:crypto';
 import path from 'node:path';
@@ -9,7 +9,7 @@ import { seed } from './seed.js';
 import { CASES, getCase } from './cases/index.js';
 import { newAttempt, act, view, finalize, caseCard, caseBrief, ActionError } from './engine/caseEngine.js';
 import { SKILLS } from './engine/scoring.js';
-import { newUser, rankStatus, RANKS, ACHIEVEMENTS, applyCase, applyGame, bestByCase, completedAttempts, consultingIQ, liveStreak, dayKey } from './engine/progression.js';
+import { newUser, rankStatus, RANKS, ACHIEVEMENTS, applyCase, applyGame, bestByCase, completedAttempts, consultingIQ, liveStreak, dayKey, missions, records } from './engine/progression.js';
 import { MODES, start as gameStart, step as gameStep, grade as gameGrade, getSession, dailyMeta } from './games/index.js';
 import { aiEnabled } from './engine/ai.js';
 import { clean } from './engine/text.js';
@@ -61,7 +61,7 @@ function board(kind, viewer, skill) {
   else if (kind === 'friends') pool = pool.filter((u) => u.id === viewer.id || viewer.following.includes(u.id));
   else if (kind === 'skill') val = (u) => Math.round(u.skills[skill] ?? 0);
   else if (kind === 'iq') val = consultingIQ;
-  const rows = pool.map((u) => ({ ...pub(u), value: Math.round(val(u)), iq: consultingIQ(u), change: u.seedStats?.change ?? 0, you: u.id === viewer.id })).sort((a, b) => b.value - a.value || a.name.localeCompare(b.name));
+  const rows = pool.map((u) => ({ ...pub(u), value: Math.round(val(u)), iq: consultingIQ(u), xp: u.xp, weekly: weekly(u), streak: u.seedStats ? u.streak.current : liveStreak(u), change: u.seedStats?.change ?? 0, you: u.id === viewer.id })).sort((a, b) => b.value - a.value || a.name.localeCompare(b.name));
   rows.forEach((r, i) => (r.pos = i + 1));
   return rows;
 }
@@ -69,7 +69,8 @@ function universityBoard(viewer) {
   const g = {}; for (const u of students()) { const x = (g[u.university] ||= { university: u.university, members: 0, weekly: 0, xp: 0, iq: 0, you: false }); x.members++; x.weekly += weekly(u); x.xp += u.xp; x.iq += consultingIQ(u); if (u.id === viewer.id) x.you = true; }
   return Object.values(g).map((x) => ({ ...x, iq: Math.round(x.iq / x.members), value: x.weekly })).sort((a, b) => b.value - a.value).map((x, i) => ({ ...x, pos: i + 1 }));
 }
-const attemptSummary = (a) => { const c = getCase(a.caseId); return { id: a.id, caseId: a.caseId, title: c.title, company: c.company, status: a.status, startedAt: a.startedAt, completedAt: a.completedAt, overall: a.result ? a.result.override?.score ?? a.result.overall : null, xp: a.result?.xp.total ?? null, hoursUsed: a.hoursUsed, budget: c.budgetHours, seeded: a.seeded }; };
+const STAGE_OF = (a) => (a.phase === 'boardroom' ? 'Boardroom defence' : a.recommendation ? 'Boardroom' : Object.keys(a.quant).length ? 'Workbench' : a.requested.length ? 'Data room' : a.allocCommitted ? 'Hypotheses committed' : a.hypotheses.length ? 'Forming hypotheses' : 'Client brief');
+const attemptSummary = (a) => { const c = getCase(a.caseId); return { id: a.id, industry: c.industry, difficulty: c.difficulty, difficultyLabel: c.difficultyLabel, xpReward: c.xpReward, stage: a.status === 'active' ? STAGE_OF(a) : null, hypotheses: a.hypotheses.filter((h) => !h.deleted).length, evidence: a.requested.length + a.cards.length, caseId: a.caseId, title: c.title, company: c.company, status: a.status, startedAt: a.startedAt, completedAt: a.completedAt, overall: a.result ? a.result.override?.score ?? a.result.overall : null, xp: a.result?.xp.total ?? null, hoursUsed: a.hoursUsed, budget: c.budgetHours, seeded: a.seeded }; };
 const userAttempts = (uid_) => all('attempts').filter((a) => a.userId === uid_).sort((a, b) => b.startedAt - a.startedAt);
 function caseStatus(u) { const out = {}; for (const a of userAttempts(u.id)) { const s = (out[a.caseId] ||= { status: 'new', best: null, attempts: 0, activeId: null }); if (a.status === 'completed') { s.attempts++; const sc = a.result.override?.score ?? a.result.overall; s.best = Math.max(s.best ?? 0, sc); if (s.status !== 'active') s.status = 'completed'; } if (a.status === 'active') { s.status = 'active'; s.activeId = a.id; } } return out; }
 function recommend(u, status) {
@@ -112,7 +113,9 @@ app.get('/api/dashboard', auth, wrap((req) => {
     daily: { ...dailyMeta(), played: playedToday }, tournament: tournament(u), season: season(u),
     recent: userAttempts(u.id).slice(0, 5).map(attemptSummary), recommended: recommend(u, status),
     achievements: [...u.achievements].sort((a, b) => b.t - a.t).slice(0, 4).map((a) => ({ ...ACHIEVEMENTS.find((x) => x.id === a.id), t: a.t })),
-    ledger: [...u.ledger].reverse().slice(0, 6),
+    ledger: [...u.ledger].reverse().slice(0, 6), missions: missions(u),
+    active: userAttempts(u.id).filter((a) => a.status === 'active').map(attemptSummary),
+    newCases: CASES.filter((c) => !caseStatus(u)[c.id]).map(caseCard),
   };
 }));
 app.get('/api/cases', auth, wrap((req) => { const st = caseStatus(req.user); const idx = rankStatus(req.user).index; return { cases: CASES.map((c) => ({ ...caseCard(c), locked: (c.unlockRank || 0) > idx, unlockRankName: RANKS[c.unlockRank || 0].name, ...(st[c.id] || { status: 'new', best: null, attempts: 0, activeId: null }) })), recommended: recommend(req.user, st) }; }));
@@ -169,7 +172,7 @@ app.get('/api/users/:id', auth, wrap((req) => {
   const u = col('users')[req.params.id]; if (!u || u.role !== 'student') throw err(404, 'Learner not found'); const g = board('global', req.user);
   return { profile: { ...pub(u), xp: u.xp, iq: consultingIQ(u), streak: u.seedStats ? u.streak.current : liveStreak(u), bestStreak: u.streak.best, joined: u.createdAt, position: g.find((r) => r.userId === u.id)?.pos, cases: u.seedStats?.cases ?? completedAttempts(u.id).length,
     skills: SKILLS.map((s) => ({ id: s.id, label: s.label, value: Math.round(u.skills[s.id]) })), achievements: u.achievements.map((a) => ({ ...ACHIEVEMENTS.find((x) => x.id === a.id), t: a.t })), best: Object.entries(bestByCase(u.id)).map(([id, score]) => ({ caseId: id, title: getCase(id).title, company: getCase(id).company, score })),
-    certificates: u.certificates, following: req.user.following.includes(u.id), isYou: u.id === req.user.id },
+    certificates: u.certificates, following: req.user.following.includes(u.id), isYou: u.id === req.user.id, records: u.seedStats ? null : records(u), history: u.seedStats ? [] : completedAttempts(u.id).sort((a, b) => a.completedAt - b.completedAt).map((a) => ({ t: a.completedAt, score: a.result.override?.score ?? a.result.overall, company: getCase(a.caseId).company, attemptId: u.id === req.user.id ? a.id : null })), challenges: all('challenges').filter((c) => c.fromUserId === u.id || c.toUserId === u.id).length },
   compare: SKILLS.map((s) => ({ id: s.id, label: s.label, you: Math.round(req.user.skills[s.id]), them: Math.round(u.skills[s.id]) })) };
 }));
 app.post('/api/users/:id/follow', auth, wrap((req) => { const u = col('users')[req.params.id]; if (!u || u.id === req.user.id) throw err(400, 'Cannot follow.'); const f = req.user.following; const i = f.indexOf(u.id); if (i >= 0) f.splice(i, 1); else f.push(u.id); put('users', req.user); return { following: i < 0 }; }));
@@ -185,8 +188,19 @@ app.post('/api/challenges', auth, wrap((req) => {
   const ch = put('challenges', { id: uid('ch_'), fromUserId: req.user.id, toUserId: to.id, caseId: c.id, bar, createdAt: Date.now(), note: clean(req.body.note, 140) }); return { challenge: challengeView(ch, req.user) };
 }));
 
+// ------------------------------------------------------------------ notifications (derived from real records)
+app.get('/api/notifications', auth, wrap((req) => {
+  const u = req.user; const items = [];
+  for (const a of u.achievements) { const m = ACHIEVEMENTS.find((x) => x.id === a.id); items.push({ id: `ach_${a.id}`, kind: 'achievement', t: a.t, title: `Achievement unlocked: ${m.name}`, body: m.desc, to: '/progress' }); }
+  for (const c of u.certificates) items.push({ id: `cert_${c.id}`, kind: 'rank', t: c.issuedAt, title: `Certificate issued: ${RANKS.find((r) => r.id === c.rank).name}`, body: `Verification ID ${c.id}`, to: '/certificates' });
+  for (const c of all('challenges').filter((x) => x.toUserId === u.id)) { const from = col('users')[c.fromUserId]; items.push({ id: `ch_${c.id}`, kind: 'challenge', t: c.createdAt, title: `${from.name} challenged you`, body: `${getCase(c.caseId).company}: beat ${c.bar}`, to: '/arena' }); }
+  for (const cls of all('classrooms').filter((k) => k.members.some((m) => m.userId === u.id))) for (const as of cls.assignments) items.push({ id: `as_${as.id}`, kind: 'assignment', t: as.createdAt, title: `New assignment in ${cls.name}`, body: `${getCase(as.caseId).company} · due ${new Date(as.due).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}`, to: '/classroom' });
+  items.sort((a, b) => b.t - a.t);
+  return { items: items.slice(0, 20) };
+}));
+
 // ------------------------------------------------------------------ certificates
-const certView = (c) => ({ ...c, issuer: 'ConsultBrain', disclaimer: 'A ConsultBrain achievement certificate. It is not an academic qualification and is not issued or accredited by any university or professional body.', skillsMeta: SKILLS });
+const certView = (c) => ({ ...c, issuer: 'Consult Brain', disclaimer: 'A Consult Brain achievement certificate. It is not an academic qualification and is not issued or accredited by any university or professional body.', skillsMeta: SKILLS });
 app.get('/api/certificates', auth, wrap((req) => { const st = rankStatus(req.user); return { certificates: req.user.certificates.map((x) => certView(col('certificates')[x.id])).filter(Boolean).sort((a, b) => b.issuedAt - a.issuedAt), next: st.next ? { name: st.next.name, reqs: st.nextReqs } : null }; }));
 app.get('/api/verify/:code', wrap((req) => { const c = col('certificates')[String(req.params.code).toUpperCase()]; if (!c) throw err(404, 'No certificate with this identifier.'); return { certificate: certView(c) }; }));
 
@@ -194,7 +208,7 @@ app.get('/api/verify/:code', wrap((req) => { const c = col('certificates')[Strin
 app.get('/api/games', auth, wrap((req) => {
   const idx = rankStatus(req.user).index; const mine = all('games').filter((g) => g.userId === req.user.id); const today = dayKey();
   return { modes: MODES.map((m) => { const g = mine.filter((x) => x.mode === m.id); return { ...m, locked: m.minRank > idx, minRankName: RANKS[m.minRank].name, best: g.length ? Math.max(...g.map((x) => x.score)) : null, plays: g.length, playsToday: g.filter((x) => dayKey(x.t) === today).length, skillLabels: m.skills.map((s) => SKILLS.find((k) => k.id === s).label) }; }),
-    tournament: tournament(req.user), season: season(req.user), streak: liveStreak(req.user) };
+    tournament: tournament(req.user), season: season(req.user), streak: liveStreak(req.user), missions: missions(req.user) };
 }));
 const modeGate = (req) => { const m = MODES.find((x) => x.id === req.params.mode); if (!m) throw err(404, 'Unknown mode'); if (m.minRank > rankStatus(req.user).index) throw err(403, `${m.name} unlocks at ${RANKS[m.minRank].name}.`); return m; };
 app.post('/api/games/:mode/start', auth, wrap((req) => { modeGate(req); return { puzzle: gameStart(req.params.mode, req.user, req.body || {}) }; }));
@@ -243,7 +257,7 @@ app.post('/api/classrooms/:id/override', auth, prof, wrap((req) => { const c = c
 app.get('/api/classrooms/:id/export.csv', auth, prof, (req, res, next) => { try { const c = clsOf(req); const caseId = c.assignments.some((a) => a.caseId === req.query.caseId) ? req.query.caseId : c.assignments[0]?.caseId; if (!caseId) throw err(400, 'No assignment to export.'); const an = analytics(c, caseId);
   const q = (v) => `"${String(v ?? '').replace(/"/g, '""')}"`; const head = ['Student', 'Team', 'Status', 'Final score', 'Engine score', 'Override note', ...SKILLS.map((s) => s.label), 'Analyst hours', 'Recommendation', 'Diagnosis matched', 'Reasoning flags'];
   const lines = an.rows.map((r) => [r.name, r.team, r.status, r.overall, r.engine, r.override?.note, ...SKILLS.map((s) => r.skills?.[s.id]), r.hours, r.option?.label, r.diagnosis, r.flags.map((f) => FLAG_LABEL[f]).join('; ')].map(q).join(','));
-  res.setHeader('Content-Type', 'text/csv; charset=utf-8'); res.setHeader('Content-Disposition', `attachment; filename="consultbrain-${c.code}-${caseId}.csv"`); res.send('﻿' + [head.map(q).join(','), ...lines].join('\n')); } catch (e) { next(e); } });
+  res.setHeader('Content-Type', 'text/csv; charset=utf-8'); res.setHeader('Content-Disposition', `attachment; filename="consult-brain-${c.code}-${caseId}.csv"`); res.send('﻿' + [head.map(q).join(','), ...lines].join('\n')); } catch (e) { next(e); } });
 // Live session: where each team is right now. `playback` (0..1) replays seeded demo trails so the view can be shown without a live class.
 app.get('/api/classrooms/:id/live', auth, prof, wrap((req) => {
   const c = clsOf(req); const caseId = c.assignments.some((a) => a.caseId === req.query.caseId) ? req.query.caseId : c.assignments[0]?.caseId; if (!caseId) return { teams: [] }; const k = getCase(caseId);
@@ -266,4 +280,4 @@ app.use((e, _req, res, _next) => { const status = e instanceof ActionError ? 400
 
 const PORT = Number(process.env.PORT) || 8787;
 await seed();
-app.listen(PORT, () => console.log(`ConsultBrain API on http://localhost:${PORT}  ·  AI assistance: ${aiEnabled() ? 'on' : 'off (deterministic fallbacks)'}`));
+app.listen(PORT, () => console.log(`Consult Brain API on http://localhost:${PORT}  ·  AI assistance: ${aiEnabled() ? 'on' : 'off (deterministic fallbacks)'}`));
