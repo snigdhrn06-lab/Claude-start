@@ -24,11 +24,11 @@ with tabs[0]:
         rows = []
         for k, L in enumerate(["L0", "L1", "L2", "L3", "L4", "L5"]):
             lv = costs["levels"][L]
-            rows.append({"lvl": C.level_chip(k), "thr": "always" if L == "L0" else f"p > {thr[L]:.3f}",
+            rows.append({"lvl": C.level_chip(k), "thr": "always" if L == "L0" else f"score > {thr[L]:.3f}",
                          "eng": str(costs["min_engines"].get(L, 0)), "vis": lv["merchant_visible"], "hid": lv["compliance"]})
         C.html_table(rows, [("lvl", "Level"), ("thr", "Act when"), ("eng", "Engines needed"), ("vis", "Merchant sees"), ("hid", "Compliance track")],
                      raw_cols=("lvl",))
-        C.note("Threshold for each level comes from p × C_fraud > (1 − p) × C_friction(L). L4–L5 always require analyst approval; "
+        C.note("Threshold for each level comes from s × C_fraud > (1 − s) × C_friction(L), s = model score. L4–L5 always require analyst approval; "
                "automatic action stops at L3.")
     st.markdown("#### What these costs do to the scenario merchants")
     codes = ["HERO_TWIN", "S1_SWEETS", "S2_SPORTSBAR", "HERO", "S4", "S5", "E1", "E3"]

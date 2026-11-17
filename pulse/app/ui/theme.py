@@ -87,7 +87,7 @@ header[data-testid="stHeader"] {{ background: transparent; height: 0; }}
 .fbox .ft {{ font-weight:700; font-size:16px; }}
 .fbox .fb {{ font-size:13px; margin-top:4px; opacity:.85; line-height:1.4; }}
 .farrow {{ align-self:center; font-size:24px; color:{DARK}; }}
-.phone {{ width: 320px; max-width: 100%; border: 10px solid {DARK}; border-radius: 34px; padding: 18px 18px 26px 18px; background: #fff; min-height: 460px; }}
+.phone {{ width: 320px; max-width: 100%; border: 10px solid {DARK}; border-radius: 34px; padding: 18px 18px 26px 18px; background: #fff; min-height: 340px; }}
 .phone .pbar {{ font-size: 11px; color: {MUTED}; text-align: center; margin-bottom: 18px; }}
 .phone .pt {{ font-size: 20px; font-weight: 700; color: {DARK}; }}
 .phone .pb {{ font-size: 14px; color: {DARK}; margin-top: 10px; line-height: 1.5; }}

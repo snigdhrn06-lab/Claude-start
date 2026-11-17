@@ -67,10 +67,10 @@ with tabs[1]:
     with c1:
         st.markdown("#### `POST /score` request")
         shown = {**req, "payments": req["payments"][-3:]}
-        st.code(json.dumps(shown, indent=1)[:2200] + f"\n… ({len(req['payments'])} payments in the trailing 7 days; 3 shown)", language="json")
+        st.code(json.dumps(shown, indent=1)[:2200] + f"\n… ({len(req['payments'])} payments in the trailing 7 days; 3 shown)", language="json", wrap_lines=True)
     with c2:
         st.markdown("#### Response")
-        st.code(json.dumps(out, indent=1), language="json")
+        st.code(json.dumps(out, indent=1), language="json", wrap_lines=True)
     if lat:
         ag = lat["agreement_with_pipeline"]
         C.kpi_row([("p50 latency", f"{lat['p50_ms']:.2f} ms", f"{lat['calls']:,} calls"), ("p95 latency", f"{lat['p95_ms']:.2f} ms", lat["note"]),
@@ -111,9 +111,10 @@ with tabs[2]:
     with c2:
         xs = [0.02, 0.05, 0.057, 0.1, 0.2, 0.3, 0.5]
         ys = [len(act[(act.p >= x) & (act.n_engines >= 2)]) / days / n_m * 100_000 for x in xs]
-        fig = go.Figure(go.Scatter(x=xs, y=ys, mode="lines+markers", line=dict(color=DARK, width=3), marker=dict(color=NEON, size=9, line=dict(color=DARK, width=1))))
+        fig = go.Figure(go.Bar(x=[f"{x:g}" for x in xs], y=ys, marker_color=[NEON if x == thr else DARK for x in xs],
+                               text=[f"{y:,.0f}" for y in ys], textposition="outside", cliponaxis=False))
         fig.update_layout(height=320, title="Alerts per day per 1 lakh merchants, by threshold (two engines must agree)", xaxis_title="Score threshold",
-                          yaxis_title="Alerts / day / 1 lakh merchants", xaxis_type="log")
+                          yaxis_title="Alerts / day / 1 lakh merchants", xaxis_type="category", yaxis=dict(rangemode="tozero"))
         st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
     C.note("The simulated region has a far higher share of fronts than real life (60 of 314 merchants), so these alert volumes are pessimistic. "
            "The honest-alert share is the number to watch; it comes only from simulated honest merchants.")

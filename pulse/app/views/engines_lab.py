@@ -92,9 +92,9 @@ with tabs[1]:
     vals = [p3 * 1e6, (over & hon).sum() / mh * 1e6, (fire & hon).sum() / mh * 1e6, (fire & other & hon).sum() / mh * 1e6]
     labels = ["Normal-tail theory", f"Measured z > {zt:g}", f"+ persistence ({pk} of 6)", "+ a second engine fires"]
     fig = go.Figure(go.Bar(x=vals, y=labels, orientation="h", marker_color=[GREY_DARK, MINT, JADE, DARK],
-                           text=[f"{v:,.0f}" for v in vals], textposition="outside"))
+                           text=[f"{v:,.0f}" for v in vals], textposition="outside", cliponaxis=False))
     fig.update_layout(height=300, title=f"Alarms per million honest merchant-hours ({mh:,} measured)", xaxis_title="Alarms per 1,000,000 merchant-hours",
-                      yaxis=dict(autorange="reversed"), margin=dict(l=210))
+                      yaxis=dict(autorange="reversed"), margin=dict(l=210, r=60), xaxis=dict(range=[0, max(vals) * 1.15]))
     s2.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
     fp = front_post_mask()
     C.note(f"At these settings the peer engine fires on {100 * (fire & fp).sum() / fp.sum():.1f}% of front hours after takeover. "

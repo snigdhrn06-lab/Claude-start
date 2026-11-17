@@ -3,7 +3,7 @@ PY ?= $(if $(wildcard .venv/bin/python),.venv/bin/python,python3)
 # pinned wheels (numpy 1.26) need Python 3.11
 PY311 ?= $(shell command -v python3.11 || echo python3)
 
-.PHONY: all setup setup-app demo bench fetch-data data train test test-fast app screenshots presentation test-presentation clean
+.PHONY: all setup setup-app demo bench fetch-data data train test test-fast app screenshots presentation test-presentation guide clean
 
 all: fetch-data data train test presentation screenshots
 
@@ -48,6 +48,11 @@ screenshots:
 
 presentation:
 	$(PY) scripts/build_presentation.py
+
+# Team guide PDF: annotated screenshots of the real app + GUIDE.md -> PULSE_Guide.pdf
+guide:
+	$(PY) scripts/guide_shots.py
+	$(PY) scripts/build_guide_pdf.py
 
 test-presentation:
 	$(PY) scripts/test_presentation.py

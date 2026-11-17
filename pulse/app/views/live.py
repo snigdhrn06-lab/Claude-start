@@ -49,7 +49,7 @@ with c4:
     if st.button("Inject takeover now", use_container_width=True, disabled=ss.live_takeover is not None):
         ss.live_takeover = (int(pick), int(ss.live_h // 24))
         st.rerun()
-d1, d2, d3 = st.columns([1.1, 1.1, 3.8])
+d1, d2, d3 = st.columns([1.6, 1.1, 3.3])
 if d1.button("Trigger Diwali now", use_container_width=True, disabled=ss.live_diwali is not None):
     ss.live_diwali = int(min(ss.live_h // 24, MS.DAYS - 5))
     st.rerun()
@@ -99,7 +99,7 @@ def board():
                                  f"<div class='rb'>{band}</div><div class='re'>L{L} · {int(CT['engines'][i, h])} engine{'s' if CT['engines'][i, h] != 1 else ''}</div></div>",
                                  unsafe_allow_html=True)
         st.markdown("#### Payments in the last simulated hour")
-        last = pay[(pay.t_min >= h * 60) & (pay.t_min < (h + 1) * 60)].tail(10).copy()
+        last = pay[(pay.t_min >= h * 60) & (pay.t_min < (h + 1) * 60)].sort_values("t_min").tail(10).iloc[::-1].copy()
         if len(last):
             last["time"] = [(CT["start"] + pd.Timedelta(minutes=int(t))).strftime("%H:%M") for t in last.t_min]
             last["merchant"] = [CT["names"][i] for i in last.merchant_id]

@@ -3,25 +3,25 @@
 # server warnings/errors
 
 # page load seconds
-judge_home: 0.32
-judge_home_root: 0.74
-story_step1: 0.23
-story_step2: 0.22
-story_step3: 0.21
-story_step4: 0.21
+judge_home: 0.3
+judge_home_root: 0.77
+story_step1: 0.24
+story_step2: 0.25
+story_step3: 0.23
+story_step4: 0.23
 story_step5: 0.22
-story_step6: 0.2
+story_step6: 0.24
 story_step7: 0.22
-sandbox: 0.2
-film_cover: 0.24
-live: 0.21
-flow: 0.21
-analyst: 0.21
+sandbox: 0.21
+film_cover: 0.32
+live: 0.22
+flow: 0.32
+analyst: 0.22
 engines_lab: 0.23
-network: 0.23
-response: 0.23
+network: 0.22
+response: 0.22
 explorer: 0.22
-evaluation: 0.21
-rollout: 0.23
-qa: 0.25
-data_assumptions: 0.21
+evaluation: 0.22
+rollout: 0.25
+qa: 0.29
+data_assumptions: 0.23

@@ -140,4 +140,4 @@ numbers as a demonstration of the mechanism, not an estimate of real performance
 - Any poster figures (₹4,12,000 night, 847 bettors) must carry "dramatised".
 - `data/raw/partner_bakery.csv`, if added: consent and anonymisation.
 
-**New to the app? Start with [`GUIDE.md`](GUIDE.md)**: every page and chart in plain words, what each means, and what to say. See `ASSUMPTIONS.md` for every assumption, and `DEMO_SCRIPT.md` for the 2-minute narration.
+**New to the app? Read [`PULSE_Guide.pdf`](PULSE_Guide.pdf)** (source: [`GUIDE.md`](GUIDE.md)): every screen with annotated screenshots, the maths in plain words, how it was built, and what to say. Rebuild it with `make guide`. See `ASSUMPTIONS.md` for every assumption, and `DEMO_SCRIPT.md` for the 2-minute narration.

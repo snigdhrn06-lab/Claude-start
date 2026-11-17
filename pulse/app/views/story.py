@@ -124,13 +124,13 @@ elif step == 2:
         p_ = np.where(np.arange(len(hrs)) <= k, pp, np.nan)
         return [go.Bar(x=x, y=o, name="Payments outside match windows", marker_color=JADE),
                 go.Bar(x=x, y=i, name="Payments inside match windows", marker_color=DARK),
-                go.Scatter(x=x, y=p_, name="PULSE probability", yaxis="y2", line=dict(color=EMERALD, width=3), mode="lines")]
+                go.Scatter(x=x, y=p_, name="Model score", yaxis="y2", line=dict(color=EMERALD, width=3), mode="lines")]
 
     K = len(hrs) - 1
 
     def caption(k):
         rec = f" (L{int(lv_rec[k])} recommended, needs analyst approval)" if lv_rec[k] > lv[k] else ""
-        return f"{data.hour_label(hrs[k])} · action L{int(lv[k])}{rec} · p {fmt_p(pp[k])}"
+        return f"{data.hour_label(hrs[k])} · action L{int(lv[k])}{rec} · score {fmt_p(pp[k])}"
 
     fig = go.Figure(data=traces(K))
     frames = []
@@ -141,7 +141,7 @@ elif step == 2:
     charts.add_match_bands(fig, h0, h1, label=False)
     fig.update_layout(
         title=caption(K), barmode="stack", height=480,
-        yaxis=dict(title="Payments per hour", range=[0, ymax]), yaxis2=dict(overlaying="y", side="right", range=[0, 1.05], title="Probability", showgrid=False),
+        yaxis=dict(title="Payments per hour", range=[0, ymax]), yaxis2=dict(overlaying="y", side="right", range=[0, 1.05], title="Model score", showgrid=False),
         legend=dict(y=1.12), margin=dict(t=90, b=90),
         updatemenus=[dict(type="buttons", showactive=False, x=0, y=-0.18, xanchor="left", yanchor="top", direction="left",
                           buttons=[dict(label="▶ Replay", method="animate", args=[None, dict(frame=dict(duration=110, redraw=True), fromcurrent=False, transition=dict(duration=0))]),

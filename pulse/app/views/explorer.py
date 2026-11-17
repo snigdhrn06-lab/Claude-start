@@ -59,7 +59,7 @@ with c1:
     rs = data.reasons_for(code, "first_l3") or data.reasons_for(code, "first_l2") or data.reasons_for(code, "peak")
     if rs:
         rr = rs[0]
-        st.markdown(f"At **{data.hour_label(rr['hour'])}** ({rr['kind'].replace('_', ' ')}): p = {rr['p']:.2f}, "
+        st.markdown(f"At **{data.hour_label(rr['hour'])}** ({rr['kind'].replace('_', ' ')}): model score {rr['p']:.2f}, "
                     f"{C.level_chip(rr['level'])}, {rr['n_engines']} engines agree", unsafe_allow_html=True)
         C.reason_cards(rr["reasons"])
 with c2:
