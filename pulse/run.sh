@@ -10,7 +10,7 @@ case "$1" in
   test) $PY -m pytest -q ;;
   screenshots) $PY scripts/screenshots.py ;;
   app) $PY -m streamlit run app/Home.py ;;
-  demo) [ -x $PY ] || (python3 -m venv .venv && $PY -m pip install -r requirements-app.txt); $PY scripts/demo.py ;;
+  demo) [ -x $PY ] || ($(command -v python3.11 || echo python3) -m venv .venv && $PY -m pip install -r requirements-app.txt); $PY scripts/demo.py ;;
   all) "$0" data && "$0" train && "$0" test && $PY scripts/build_presentation.py && "$0" screenshots ;;
   *) echo "Usage: ./run.sh setup|demo|all|data|train|test|app|screenshots"; exit 1 ;;
 esac

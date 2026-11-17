@@ -1,5 +1,7 @@
 # PULSE prototype. `make all` = fetch data, build, train/evaluate, test, screenshots.
 PY ?= $(if $(wildcard .venv/bin/python),.venv/bin/python,python3)
+# pinned wheels (numpy 1.26) need Python 3.11
+PY311 ?= $(shell command -v python3.11 || echo python3)
 
 .PHONY: all setup setup-app demo bench fetch-data data train test test-fast app screenshots presentation test-presentation clean
 
@@ -11,12 +13,12 @@ setup:
 
 # Light install for the stall laptop: only what the app needs (no training libs beyond what pages import).
 setup-app:
-	python3 -m venv .venv && .venv/bin/pip install -r requirements-app.txt
+	$(PY311) -m venv .venv && .venv/bin/pip install -r requirements-app.txt
 
 # Offline stall demo: one command, opens Judge Mode at http://localhost:8501/present
 demo:
 	@test -x .venv/bin/python || $(MAKE) setup-app
-	$(PY) scripts/demo.py
+	.venv/bin/python scripts/demo.py
 
 # Scoring API latency benchmark -> artifacts/eval/latency.json
 bench:

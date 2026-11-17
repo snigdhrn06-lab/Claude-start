@@ -47,7 +47,7 @@ exit /b %errorlevel%
 exit /b %errorlevel%
 
 :demo
-if not exist %PY% (py -3 -m venv .venv && %PY% -m pip install -r requirements-app.txt)
+if not exist %PY% (py -3.11 -m venv .venv && %PY% -m pip install -r requirements-app.txt)
 %PY% scripts\demo.py
 goto end
 
