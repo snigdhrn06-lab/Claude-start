@@ -37,7 +37,7 @@ def level_strip(levels: np.ndarray, x) -> go.Bar:
                   hovertext=[f"L{int(v)}" for v in levels], hoverinfo="text+x", marker_line_width=0)
 
 
-def gauge(p: float, title: str = "Calibrated probability") -> go.Figure:
+def gauge(p: float, title: str = "Model score") -> go.Figure:
     top = p >= 0.995
     thr = data.meta()["level_thresholds"]
     t2, t3 = 100 * thr["L2"], 100 * thr["L3"]

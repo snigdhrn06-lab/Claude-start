@@ -1,0 +1,18 @@
+{
+ "calls": 10000,
+ "distinct_requests": 120,
+ "avg_payments_per_request": 633.775,
+ "p50_ms": 0.32043749990862125,
+ "p95_ms": 0.6308456499937164,
+ "p99_ms": 0.994774160024008,
+ "note": "Single-threaded Python on a laptop-class CPU",
+ "agreement_with_pipeline": {
+  "merchant_days": 944,
+  "drift_agreement": 0.9555084745762712,
+  "peers_agreement": 1.0,
+  "invariants_agreement": 1.0,
+  "graph_agreement": 1.0,
+  "band_agreement": 0.9788135593220338,
+  "act_recall_vs_pipeline": 0.8802395209580839
+ }
+}

@@ -55,9 +55,9 @@
   "truth": "front"
  },
  {
-  "actual": "Graph fires on day one: yes; flagged L2+ 2 h after its first payment",
+  "actual": "Graph fires on day one: yes; flagged L2+ 2 h after its first payment; first money held on day 1 of its life",
   "expected": "Flag on day one via the graph engine",
-  "explanation": "12 of its first 20 payers are bettors of a front banned two days earlier, and it shares that front's device ID.",
+  "explanation": "12 of its first 20 payers are bettors of a front banned two days earlier, and it shares that front's device ID. Until it has 30 days of its own history it is judged against the hours an IT-services firm declares, so evening bets are held from day one.",
   "id": "S5",
   "label": "Brand-new 'IT services' shell",
   "merchant": "S5",

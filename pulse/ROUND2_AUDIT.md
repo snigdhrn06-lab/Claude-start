@@ -1,4 +1,55 @@
-# Round 2 audit: what exists vs the build brief
+# Round 2: audit and build result
+
+**Status on 17 Nov 2026: built.** The audit below (written before the build) lists what already existed. This first
+section says what was built and where, and what was skipped and why. Everything runs locally from `make demo`, and all 46
+tests pass (`make test`). I couldn't reach the live Render URL from the build sandbox, so the team must check `/present` on it after
+deploying (see README, "Keep it warm").
+
+## What was built
+
+| Brief item | Before | Now | Where |
+|---|---|---|---|
+| `/present` deep link (poster QR) | BROKEN: "Page not found" pop-up | **Fixed.** Classic `app/pages/` routing; 15 URLs load directly with no pop-up (tested) | `app/pages/01_present.py`, `tests/test_routes.py` |
+| 3.1 Judge Mode home | MISSING | 3 tiles (Watch a takeover / Try to fool PULSE / Under the hood), header with wordmark, "Simulated data" pill, team name, Reset demo, poster lines, KPIs read from artefacts | `app/views/judge_home.py`, `app/ui/layout.py` |
+| 2-minute film | was on `/present` | moved to `/film`, one tap from Judge Mode and the story; Exit returns to `/present` | `app/pages/04_film.py` |
+| Risk bands, not "calibrated probability" | BROKEN | Watch (L0–L1) / Review (L2) / Act (L3+) everywhere: story, explorer, evaluation, film, case files; score shown as "model score (uncalibrated)" | `app/ui/components.py` `band_card`, `band_of` |
+| Ladder wording | PARTIAL | L3 "Hold the surplus", L5 "Exit after review + STR" | `config/costs.yaml` |
+| New-shell hold timing | BROKEN: held day 6 | **Fixed:** on declared (not yet learned) days a new merchant is reserved hour by hour. S5 is flagged 2 h after its first payment, with money held on day 1, and the screen says exactly that | `pulse/response.py` `delta_reserve(declared_days=)`, `pulse/pipeline.py` |
+| Payment fields | PARTIAL | `type` (payment / refund / payout), `channel` (QR / UPI collect / Payment link / UPI payout), `payer_city`, `settlement_batch` | `pulse/simulate.py` `add_payment_fields` |
+| 3.2 Guided story upgrades | PARTIAL | visible two-engine gate strip, lone-engine example (S0 twin), round bills and new distant payers on Day T, held-payments table with reasons, peer-gap arithmetic (illustrative ln 5 − ln 5 vs ln 5 − ln 1, plus measured values) | `app/views/story.py` |
+| 3.3 Try to fool PULSE | MISSING | 7 presets + controls; the real engine code on a seeded 60-day world (your shop + 20 peers, 300 placebos), about 1 s per run; caught / got-through banner, money chart, engine rows, ladder, reasons, blind-spot box | `pulse/minisim.py`, `app/views/sandbox.py`, `tests/test_sandbox.py` |
+| 3.4 Live feed | MISSING | 24-shop simulated city at accelerated time; Play/Pause, speed, Inject takeover, Trigger Diwali; measured counters (payments scored, µs per payment); risk tiles, alert queue | `app/views/live.py`, `pulse/minisim.py` `run_city` |
+| 3.5 Flow diagram | MISSING | checkout → capture → PULSE (before the T+1 batch) → settlement → analyst; visible and hidden tracks; intervention points | `app/views/flow.py` |
+| 3.5 `POST /score` | MISSING | real scoring function + stdlib HTTP server (`python -m pulse.scoring_api --serve 8080`); laptop benchmark p50 0.32 ms, p95 0.63 ms (10,000 calls); 97.9% band agreement with the pipeline | `pulse/scoring_api.py`, `artifacts/eval/latency.json` |
+| 3.5 Ops panel | PARTIAL | threshold slider → alerts/day, analyst hours, analysts per lakh merchants (minutes per alert is a labelled design parameter) | `app/views/flow.py` |
+| 3.5 Settlement simulator | PARTIAL | any merchant, any day: due, settled, held, released | `app/views/flow.py` |
+| 3.6 Analyst queue + audit log | MISSING | queue by band, three reasons, Approve / Escalate / Dismiss, append-only log with CSV download | `app/views/analyst.py` |
+| 3.6 Case file for any flagged merchant | PARTIAL | HERO and S5 from the pipeline; generated on demand for every other flagged merchant | `app/views/analyst.py` |
+| 3.6 Merchant's view | PARTIAL | phone mock per ladder level | `app/views/analyst.py` |
+| 3.7 Shadow mode + stop rules | MISSING | weekly would-have-held vs ₹0, 6 stop rules PASS/FAIL against limits in `config/costs.yaml`, 4 rollout stages | `app/views/rollout.py` |
+| 3.7 Rules engine vs PULSE | MISSING | "volume > 3× first-30-day mean": 21 of 77 honest shops flagged (24 Diwali alarm-days), 16 of 29 fronts caught; PULSE 0 of 77 and 28 of 29 | `app/views/rollout.py` |
+| 3.8 Ask us anything | MISSING | 11 Q&As with links to the page that proves each answer | `app/views/qa.py` |
+| 4 Offline one command | PARTIAL | `make demo` / `./run.sh demo` / `run.bat demo` opens `/present`; works offline once the venv exists | `scripts/demo.py` |
+| 4 Hosted app dependencies | (new finding) | `requirements-app.txt` lacked scikit-learn, so the sandbox and live feed would crash on Render. Added | `requirements-app.txt` |
+| 4 Keep-warm note | MISSING | README section | `README.md` |
+| 4 Mobile 390 px | BROKEN | sidebar starts collapsed on phones, tiles stack, header fits | `app/ui/theme.py`, `app/ui/layout.py` |
+| 6 Tests | PARTIAL | + sandbox presets (honest stay ≤ L1 and hold ₹0; fronts caught and held; deterministic) and `/present` 200 + no "Page not found" on all 15 routes; film e2e updated for `/film` | `tests/test_sandbox.py`, `tests/test_routes.py`, `scripts/test_presentation.py` |
+| 5 Poster lines | MISSING | both on Judge Mode | `app/views/judge_home.py` |
+
+## What was skipped, and why
+
+- **Backup walkthrough video.** It was first on the cut list. The 2-minute film (`/film`, plus the offline copy
+  `artifacts/presentation.html`) covers the same need.
+- **Bundled fonts.** Offline, the app falls back to system fonts (layout holds; it just looks less branded). Bundling
+  the font files means shipping font binaries; I left that for the team to decide.
+- **The 180-day window.** It stays at 162 days, the real span of the bakery data. Padding it would mean inventing bakery days.
+- **A separate scoring microservice.** `POST /score` is a stdlib server in the same repo, not a deployed service.
+  The brief allowed a mock.
+- **The "21:47" dramatised page** from an earlier request. It was interrupted and never confirmed, so it wasn't built.
+
+---
+
+# Original audit (before the build): what existed vs the build brief
 
 Audited on 17 Nov 2026 against the "PULSE Round 2 build brief", Sections 1 to 8. The brief arrived cut off partway
 through Section 8 ("…empty charts and default sty"), so anything after that, including any Section 9, isn't covered here.

@@ -9,6 +9,7 @@ font = "sans serif"
 [client]
 toolbarMode = "minimal"
 showErrorDetails = false
+showSidebarNavigation = false
 
 [server]
 headless = true

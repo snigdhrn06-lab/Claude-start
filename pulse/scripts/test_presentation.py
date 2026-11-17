@@ -51,11 +51,11 @@ def main():
             page.on("pageerror", lambda e: errors.append(f"pageerror: {e}"))
 
             # 1. entry point on Story mode
-            page.goto(f"http://localhost:{PORT}/", wait_until="domcontentloaded")
-            page.wait_for_selector("text=Cinematic presentation", timeout=60000)
+            page.goto(f"http://localhost:{PORT}/story", wait_until="domcontentloaded")
+            page.wait_for_selector("text=Watch the 2-minute film", timeout=60000)
             time.sleep(2)
-            check("Story mode shows the Cinematic presentation entry point", page.locator("a:has-text('Cinematic presentation')").count() >= 1)
-            page.locator("[data-testid='stMain'] a:has-text('Cinematic presentation')").first.click()
+            check("Story mode shows the 2-minute film entry point", page.locator("a:has-text('Watch the 2-minute film')").count() >= 1)
+            page.locator("[data-testid='stMain'] a:has-text('Watch the 2-minute film')").first.click()
             page.wait_for_selector("iframe", timeout=60000)
             time.sleep(4)
             fr = page.frame_locator("iframe").first
@@ -147,9 +147,9 @@ def main():
             # 5. exit returns to a working app
             fr.locator("#controls").hover()
             fr.locator("#bExit").click()
-            page.wait_for_selector("text=Meet Sunrise Bakery", timeout=60000)
+            page.wait_for_selector("text=Same papers.", timeout=60000)
             time.sleep(2)
-            check("Exit returns to the normal app (Story mode works)", page.locator("text=Meet Sunrise Bakery").count() >= 1)
+            check("Exit returns to Judge Mode home (/present)", page.url.rstrip("/").endswith("/present") and page.locator("text=Watch a takeover").count() >= 1, page.url)
             page.goto(f"http://localhost:{PORT}/explorer", wait_until="domcontentloaded")
             page.wait_for_selector("text=Merchant explorer", timeout=60000)
             time.sleep(3)
@@ -158,7 +158,7 @@ def main():
             rctx = b.new_context(viewport={"width": 1600, "height": 900}, reduced_motion="reduce")
             rp = rctx.new_page()
             rp.on("pageerror", lambda e: errors.append(f"pageerror (reduced): {e}"))
-            rp.goto(f"http://localhost:{PORT}/present", wait_until="domcontentloaded")
+            rp.goto(f"http://localhost:{PORT}/film", wait_until="domcontentloaded")
             rp.wait_for_selector("iframe", timeout=60000)
             time.sleep(4)
             rf = next(f for f in rp.frames if f != rp.main_frame)

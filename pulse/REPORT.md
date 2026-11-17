@@ -16,7 +16,7 @@ Scenario merchants (S0-S5, E1-E3) are always in the test set.
 | S2 | Sports bar busy on every match night | At most L0/L1 (watch only) | Max level L1 | PASS |
 | S3 | Hero bakery taken over on day T | Flag within hours of T (<= 1 match day); L3 delta reserve; evidence pack | Flagged L2+ 0 h after the first bet; auto level L3; Rs 3,205,493 held | PASS |
 | S4 | Slow ramp: betting share +3 points a week | Flag before the betting share passes 20% (design parameter) | Flagged at week 6 when betting share on match days was 18% (limit 20%) | PASS |
-| S5 | Brand-new 'IT services' shell | Flag on day one via the graph engine | Graph fires on day one: yes; flagged L2+ 2 h after its first payment | PASS |
+| S5 | Brand-new 'IT services' shell | Flag on day one via the graph engine | Graph fires on day one: yes; flagged L2+ 2 h after its first payment; first money held on day 1 of its life | PASS |
 | E1 | Evasion: S3 without round amounts | Still flagged (timing, loop, graph) | Flagged L2+ 0 h after the first bet | PASS (reported, not asserted) |
 | E2 | Evasion: betting split across 10 small fronts | Linked through shared bettors | 10 of 10 ring fronts flagged L2+ (median 400 h after their first bet); 10 linked to a banned front through shared bettors | PASS (reported, not asserted) |
 | E3 | Evasion: winners paid off-platform | Weaker signal; still flagged by timing + graph, or marked 'would need consented bank data' | Flagged L2+ 1 h after the first bet | PASS (reported, not asserted) |
@@ -28,7 +28,7 @@ Notes:
 - **S2**: Match nights lift every sports bar; payers are local and nobody is paid back, so the match clock alone cannot escalate.
 - **S3**: Timing, round stakes, new distant payers and the shared-bettor graph agree within the first match night.
 - **S4**: The frozen anchor keeps the original bakery as the reference, so the slow ramp cannot teach the model that betting is normal.
-- **S5**: 12 of its first 20 payers are bettors of a front banned two days earlier, and it shares that front's device ID.
+- **S5**: 12 of its first 20 payers are bettors of a front banned two days earlier, and it shares that front's device ID. Until it has 30 days of its own history it is judged against the hours an IT-services firm declares, so evening bets are held from day one.
 - **E1**: Removing round amounts removes one drift signal; timing, the refund loop and the graph remain.
 - **E2**: Each ring member is small, so volume engines stay quiet; shared bettors with the banned front link them once that front is banned.
 - **E3**: With no refunds on PayU the loop engine is blind; timing, new distant payers and the graph carry the case. Seeing the off-platform payouts would need consented bank data (Earned Trust tier 2).
@@ -53,7 +53,7 @@ Precision@k is bounded by the number of test fronts (29); with k = 50 the maximu
 ## Money contained (test fronts)
 
 - Betting pay-ins on test fronts: Rs 30,913,427
-- Held by the L3 delta reserve: Rs 11,934,079
+- Held by the L3 delta reserve: Rs 14,180,179
 - Betting volume that had already settled before the first L3: Rs 4,700,200
 
 ## Alarm arithmetic (Engines lab)

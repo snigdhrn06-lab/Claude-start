@@ -219,8 +219,13 @@ def scenario_scorecard(cfg, mdf, summ, F, lad, pay, reserves) -> list[dict]:
     dh = S.loc[i, "detect_hours"]
     d1 = int(by["S5"].onboard_day)
     g1 = bool(F["graph_fire"][i, d1 * 24:(d1 + 1) * 24].any())
-    row("S5", "S5", f"Graph fires on day one: {'yes' if g1 else 'no'}; flagged L2+ {dh:.0f} h after its first payment" if not np.isnan(dh) else f"Graph fires on day one: {g1}; not flagged",
-        g1 and (not np.isnan(dh)) and dh <= 24, "12 of its first 20 payers are bettors of a front banned two days earlier, and it shares that front's device ID.")
+    r5 = reserves["S5"]
+    held_days = (r5.hour[r5.held > 0] // 24).unique()
+    first_hold = (int(held_days.min()) - d1 + 1) if len(held_days) else None
+    hold_txt = f"; first money held on day {first_hold} of its life" if first_hold else "; no money held"
+    row("S5", "S5", (f"Graph fires on day one: {'yes' if g1 else 'no'}; flagged L2+ {dh:.0f} h after its first payment" + hold_txt) if not np.isnan(dh) else f"Graph fires on day one: {g1}; not flagged",
+        g1 and (not np.isnan(dh)) and dh <= 24, "12 of its first 20 payers are bettors of a front banned two days earlier, and it shares that front's device ID. "
+        "Until it has 30 days of its own history it is judged against the hours an IT-services firm declares, so evening bets are held from day one.")
     for sid, code, lim in [("E1", "E1", 48), ("E3", "E3", 72)]:
         i = by[code].merchant_id
         dh = S.loc[i, "detect_hours"]
@@ -270,14 +275,18 @@ def stage_train(cfg: dict, root: pathlib.Path, proc: pathlib.Path, art: pathlib.
     lift_d = cohort_lift_daily(F, ctx["E"], ctx["groups"], ticket, D)
     sigma = np.clip(ctx["anchor"]["daily_std"] / np.maximum(ctx["anchor"]["daily_mean"], 1), 0.1, 1.0)
 
+    ready_d = ctx["anchor"]["ready_h"] // 24
+
     def reserve(i, force=False, k=None):
+        # merchants onboarded mid-window are judged against their declared hours until their own anchor exists
+        declared_days = (np.arange(D) < ready_d[i]) & (mdf.onboard_day.iloc[i] > 0)
         df = RS.delta_reserve(F["cnt"][i], F["amt"][i], fp_amt[i], ctx["E"][i], ticket[i], lift_d[i], sigma[i],
-                              lad["level_auto"][i], cfg["costs"], k=k, force=force)
+                              lad["level_auto"][i], cfg["costs"], k=k, force=force, declared_days=declared_days)
         df["merchant_id"] = i
         return df
 
     code_i = dict(zip(mdf.code, mdf.merchant_id))
-    reserves = {"S3": reserve(code_i["HERO"]), "S1": reserve(code_i["S1_SWEETS"])}
+    reserves = {"S3": reserve(code_i["HERO"]), "S1": reserve(code_i["S1_SWEETS"]), "S5": reserve(code_i["S5"])}
     diwali = cal.festivals[cal.festivals.categories.str.contains("sweet_shop")]
     dw_days = [cal.day_of(d) for d in diwali.date if "Diwali" in str(diwali.set_index("date").loc[d, "name"]) or "Dhanteras" in str(diwali.set_index("date").loc[d, "name"]) or "Bhai" in str(diwali.set_index("date").loc[d, "name"]) or "Naraka" in str(diwali.set_index("date").loc[d, "name"]) or "Bali" in str(diwali.set_index("date").loc[d, "name"])]
     s1f = reserve(code_i["S1_SWEETS"], force=True)
@@ -362,6 +371,15 @@ def stage_train(cfg: dict, root: pathlib.Path, proc: pathlib.Path, art: pathlib.
     mout["peer_group"] = ctx["groups"].to_numpy()
     mout["calibration_fold"] = FU.calibration_merchants(mdf, cfg)
     mout["avg_ticket"] = ticket
+    mout["sigma"] = sigma
+    # Per-merchant frozen baseline profile: what a production scorer keeps in memory to score a window in microseconds
+    an = ctx["anchor"]
+    write_json(art / "merchant_state.json", {
+        str(mdf.code.iloc[i]): {"rate_how": an["rate"][i], "hist": an["hist"][i], "round": an["round"][i], "daily_mean": an["daily_mean"][i],
+                                "daily_std": an["daily_std"][i], "distant_share": an["distant_share"][i], "match_share": an["match_share"][i],
+                                "ready_h": int(an["ready_h"][i]), "ward": int(mdf.ward.iloc[i]), "category": mdf.category.iloc[i],
+                                "ticket": float(ticket[i])}
+        for i in range(M)})
     write_parquet(mout, art / "merchants.parquet")
     # daily per merchant
     dd = []

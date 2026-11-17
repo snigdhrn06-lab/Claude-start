@@ -1,9 +1,10 @@
 @echo off
-REM PULSE on Windows (cmd). Usage: run.bat setup ^| all ^| data ^| train ^| test ^| app ^| screenshots
+REM PULSE on Windows (cmd). Usage: run.bat setup ^| demo ^| all ^| data ^| train ^| test ^| app ^| screenshots
 setlocal
 set PY=.venv\Scripts\python.exe
 if "%1"=="" goto usage
 if "%1"=="setup" goto setup
+if "%1"=="demo" goto demo
 if not exist %PY% (echo Run "run.bat setup" first. & exit /b 1)
 if "%1"=="all" goto all
 if "%1"=="data" goto data
@@ -45,11 +46,16 @@ exit /b %errorlevel%
 %PY% scripts\screenshots.py
 exit /b %errorlevel%
 
+:demo
+if not exist %PY% (py -3 -m venv .venv && %PY% -m pip install -r requirements-app.txt)
+%PY% scripts\demo.py
+goto end
+
 :app
 %PY% -m streamlit run app\Home.py
 goto end
 
 :usage
-echo Usage: run.bat setup ^| all ^| data ^| train ^| test ^| app ^| screenshots
+echo Usage: run.bat setup ^| demo ^| all ^| data ^| train ^| test ^| app ^| screenshots
 :end
 endlocal

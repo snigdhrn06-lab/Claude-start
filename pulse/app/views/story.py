@@ -8,7 +8,7 @@ from plotly.subplots import make_subplots
 from ui import charts, components as C, data
 from ui.theme import DARK, DARK_SOFT, EMERALD, GREY, GREY_DARK, JADE, MINT, NEON
 
-STEPS = ["Meet the bakery", "Day T: the takeover", "Four engines light up", "One fair score",
+STEPS = ["Meet the bakery", "Day T: the takeover", "Four engines light up", "One risk band",
          "Proportionate action", "Honest cases stay quiet", "Evidence pack"]
 
 if "step" not in st.session_state:
@@ -41,7 +41,7 @@ costs = meta["config"]["costs"]
 _c1, _c2, _c3 = st.columns([4, 3, 2])
 _c1.markdown("<div class='muted' style='padding-top:10px'>Presenting to judges? The cinematic version plays the whole story "
              "automatically (about 2 minutes, no clicks after Play).</div>", unsafe_allow_html=True)
-_c2.page_link("views/presentation.py", label="Cinematic presentation", icon=":material/play_circle:", use_container_width=True)
+_c2.page_link("pages/04_film.py", label="Watch the 2-minute film", icon=":material/movie:", use_container_width=True)
 
 
 @st.cache_data(show_spinner=False)
@@ -162,6 +162,11 @@ elif step == 2:
                ("'Refunds' paid out", f"₹{P_out.amount.sum():,.0f}", f"{len(P_out)} payouts in the replay window"),
                ("First PULSE flag (L2+)", data.hour_label(first_l2, "%H:00 %d %b"),
                 "in the same hour as the first bet" if first_l2 == T0 else f"{first_l2 - T0} h after the first bet")])
+    prev = pin[(ph >= (TD - 30) * 24) & (ph < TD * 24)]
+    rnd_today, rnd_norm = int(dayp.fp_round.sum()), prev.fp_round.sum() / 30
+    nd_today, nd_norm = int(dayp.fp_newdistant.sum()), prev.fp_newdistant.sum() / 30
+    C.note(f"Also on Day T: <b>{rnd_today}</b> round-number bills (₹100 multiples) vs about {rnd_norm:.0f} on a normal day, and <b>{nd_today}</b> payments "
+           f"from new payers outside the bakery's neighbourhood vs about {nd_norm:.0f}. Normal day = the 30 days before.")
     nav(2)
 
 # ================================================================ STEP 3
@@ -180,6 +185,21 @@ elif step == 3:
     cols = st.columns(4)
     for c, (n, on, v) in zip(cols, tiles):
         c.markdown(C.engine_tile(n, on, v), unsafe_allow_html=True)
+    ne = int(r.n_engines)
+    band = C.band_of(int(r.level))
+    gate = ("No engine has fired: Watch." if ne == 0 else "One engine alone can never act: the case stays at Watch." if ne == 1
+            else f"{ne} engines agree, so the two-engine gate opens: {band}.")
+    if not any(int(H.n_engines.iloc[o]) == 1 for o in opts):
+        first2 = next((o for o in opts if int(H.n_engines.iloc[o]) >= 2), opts[0])
+        tw = data.hourly("HERO_TWIN")
+        lone = int(((tw.n_engines == 1) & (tw.level <= 1)).sum())
+        gate += (f" Tonight two engines crossed in the same hour ({data.hour_label(first2, '%H:00')}), "
+                 f"so there's no lone-engine moment here. The S0 twin (Merchant explorer) shows one: drift fired alone for {lone} hours "
+                 "in July–August and the case never left Watch.")
+    strip = "".join(f"<div class='gcell' style='background:{C.BAND_BG[C.band_of(int(H.level.iloc[o]))]};color:{C.BAND_FG[C.band_of(int(H.level.iloc[o]))]}'>"
+                    f"<b>{data.hour_label(o, '%H:00')}</b>{int(H.n_engines.iloc[o])} eng · {C.band_of(int(H.level.iloc[o]))}</div>" for o in opts)
+    st.markdown(f"<div class='gate'><div class='gtitle'>Two-engine gate at {data.hour_label(h, '%H:00')}: <b>{ne} of 4</b> engines → <b>{band}</b>. "
+                f"<span class='muted'>{gate}</span></div><div class='gstrip'>{strip}</div></div>", unsafe_allow_html=True)
     st.write("")
     cols = st.columns(4)
     # drift: last 24 h vs expected by hour
@@ -231,12 +251,12 @@ elif step == 4:
     rr = full[0] if full else (data.reasons_for("HERO", "first_l3") or data.reasons_for("HERO", "first_l2"))[0]
     h = rr["hour"]
     p = rr["p"]
-    C.title("One fair score, three plain reasons", simulated=True,
-            sub="The four engines are fused into one calibrated probability (monotone LightGBM + isotonic calibration). "
-                "SHAP picks the top contributions; every number in the reasons is recomputed from the payments.")
+    C.title("One risk band, three plain reasons", simulated=True,
+            sub="The four engines are fused by a monotone LightGBM model into one risk band: Watch, Review or Act. SHAP picks the top "
+                "contributions; every number in the reasons is recomputed from the payments.")
     c1, c2 = st.columns([2, 3])
     with c1:
-        st.plotly_chart(charts.gauge(p, f"At {data.hour_label(h)}"), use_container_width=True, config={"displayModeBar": False})
+        st.markdown(C.band_card(int(H.level.iloc[h]), p, int(rr["n_engines"]), data.hour_label(h)), unsafe_allow_html=True)
         rec = int(H.level.iloc[h])
         auto = int(H.level_auto.iloc[h])
         st.markdown(f"<div style='text-align:center'>Action now: {C.level_chip(auto)} &nbsp; "
@@ -252,14 +272,13 @@ elif step == 4:
     c3 = costs["c_friction"][lev]
     lhs, rhs = p * cf, (1 - p) * c3
     ps = f"{p:.3f}" if p < 0.995 else "0.999+"
-    st.markdown(f"<div class='ineq'>Act at <b>{lev}</b> only if &nbsp; p × C<sub>fraud</sub> &gt; (1 − p) × C<sub>friction</sub>({lev}) &nbsp;→&nbsp; "
+    st.markdown(f"<div class='ineq'>Act at <b>{lev}</b> only if &nbsp; s × C<sub>fraud</sub> &gt; (1 − s) × C<sub>friction</sub>({lev}) &nbsp;→&nbsp; "
                 f"{ps} × {cf} = <span class='hl'>{lhs:.1f}</span> &nbsp;&gt;&nbsp; {1 - p:.3f} × {c3} = <b>{rhs:.2f}</b> &nbsp;"
                 f"{'✓ act' if lhs > rhs else '✗ hold back'}</div>", unsafe_allow_html=True)
     C.note(f"Costs are design parameters (tune them on the Response page). Corroboration: L2 and above need at least two engines to "
            f"fire independently. Here: {int(rr['n_engines'])}. PULSE first reached L2 at {data.hour_label(first_l2)}, the hour of the first bets.")
-    if p >= 0.995:
-        C.note("Why ‘> 99%’: isotonic calibration maps this score band to the share of fronts among calibration-fold merchant-days, and in "
-               "the simulation that share is 100%. Real data would be noisier; the number shows calibration working, not certainty.")
+    C.note("s is the model's score. We don't call it a probability: it was trained on simulated data, and we'll only claim calibration after "
+           "shadow mode on PayU data. That's why the screen shows a risk band, not a percentage.")
     nav(4)
 
 # ================================================================ STEP 5
@@ -284,8 +303,30 @@ elif step == 5:
     C.kpi_row([("Paid in on Day T", f"₹{day.amount.sum():,.0f}", ""),
                ("Held (fingerprinted surplus)", f"₹{day.held.sum():,.0f}", f"{100 * day.held.sum() / max(day.amount.sum(), 1):.0f}% of the day"),
                ("Settles on time", f"₹{day.settled_on_time.sum():,.0f}", "the bakery's real sales are untouched"),
-               ("Held over the whole case", f"₹{R.held.sum():,.0f}", "simulated, through 2 Nov")])
-    C.note("L4 (pause payouts) and L5 (exit + STR) are recommendations that always require analyst approval.")
+               ("Held over the whole case", f"₹{R.held.sum():,.0f}", f"simulated, through {data.hour_label(int(R.hour.max()), '%d %b')}")])
+    st.markdown("#### Which payments were held, and why")
+    P5 = data.payments("HERO")
+    held_hours = set((day.hour[day.held > 0]).astype(int))
+    hp = P5[(P5.kind == 0) & P5.fingerprinted & (P5.t_min // 60).isin(held_hours)].copy()
+    if len(hp):
+        def why(r):
+            w = []
+            if r.fp_match: w.append("inside a live-match window")
+            if r.fp_round: w.append("round amount")
+            if r.fp_newdistant: w.append("new payer from outside the area")
+            if r.fp_loop: w.append("payer already received a 'refund'")
+            return ", ".join(w)
+        hp["time"] = [f"{(int(t) // 60) % 24:02d}:{int(t) % 60:02d}" for t in hp.t_min]
+        hp["amt"] = [f"₹{int(a):,}" for a in hp.amount]
+        hp["why"] = [why(r) for r in hp.itertuples()]
+        C.html_table(hp.sort_values("t_min").head(8).to_dict("records"), [("time", "Time"), ("amt", "Amount"), ("payer_city", "Payer city"),
+                                                                         ("channel", "Channel"), ("why", "Betting fingerprints")])
+        ex = hp.sort_values("t_min").query("is_bet == 0") if "is_bet" in hp else hp.iloc[0:0]
+        ex_txt = (f"the honest ₹{int(ex.amount.iloc[0]):,} bill at {ex.time.iloc[0]} above carries one ({why(ex.iloc[0])}) and waits for review "
+                  "with the rest" if len(ex) else "an honest round-amount bill can carry one and wait for review with the rest")
+        C.note(f"{len(hp)} fingerprinted payments sat in the held hours; the held amount is capped at their total, hour by hour. A fingerprint "
+               f"isn't proof: {ex_txt}. Most daytime sales carry none and settle on time.")
+    C.note("L4 (pause payouts) and L5 (exit + draft STR) are recommendations that always need a human review.")
     nav(5)
 
 # ================================================================ STEP 6
@@ -324,6 +365,17 @@ elif step == 6:
                 C.note(f"Delta reserve even if L3 were forced over the festival week: <b>₹{rf.held.sum():,.0f} held</b>. "
                        f"On the busiest day it took ₹{dd_.a[pk]:,.0f} against a cohort-raised Tolerated of ₹{dd_.t[pk]:,.0f}.")
             C.note(why)
+    s1h = data.hourly("S1_SWEETS")
+    dpk = int(s1h.iloc[148 * 24:149 * 24].lift.idxmax())
+    hk = int(H.iloc[TD * 24 + 17:TD * 24 + 24].lift.idxmax())
+    l_s1, m_s1 = float(s1h.lift.iloc[dpk]), float(s1h.peer_median_lift.iloc[dpk])
+    l_h, m_h = float(H.lift.iloc[hk]), float(H.peer_median_lift.iloc[hk])
+    st.markdown(f"""<div class='gate'><div class='gtitle'>Why one spike is fine and the other isn't: the peer gap</div>
+<div class='muted' style='font-size:15px;line-height:1.7'>gap = ln(shop's volume ÷ its normal) − median of the same for its peers<br>
+<b>Diwali, illustrative:</b> shop ×5, peers ×5 → ln 5 − ln 5 = <b>0</b> → nothing to flag.
+&nbsp; <b>Measured</b> for Lakshmi Sweets on 20 Oct: {l_s1:.2f} − {m_s1:.2f} = <b>{l_s1 - m_s1:.2f}</b><br>
+<b>India v Pakistan, illustrative:</b> shop ×5, peers ×1 → ln 5 − ln 1 = <b>1.61</b> → flag.
+&nbsp; <b>Measured</b> for Sunrise Bakery on 14 Sep: {l_h:.2f} − {m_h:.2f} = <b>{l_h - m_h:.2f}</b></div></div>""", unsafe_allow_html=True)
     nav(6)
 
 # ================================================================ STEP 7

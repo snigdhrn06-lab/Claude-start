@@ -25,12 +25,29 @@ def adamic_adar(shared_payers, degree: dict) -> float:
     return float(sum(1.0 / np.log(max(degree.get(u, 2), 2)) for u in shared_payers))
 
 
+_SF_CACHE: dict[tuple[int, int, int, int], float] = {}
+
+
 def _sf_unique(k: np.ndarray, n: np.ndarray, N: int, K: int) -> np.ndarray:
-    """Exact hypergeometric tail, evaluated once per distinct (k, n) pair (many merchant-hours share them)."""
+    """Exact hypergeometric tail, evaluated once per distinct (k, n) pair (many merchant-hours share them).
+    Exact values are memoised across calls, so repeated sandbox runs don't recompute them."""
     key = k.astype(np.int64) * 1_000_000 + n.astype(np.int64)
     u, inv = np.unique(key, return_inverse=True)
     uk, un = u // 1_000_000, u % 1_000_000
-    pv = hypergeom.sf(uk - 1, N, K, un)
+    pv = np.empty(len(u))
+    todo = []
+    for j, (a, b) in enumerate(zip(uk.tolist(), un.tolist())):
+        v = _SF_CACHE.get((a, b, K, N))
+        if v is None:
+            todo.append(j)
+        else:
+            pv[j] = v
+    if todo:
+        t = np.array(todo)
+        vals = hypergeom.sf(uk[t] - 1, N, K, un[t])
+        pv[t] = vals
+        for j, v in zip(todo, vals.tolist()):
+            _SF_CACHE[(int(uk[j]), int(un[j]), K, N)] = v
     return pv[inv]
 
 

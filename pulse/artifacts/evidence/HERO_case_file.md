@@ -5,7 +5,7 @@
 - **Case ID:** PULSE-HERO-2707
 - **Merchant:** Sunrise Bakery (`HERO`), declared category: bakery, Bengaluru (tier 1)
 - **Data source:** real (Bread Basket)
-- **Flag time:** Sun 14 Sep 2025, 19:00; calibrated probability > 0.99; engines agreeing: 2 of 4
+- **Flag time:** Sun 14 Sep 2025, 19:00; risk band **Act** (model score > 0.99, uncalibrated until shadow mode on PayU data); engines agreeing: 2 of 4
 - **Highest ladder level:** L5 (L4/L5 recommendation requires analyst approval)
 
 ## Timeline
@@ -15,8 +15,8 @@
 | Sun 25 May 2025, 00:00 | Onboarded (KYB passed as bakery) |
 | Sun 14 Sep 2025, 19:00 | Invariants engine crossed its threshold |
 | Sun 14 Sep 2025, 19:00 | L2 micro-proof requested (OTP + supplier invoice) |
-| Sun 14 Sep 2025, 19:00 | L3 delta reserve and video KYC |
-| Sun 14 Sep 2025, 19:00 | PULSE reached L3 (calibrated p > 0.99; 2 engines agree) |
+| Sun 14 Sep 2025, 19:00 | L3 hold the surplus (delta reserve) and video KYC |
+| Sun 14 Sep 2025, 19:00 | PULSE reached L3, risk band Act (2 engines agree) |
 | Sun 14 Sep 2025, 21:00 | Graph engine crossed its threshold |
 | Sun 14 Sep 2025, 23:00 | Peers engine crossed its threshold |
 
@@ -50,8 +50,8 @@
 | Visible to the merchant | Hidden compliance track |
 |---|---|
 | L2: OTP re-verification and one recent supplier invoice | Case opened, analyst queue, evidence frozen |
-| L3: video KYC; part of the day's settlement delayed for review | Only the fingerprinted surplus above Tolerated is held |
-| (L4/L5 only after analyst approval) | STR draft prepared below; merchant is **not** informed (no tipping-off) |
+| L3 Hold the surplus: video KYC; part of the day's settlement delayed for review | Only the fingerprinted surplus above Tolerated is held |
+| (L4/L5 only after human review) | STR draft prepared below; merchant is **not** informed (no tipping-off) |
 
 ## Draft STR narrative (template)
 

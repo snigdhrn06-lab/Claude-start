@@ -11,9 +11,10 @@ import urllib.request
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 OUT = ROOT / "artifacts" / "screenshots"
 PORT = int(os.environ.get("PULSE_PORT", "8599"))
-PAGES = [(f"story_step{k}", f"?step={k}") for k in range(1, 8)] + [
-    ("presentation_cover", "present"), ("explorer", "explorer"), ("engines_lab", "engines"), ("network", "network"), ("response", "response"),
-    ("evaluation", "evaluation"), ("data_assumptions", "data")]
+PAGES = [("judge_home", "present"), ("judge_home_root", "")] + [(f"story_step{k}", f"story?step={k}") for k in range(1, 8)] + [
+    ("sandbox", "sandbox"), ("film_cover", "film"), ("live", "live"), ("flow", "flow"), ("analyst", "analyst"), ("engines_lab", "engines"),
+    ("network", "network"), ("response", "response"), ("explorer", "explorer"), ("evaluation", "evaluation"), ("rollout", "rollout"),
+    ("qa", "qa"), ("data_assumptions", "data")]
 
 
 def chromium_path():

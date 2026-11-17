@@ -29,7 +29,7 @@ x = [data.date_of_hour(k * 24) for k in range(D)]
 
 truth = {"honest": "Honest", "front": "Front (betting)", "banned_front": "Banned seed front"}[r.truth]
 C.kpi_row([("Highest level", f"L{int(r.max_level)}", C.LEVEL_NAMES[int(r.max_level)]),
-           ("Peak probability", f"{r.max_p:.2f}", "calibrated"),
+           ("Highest risk band", C.band_of(int(r.max_level)), f"model score peaked at {r.max_p:.2f}"),
            ("First L2+", data.hour_label(int(r.first_l2_h), "%d %b %H:00") if r.first_l2_h >= 0 else "never", ""),
            ("Truth" if show_truth else "Data", truth if show_truth else r.data_source,
             (f"takeover {data.hour_label(int(r.takeover_t_min // 60), '%d %b')}" if show_truth and r.takeover_t_min == r.takeover_t_min else r.data_source))])
@@ -41,7 +41,7 @@ fig.add_trace(go.Bar(x=x, y=d.cnt, marker_color=np.where(act, JADE, "#C9D2D3"), 
 for k, nm, col in [("drift_adj", "Drift", MINT), ("peers_score", "Peers", EMERALD), ("invariants_score", "Invariants", JADE),
                    ("graph_score", "Graph", DARK_SOFT)]:
     fig.add_trace(go.Scatter(x=x, y=d[k], name=nm, line=dict(color=col, width=2)), row=2, col=1)
-fig.add_trace(go.Scatter(x=x, y=d.p, name="Calibrated p", line=dict(color=DARK, width=3, dash="dot")), row=2, col=1)
+fig.add_trace(go.Scatter(x=x, y=d.p, name="Model score", line=dict(color=DARK, width=3, dash="dot")), row=2, col=1)
 fig.add_trace(charts.level_strip(d.level.to_numpy(), x), row=3, col=1)
 if show_truth and r.takeover_t_min == r.takeover_t_min:
     fig.add_vline(x=data.date_of_hour(r.takeover_t_min // 60), line_color=DARK, line_dash="dash")
@@ -82,7 +82,7 @@ if r.scenario in ("S0", "S1", "S2", "S3", "S4", "S5", "E1", "E2", "E3", "BF"):
     hrs = np.arange(max(0, day * 24 - 24), min(len(hh), day * 24 + 48))
     f2 = make_subplots(specs=[[{"secondary_y": True}]])
     f2.add_trace(go.Bar(x=charts.ts(hrs), y=hh.cnt.to_numpy()[hrs], name="Payments per hour", marker_color=JADE), secondary_y=False)
-    f2.add_trace(go.Scatter(x=charts.ts(hrs), y=hh.p.to_numpy()[hrs], name="Calibrated p", line=dict(color=DARK, width=3)), secondary_y=True)
+    f2.add_trace(go.Scatter(x=charts.ts(hrs), y=hh.p.to_numpy()[hrs], name="Model score", line=dict(color=DARK, width=3)), secondary_y=True)
     f2.add_trace(go.Scatter(x=charts.ts(hrs), y=hh.n_engines.to_numpy()[hrs] / 4, name="Engines firing (÷4)", line=dict(color=EMERALD, dash="dot")),
                  secondary_y=True)
     charts.add_match_bands(f2, hrs[0], hrs[-1], label=False)

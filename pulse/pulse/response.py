@@ -68,7 +68,7 @@ def fingerprint_flags(pay: pd.DataFrame, cal, payers: pd.DataFrame, merchants: p
 # ---------------------------------------------------------------- delta reserve
 def delta_reserve(cnt: np.ndarray, amt: np.ndarray, fp_amt: np.ndarray, E: np.ndarray, avg_ticket: float,
                   cohort_lift_day: np.ndarray, sigma: float, level_auto: np.ndarray, costs: dict,
-                  k: float | None = None, force: bool = False) -> pd.DataFrame:
+                  k: float | None = None, force: bool = False, declared_days: np.ndarray | None = None) -> pd.DataFrame:
     """Delta reserve per settlement window (one day, settled T+1).
 
     Tolerated_day = baseline_day x exp(cohort lift_day + k * sigma), where baseline_day is the merchant's own
@@ -76,7 +76,12 @@ def delta_reserve(cnt: np.ndarray, amt: np.ndarray, fp_amt: np.ndarray, E: np.nd
     Held_day = min(surplus above Tolerated_day, rupees carried by fingerprinted payments). It applies if L3 is
     reached before that day's settlement cut-off. The hourly rows split the day's figures for display: the
     hourly Tolerated follows the baseline's hour shape, and Held is allocated to hours in proportion to their
-    fingerprinted surplus. `force=True` computes the reserve as if L3 applied (for side-by-side views)."""
+    fingerprinted surplus. `force=True` computes the reserve as if L3 applied (for side-by-side views).
+
+    `declared_days` marks days on which the merchant has no own anchor yet (a brand-new merchant judged against its
+    KYB-declared profile). On those days the surplus is measured HOUR BY HOUR against the declared hours, so money
+    arriving at hours the declared business doesn't trade (an "IT firm" taking payments at 9 pm) can't hide under a
+    generous declared daily total."""
     dr = costs["delta_reserve"]
     k = dr["sigma_multiplier"] if k is None else k
     H = len(cnt)
@@ -88,6 +93,10 @@ def delta_reserve(cnt: np.ndarray, amt: np.ndarray, fp_amt: np.ndarray, E: np.nd
     amt_d = amt.reshape(D, 24).sum(axis=1)
     fp_d = fp_amt.reshape(D, 24).sum(axis=1)
     held_if_d = np.minimum(np.maximum(0, amt_d - tol_d), fp_d)
+    if declared_days is not None and np.any(declared_days):
+        tol_h0 = base_h * np.repeat(mult_d, 24)
+        hourly = np.minimum(np.maximum(0, amt - tol_h0), fp_amt).reshape(D, 24).sum(axis=1)
+        held_if_d = np.where(declared_days, np.maximum(held_if_d, hourly), held_if_d)
     cutoff = (np.arange(D) + 1) * 24 + dr["settlement_hour"]
     day_held = np.array([force or bool((level_auto[d * 24: min(H, cutoff[d])] >= 3).any()) for d in range(D)])
     held_d = np.where(day_held, held_if_d, 0.0)

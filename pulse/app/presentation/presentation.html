@@ -502,7 +502,7 @@ SC.push({ id: "engines", chapter: "Four engines", design: 28, dur: 19, energy: .
 /* ---------- 5. Decision ---------- */
 SC.push({ id: "decision", chapter: "From signals to a decision", design: 16, dur: 11, energy: .5, mount(root) {
   const X = D.decision;
-  const hd = heading(root, "Chapter 4 · From signals to a decision", "One calibrated score. Three plain reasons.");
+  const hd = heading(root, "Chapter 4 · From signals to a decision", "One risk band. Three plain reasons.");
   const b = badge(root, "Simulated model · " + X.hour, "sim", "position:absolute;right:96px;top:84px");
   const gp = h("div", { class: "panel abs", style: "left:96px;top:210px;width:480px;height:470px" }, root);
   const gs = s("svg", { width: 480, height: 300, style: "position:absolute;left:0;top:10px" }, gp);
@@ -512,9 +512,9 @@ SC.push({ id: "decision", chapter: "From signals to a decision", design: 16, dur
   [["L2", X.thresholds.L2], ["L3", X.thresholds.L3], ["L4", X.thresholds.L4], ["L5", X.thresholds.L5]].forEach(([l, v]) => { const a = Math.PI * (1 - v); s("text", { x: cx + (R + 34) * Math.cos(a), y: cy - (R + 34) * Math.sin(a) + 4, "text-anchor": "middle", class: "axis" }, gs, l); });
   const garc = drawPath(s("path", { d: arc(0, Math.min(.999, X.p)), stroke: "#00FE89", "stroke-width": 26, fill: "none", "stroke-linecap": "round" }, gs));
   const gval = s("text", { x: cx, y: cy - 10, "text-anchor": "middle", fill: "#fff", "font-size": 64, "font-weight": 700 }, gs, "");
-  s("text", { x: cx, y: cy + 26, "text-anchor": "middle", fill: "#8FA6A7", "font-size": 15 }, gs, "calibrated probability");
+  s("text", { x: cx, y: cy + 26, "text-anchor": "middle", fill: "#8FA6A7", "font-size": 15 }, gs, "model score → risk band");
   const gfoot = h("div", { style: "position:absolute;left:24px;right:24px;top:320px;text-align:center" }, gp);
-  gfoot.innerHTML = `<div style="font-size:18px">${X.n_engines} of 4 engines agree</div><div class="small" style="margin-top:8px">A probability from a model calibrated on <b>simulated</b> data, not a guarantee of real-world fraud. In the simulation every case in this score band was a front.</div>`;
+  gfoot.innerHTML = `<div style="font-size:18px">${X.n_engines} of 4 engines agree</div><div style="margin-top:10px;font-size:30px;font-weight:800;letter-spacing:.08em;color:var(--neon)">BAND: ${X.auto >= 3 ? "ACT" : X.auto === 2 ? "REVIEW" : "WATCH"}</div><div class="small" style="margin-top:6px">A score from a model trained on <b>simulated</b> data, shown as a risk band. We claim calibration only after shadow mode on PayU data.</div>`;
   const rh = h("div", { class: "abs eyebrow", style: "left:610px;top:216px" }, root, "Why · top three reasons (SHAP)");
   const RS = X.reasons.map((r, i) => { const e = h("div", { class: "reason abs", style: `left:610px;top:${248 + i * 114}px;width:894px;padding:12px 18px;font-size:18px` }, root); h("div", { class: "e" }, e, `${i + 1} · ${r.engine} engine`); h("div", {}, e, r.text); return e; });
   const lad = h("div", { class: "abs", style: "left:610px;top:596px;width:894px;display:flex;gap:8px" }, root);
@@ -524,13 +524,13 @@ SC.push({ id: "decision", chapter: "From signals to a decision", design: 16, dur
   ladNote.innerHTML = `<b class="neon">Action now: L${X.auto} ${X.auto_name}</b> (automatic, up to L${X.auto_max}). &nbsp; <b style="color:#fff">L${X.rec} ${X.rec_name}</b> is only a recommendation: it needs analyst approval.`;
   const pS = X.p >= .995 ? "0.999+" : X.p.toFixed(3);
   const rule = h("div", { class: "panel abs", style: "left:96px;top:712px;width:1408px;padding:12px 22px;font-size:19px" }, root);
-  rule.innerHTML = `Decision rule: act at L3 only if &nbsp; p × C<sub>fraud</sub> &gt; (1 − p) × C<sub>friction</sub>(L3) &nbsp;→&nbsp; ${pS} × ${X.c_fraud} = <b class="neon">${(X.p * X.c_fraud).toFixed(1)}</b> &nbsp;&gt;&nbsp; ${(1 - X.p).toFixed(3)} × ${X.c_l3} = <b>${((1 - X.p) * X.c_l3).toFixed(2)}</b> &nbsp;✓`;
+  rule.innerHTML = `Decision rule: act at L3 only if &nbsp; score × C<sub>fraud</sub> &gt; (1 − score) × C<sub>friction</sub>(L3) &nbsp;→&nbsp; ${pS} × ${X.c_fraud} = <b class="neon">${(X.p * X.c_fraud).toFixed(1)}</b> &nbsp;&gt;&nbsp; ${(1 - X.p).toFixed(3)} × ${X.c_l3} = <b>${((1 - X.p) * X.c_l3).toFixed(2)}</b> &nbsp;✓`;
   const cap = caption(root, "A risk score is only useful when you can <span class='mark'>explain why it exists</span>.");
   cap.style.bottom = "38px"; cap.style.fontSize = "26px";
   return { hits: [4.0], render(t) {
     show(hd.e, seg(t, .2, .9)); show(hd.t, seg(t, .3, 1.1)); show(b, seg(t, .5, 1.1)); show(gp, seg(t, .9, 1.7));
     const gpp = seg(t, 1.6, 4.0); setDraw(garc, gpp);
-    const v = X.p * 100 * gpp; gval.textContent = (X.p >= .995 && gpp > .97) ? "> 99%" : Math.floor(v) + "%";
+    const v = X.p * 100 * gpp; gval.textContent = (X.p >= .995 && gpp > .97) ? "> 0.99" : (v / 100).toFixed(2);
     show(gfoot, seg(t, 3.6, 4.4)); show(rh, seg(t, 4.2, 4.8));
     RS.forEach((e, i) => show(e, seg(t, 4.6 + i * 1.1, 5.4 + i * 1.1), 0, 30));
     show(lad, seg(t, 8.4, 9.2)); show(ladNote, seg(t, 9.6, 10.4));
@@ -866,9 +866,9 @@ function exitPres() {
   // may not navigate the top window itself). Standalone file: simply return to the cover screen.
   try {
     if (window.parent !== window) {
-      const links = Array.from(window.parent.document.querySelectorAll('a[data-testid="stSidebarNavLink"]'));
-      const story = links.find(a => /\/(story)?\/?$/.test(new URL(a.href).pathname)) || links[0];
-      if (story) story.click();
+      const links = Array.from(window.parent.document.querySelectorAll('a[data-testid="stPageLink-NavLink"], a[data-testid="stSidebarNavLink"]'));
+      const home = links.find(a => /\/present\/?$/.test(new URL(a.href).pathname)) || links.find(a => /\/$/.test(new URL(a.href).pathname)) || links[0];
+      if (home) home.click();
     }
   } catch (e) {}
 }

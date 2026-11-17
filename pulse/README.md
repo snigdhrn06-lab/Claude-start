@@ -11,13 +11,30 @@ protects honest merchants (festival spikes, sports bars) and responds **proporti
 > Every number in `config/` is a **design parameter**. No metric here is PayU real-world performance. Each simulated
 > screen carries a "Simulated" badge.
 
-## Run it
+## At the stall (offline, one command)
+
+```bash
+cd pulse
+make demo         # Windows: run.bat demo   ·   macOS/Linux without make: ./run.sh demo
+```
+
+This opens **Judge Mode** at `http://localhost:8501/present`. The first run creates `.venv` and installs
+`requirements-app.txt`, which needs internet once. After that it runs with no network, because every chart reads the committed
+`artifacts/`. Walkthrough: [`DEMO_SCRIPT.md`](DEMO_SCRIPT.md) (3 minutes and 60 seconds).
+
+**Routes** (each opens directly, so they're safe for QR codes): `/present` Judge Mode · `/story` guided takeover · `/sandbox` Try
+to fool PULSE · `/film` 2-minute film · `/live` live feed · `/flow` PayU flow, API & ops · `/analyst` analyst console ·
+`/engines` · `/network` · `/response` · `/explorer` · `/evaluation` · `/rollout` shadow mode & rules vs PULSE · `/qa` ·
+`/data`. **Never rename `/present`: the printed posters point to it.**
+
+## Run everything
 
 ```bash
 cd pulse
 make setup        # python3.11 venv + pinned requirements (one time)
 make all          # fetch data -> simulate -> train/evaluate -> tests -> screenshots   (~5 min on a laptop)
-make app          # open the Streamlit app (Story mode is the landing page)
+make app          # open the Streamlit app (Judge Mode is the landing page)
+make bench        # scoring API latency benchmark -> artifacts/eval/latency.json
 ```
 
 **Windows (cmd), no `make` needed:**
@@ -44,7 +61,7 @@ otherwise run `.venv/bin/playwright install chromium` once.
 
 ## Cinematic presentation (hands-free demo)
 
-Sidebar → **Cinematic presentation** (or the button on Story mode) opens a full-window, self-playing version of the whole
+Sidebar → **2-minute film** (`/film`, or the button on the guided story) opens a full-window, self-playing version of the whole
 story: 10 chapters, exactly 2 minutes, no clicks after **Play**. Space pauses, ← → move between chapters, R replays, F goes fullscreen, X exits.
 It's built as one HTML/SVG/Canvas document (`app/presentation/presentation.html`) driven by a single deterministic timeline. Every scene is a
 pure function of time, so pause, seek, skip and replay are exact. Its data is built from the same artefacts as the app
@@ -59,6 +76,14 @@ The repo includes the prebuilt artifacts (about 11 MB), so a host only serves th
 `streamlit run app/Home.py --server.port $PORT --server.address 0.0.0.0`, plus the env var `PYTHON_VERSION=3.11.9`. Peak memory
 was about 320 MB in testing, so the free 512 MB plan works. After changing the model, run `make all` locally and commit `artifacts/` again.
 
+**Keep it warm.** Render's free tier sleeps after about 15 minutes with no visitors, and the first visit then takes about a
+minute to wake. On stall day: open `/present` on the hosted URL 10 minutes before judging starts, and keep a tab
+open that reloads it now and then. Or point a free uptime pinger (e.g. UptimeRobot, every 5 minutes) at the hosted
+`/_stcore/health`, or use a paid instance, which doesn't sleep. The laptop's `make demo` is the fallback if the venue Wi-Fi fails.
+
+**Scoring API (mock `POST /score`).** `python -m pulse.scoring_api --serve 8080`, then POST the JSON shown on the
+PayU flow page. `--bench 10000` re-measures latency.
+
 ## What is inside
 
 ```
@@ -66,7 +91,10 @@ config/        settings, engines, scenarios (+ sources), merchant templates, pri
 data/events/   fixtures.csv (IPL 2025 + India fixtures, verification column), festivals.csv
 pulse/         ingest -> simulate -> features -> engines/{drift,peers,invariants,graph} -> fusion -> response -> evaluate
                pipeline.py writes artifacts/ ; reasons.py ; artifacts_extra.py (network, evidence packs, trust)
-app/           Streamlit: Home.py + views/ (7 pages), ui/theme.py (PayU palette, Plotly template), ui/components.py
+app/           Streamlit: Home.py + pages/ (thin URL wrappers) + views/ (15 screens), ui/layout.py (header, sidebar,
+               Reset demo), ui/theme.py (PayU palette, Plotly template), ui/components.py
+pulse/minisim.py      fast single-merchant / small-city path for the sandbox and live feed (same engine code)
+pulse/scoring_api.py  per-window scoring function, mock POST /score server, latency benchmark
 tests/         engines on hand-built cases, determinism, split, scenarios, reserve, reason numbers
 artifacts/     eval/*.json, screenshots/*.png, evidence/ case files (the rest is regenerated)
 ```
@@ -99,11 +127,17 @@ night, while small ones take days to weeks. The ablation shows the graph and inv
 removing the peer engine changes nothing measurable in this simulation. The simulation is cleaner than real data, so treat these
 numbers as a demonstration of the mechanism, not an estimate of real performance.
 
-## Team to verify
+## Team to verify (by hand, before 26 Nov)
 
-- `data/events/fixtures.csv`: rows marked "to be verified by team" (official sites were unreachable from the build machine).
-- `config/price_list.yaml`: the INR price list.
-- Citations in `config/scenarios.yaml` (as supplied in the brief).
+- `data/events/fixtures.csv`: every row marked "to be verified by team" (dates, teams, start times). The story's
+  "India v Pakistan, 14 Sep 2025" is one of them.
+- `config/price_list.yaml`: the INR price list used to price the Bread Basket items (median bill about ₹180).
+- `data/events/festivals.csv`: Diwali and other festival dates and multipliers.
+- Citations in `config/scenarios.yaml` and the Data page (ED / DGGI / CUTS findings, as supplied in the brief).
+- `config/settings.yaml` `team.name`: shown in every header (currently the placeholder "Team PULSE").
+- `config/costs.yaml`: stop-rule limits, analyst minutes per alert, and the merchant-facing wording at each level. These are design parameters, not PayU policy.
+- The hosted `/present` after each deploy, from a phone, by scanning the printed poster QR.
+- Any poster figures (₹4,12,000 night, 847 bettors) must carry "dramatised".
 - `data/raw/partner_bakery.csv`, if added: consent and anonymisation.
 
 **New to the app? Start with [`GUIDE.md`](GUIDE.md)**: every page and chart in plain words, what each means, and what to say. See `ASSUMPTIONS.md` for every assumption, and `DEMO_SCRIPT.md` for the 2-minute narration.

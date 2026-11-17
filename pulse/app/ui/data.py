@@ -71,6 +71,13 @@ def text(path: str) -> str:
     return (ROOT / path).read_text()
 
 
+@st.cache_data(show_spinner=False)
+def settings() -> dict:
+    import yaml
+
+    return yaml.safe_load((ROOT / "config" / "settings.yaml").read_text())
+
+
 def meta() -> dict:
     return js("meta.json")
 

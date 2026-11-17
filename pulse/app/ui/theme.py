@@ -60,8 +60,56 @@ h3 {{ font-weight: 600; font-size: 1.12rem; }}
   display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 15px; }}
 .pulse-header .brand {{ font-weight: 700; font-size: 18px; letter-spacing: 0.04em; }}
 .pulse-header .tag {{ font-weight: 300; font-size: 14px; opacity: 0.85; }}
-.pulse-header .right {{ margin-left: auto; font-size: 12px; opacity: 0.75; }}
+.pulse-header .right {{ margin-left: auto; font-size: 12px; opacity: 0.9; white-space: nowrap; }}
+@media (max-width: 640px) {{ .pulse-header .tag {{ display:none; }} .pulse-header {{ padding: 0 12px; }} .block-container {{ padding-left: 0.8rem; padding-right: 0.8rem; }} }}
 header[data-testid="stHeader"] {{ background: transparent; height: 0; }}
+.hero-band {{ background: radial-gradient(900px 320px at 20% 0%, #0A3C40 0%, {DARK} 70%); border-radius: 18px; padding: 34px 38px; margin-bottom: 18px; color: #fff; }}
+.hero-kicker {{ font-size: 13px; letter-spacing: .18em; text-transform: uppercase; color: {MINT}; font-weight: 600; }}
+.hero-title {{ font-size: 54px; font-weight: 800; letter-spacing: -.02em; line-height: 1.05; margin-top: 8px; }}
+.hero-sub {{ font-size: 19px; font-weight: 300; color: #CFE3E1; margin-top: 12px; max-width: 980px; line-height: 1.5; }}
+.jtile {{ background:#fff; border:1px solid {GREY}; border-radius:18px; padding:22px 24px; min-height: 210px; margin-bottom: 8px; }}
+.jtile.primary {{ background:{DARK}; color:#fff; border-color:{DARK}; }}
+.jtile .jnum {{ width:40px; height:40px; border-radius:12px; background:{NEON}; color:{DARK}; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:20px; }}
+.jtile .jtitle {{ font-size:26px; white-space:nowrap; font-weight:700; margin-top:14px; letter-spacing:-.01em; }}
+.jtile .jbody {{ font-size:16px; margin-top:8px; line-height:1.5; color:{MUTED}; }}
+.jtile.primary .jbody {{ color:#CFE3E1; }}
+.verdict {{ border-radius: 14px; padding: 14px 18px; font-size: 18px; margin-bottom: 12px; border: 2px solid; }}
+.verdict.ok {{ background: #fff; border-color: {JADE}; color: {DARK}; }}
+.verdict.caught {{ background: {DARK}; border-color: {NEON}; color: #fff; }}
+.verdict.caught b {{ color: {NEON}; }}
+.verdict.bad {{ background: {GREY}; border-color: {DARK}; color: {DARK}; }}
+.rtile {{ border:1px solid {GREY}; border-radius:12px; padding:8px 10px; margin-bottom:8px; min-height:74px; }}
+.rtile .rn {{ font-size:12px; font-weight:600; }}
+.rtile .rb {{ font-size:18px; font-weight:800; line-height:1.3; }}
+.rtile .re {{ font-size:11px; opacity:.8; }}
+.flow {{ display:flex; align-items:stretch; gap:6px; flex-wrap:wrap; margin: 6px 0 16px 0; }}
+.fbox {{ flex:1 1 130px; border:2px solid; border-radius:14px; padding:14px 14px; }}
+.fbox .ft {{ font-weight:700; font-size:16px; }}
+.fbox .fb {{ font-size:13px; margin-top:4px; opacity:.85; line-height:1.4; }}
+.farrow {{ align-self:center; font-size:24px; color:{DARK}; }}
+.phone {{ width: 320px; max-width: 100%; border: 10px solid {DARK}; border-radius: 34px; padding: 18px 18px 26px 18px; background: #fff; min-height: 460px; }}
+.phone .pbar {{ font-size: 11px; color: {MUTED}; text-align: center; margin-bottom: 18px; }}
+.phone .pt {{ font-size: 20px; font-weight: 700; color: {DARK}; }}
+.phone .pb {{ font-size: 14px; color: {DARK}; margin-top: 10px; line-height: 1.5; }}
+.phone .pbtn {{ margin-top: 18px; background: {DARK}; color: {NEON}; border-radius: 10px; padding: 10px; text-align: center; font-weight: 700; }}
+.bandcard {{ border-radius: 18px; padding: 20px 22px; text-align: center; border: 2px solid {DARK}; }}
+.bandcard .bwhen {{ font-size: 13px; opacity: .8; }}
+.bandcard .bbig {{ font-size: 64px; font-weight: 800; letter-spacing: .08em; line-height: 1.1; margin: 6px 0; }}
+.bandcard .bladder {{ display: flex; gap: 6px; justify-content: center; margin: 6px 0 10px 0; }}
+.bandcard .bstep {{ border: 1px solid currentColor; border-radius: 8px; padding: 2px 10px; font-size: 13px; opacity: .55; }}
+.bandcard .bstep.on {{ opacity: 1; font-weight: 800; background: rgba(0,254,137,.15); }}
+.bandcard .bsub {{ font-size: 13px; opacity: .85; }}
+.gate {{ background:#fff; border:1px solid {GREY}; border-radius:14px; padding:12px 16px; margin:10px 0; }}
+.gate .gtitle {{ font-size:16px; margin-bottom:8px; }}
+.gstrip {{ display:flex; gap:4px; flex-wrap:wrap; }}
+.gcell {{ flex:1 1 70px; border:1px solid {GREY}; border-radius:8px; padding:4px 6px; font-size:11px; line-height:1.3; }}
+.gcell b {{ display:block; font-size:12px; }}
+.quote {{ font-size: 22px; font-weight: 600; color: {DARK}; border-left: 5px solid {NEON}; padding: 8px 18px; margin: 18px 0 8px 0; background: #fff; border-radius: 10px; }}
+@media (max-width: 640px) {{ .hero-title {{ font-size: 34px; }} .hero-band {{ padding: 22px 18px; }} .jtile .jtitle {{ font-size: 22px; }} .jtile {{ min-height: 0; }} }}
+.sim-pill {{ display:inline-block; border:1px solid {NEON}; color:{NEON}; border-radius:999px; padding:1px 10px; font-size:11px;
+  font-weight:700; letter-spacing:.08em; text-transform:uppercase; margin-right:10px; opacity:1; }}
+.nav-group {{ font-size:11px; letter-spacing:.12em; text-transform:uppercase; color:{MUTED}; font-weight:700; margin:14px 0 2px 4px; }}
+[data-testid="stSidebar"] [data-testid="stPageLink"] a p {{ font-size:15px; }}
 .sim-badge {{ display: inline-block; background: {GREY}; color: {DARK}; border: 1px solid {GREY_DARK}; border-radius: 999px;
   padding: 1px 10px; font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; vertical-align: middle; margin-left: 8px; }}
 .real-badge {{ display: inline-block; background: {JADE}; color: #fff; border-radius: 999px; padding: 1px 10px; font-size: 11px;

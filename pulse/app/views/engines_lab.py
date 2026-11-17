@@ -61,6 +61,11 @@ with tabs[0]:
 
 # ---------------------------------------------------------------- peers
 with tabs[1]:
+    st.markdown("#### The peer gap in one line")
+    st.markdown("<div class='gate'><div class='muted' style='font-size:16px;line-height:1.8'>lift = ln(actual ÷ expected) &nbsp;·&nbsp; gap = lift − median peer lift "
+                "&nbsp;·&nbsp; robust z = gap ÷ (1.4826 × MAD of peer gaps)<br><b>Diwali:</b> shop ×5, peers ×5 → ln 5 − ln 5 = <b>0</b> → no flag. &nbsp; "
+                "<b>India v Pakistan night:</b> shop ×5, peers ×1 → ln 5 − ln 1 = <b>1.61</b> → flag (illustrative numbers; the guided story shows the "
+                "measured ones).</div></div>", unsafe_allow_html=True)
     st.markdown("#### Why a naive peer z-score floods analysts")
     p3 = norm.sf(3)
     c1, c2, c3 = st.columns(3)

@@ -1,4 +1,5 @@
 # Response-layer design parameters (costs are relative units, not rupees).
+# Risk bands shown to people: Watch (L0-L1), Review (L2), Act (L3 and above).
 # Decision rule: act at level L only if  p * C_fraud > (1 - p) * C_friction(L)
 #   which is the same as  p > C_friction(L) / (C_fraud + C_friction(L)).
 c_fraud: 100
@@ -20,9 +21,9 @@ levels:
   L0: {name: "Watch", merchant_visible: "No change", compliance: "Scored hourly; nothing stored beyond normal logs"}
   L1: {name: "Silent check", merchant_visible: "No change", compliance: "Checkout origin compared with registered site/app"}
   L2: {name: "Micro-proof", merchant_visible: "OTP re-verification and one recent supplier invoice", compliance: "Case opened; analyst queue"}
-  L3: {name: "Delta reserve", merchant_visible: "Video KYC; part of today's settlement delayed for review", compliance: "Only the fingerprinted surplus is held"}
+  L3: {name: "Hold the surplus", merchant_visible: "Video KYC; part of today's settlement delayed for review", compliance: "Only the fingerprinted surplus is held"}
   L4: {name: "Restrict", merchant_visible: "Payouts, refunds and new payment links paused", compliance: "Requires analyst approval"}
-  L5: {name: "Exit + STR draft", merchant_visible: "Account closed", compliance: "Requires analyst approval; STR drafted for compliance review"}
+  L5: {name: "Exit after human review + draft STR", merchant_visible: "Account closed", compliance: "Requires analyst approval; STR drafted for compliance review"}
 delta_reserve:
   sigma_multiplier: 3.0     # Tolerated = baseline * exp(cohort_lift + k * sigma)
   min_hourly_baseline_inr: 50   # floor on the baseline per day is this x 1 (spread over 24 h)
@@ -39,3 +40,17 @@ earned_trust:
     sweep_2h: 4.0          # per unit of share moved on within 2 h above 0.25
     individual_recipients: 3.0  # per unit share of outflows to individuals above 0.30
     gst_gap: 1.5           # per unit of log(PayU settlements / GST turnover) above 0.2
+rollout:
+  # Shadow mode: PULSE logs what it WOULD have held; nobody is held. Move up a stage only when every stop rule passes.
+  stages:
+    - {name: "Shadow", what: "Score every merchant-hour, log would-be actions, hold nothing", exit: "All stop rules pass for 8 weeks"}
+    - {name: "Pilot: checks only", what: "L1-L2 (silent check, micro-proof) on 5% of merchants", exit: "Honest friction complaints below agreed rate"}
+    - {name: "Pilot: hold the surplus", what: "L3 delta reserve on the pilot group, analyst review within 24 h", exit: "Release rate after review below agreed rate"}
+    - {name: "Full", what: "All merchants; L4-L5 always after human review", exit: "Quarterly re-validation"}
+  stop_rules:                       # design parameters (agree the real limits with PayU risk and compliance)
+    max_honest_act_per_1000_merchant_months: 2.0
+    max_diwali_held_inr: 0
+    min_precision_at_10: 0.8
+    max_median_detect_hours: 168
+    max_new_cases_per_analyst_day: 15
+    analysts: 2

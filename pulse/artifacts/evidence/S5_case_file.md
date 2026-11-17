@@ -5,7 +5,7 @@
 - **Case ID:** PULSE-S5-3428
 - **Merchant:** Nimbus Cloud IT Services (S5) (`S5`), declared category: it services, Bengaluru (tier 1)
 - **Data source:** simulated
-- **Flag time:** Tue 14 Oct 2025, 20:00; calibrated probability 0.15; engines agreeing: 2 of 4
+- **Flag time:** Tue 14 Oct 2025, 20:00; risk band **Act** (model score 0.15, uncalibrated until shadow mode on PayU data); engines agreeing: 2 of 4
 - **Highest ladder level:** L5 (L4/L5 recommendation requires analyst approval)
 
 ## Timeline
@@ -16,8 +16,8 @@
 | Tue 14 Oct 2025, 00:00 | Onboarded (KYB passed as it services) |
 | Tue 14 Oct 2025, 20:00 | Drift engine crossed its threshold |
 | Tue 14 Oct 2025, 20:00 | L2 micro-proof requested (OTP + supplier invoice) |
-| Tue 14 Oct 2025, 20:00 | L3 delta reserve and video KYC |
-| Tue 14 Oct 2025, 20:00 | PULSE reached L3 (calibrated p = 0.15; 2 engines agree) |
+| Tue 14 Oct 2025, 20:00 | L3 hold the surplus (delta reserve) and video KYC |
+| Tue 14 Oct 2025, 20:00 | PULSE reached L3, risk band Act (2 engines agree) |
 | Wed 15 Oct 2025, 12:00 | Peers engine crossed its threshold |
 | Sun 19 Oct 2025, 17:00 | Invariants engine crossed its threshold |
 
@@ -44,14 +44,15 @@
 
 - Pay-ins: 8 payments, Rs 8,500
 - 'Refunds' / payouts: 0 payments, Rs 0 to 0 recipients
+- Delta reserve held (whole window): Rs 2,94,256; everything else settled T+1
 
 ## Action taken: two tracks
 
 | Visible to the merchant | Hidden compliance track |
 |---|---|
 | L2: OTP re-verification and one recent supplier invoice | Case opened, analyst queue, evidence frozen |
-| L3: video KYC; part of the day's settlement delayed for review | Only the fingerprinted surplus above Tolerated is held |
-| (L4/L5 only after analyst approval) | STR draft prepared below; merchant is **not** informed (no tipping-off) |
+| L3 Hold the surplus: video KYC; part of the day's settlement delayed for review | Only the fingerprinted surplus above Tolerated is held |
+| (L4/L5 only after human review) | STR draft prepared below; merchant is **not** informed (no tipping-off) |
 
 ## Draft STR narrative (template)
 

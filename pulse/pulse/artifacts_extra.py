@@ -142,6 +142,10 @@ def story_data(world, cal, cfg, F, ctx, art):
     _w(art / "hero_profile.json", prof)
 
 
+def band_of(level: int) -> str:
+    return "Act" if level >= 3 else ("Review" if level == 2 else "Watch")
+
+
 def fmt_p(p, eq=False):
     if p >= 0.995:
         return "> 0.99"
@@ -170,16 +174,16 @@ def evidence_pack(world, cal, cfg, F, p, lad, summ, reasons, reserves, art, code
         first[e] = int(hh[0]) if len(hh) else None
     t_h = int(r.takeover_t_min // 60) if not np.isnan(r.takeover_t_min) else None
     events = [(int(r.onboard_day) * 24, "Onboarded (KYB passed as " + r.category.replace("_", " ") + ")")]
-    events.append((h_flag, f"PULSE reached L{int(lad['level'][i, h_flag])} (calibrated p {fmt_p(p[i, h_flag], eq=True)}; {int(F['n_engines'][i, h_flag])} engines agree)"))
+    events.append((h_flag, f"PULSE reached L{int(lad['level'][i, h_flag])}, risk band {band_of(lad['level'][i, h_flag])} ({int(F['n_engines'][i, h_flag])} engines agree)"))
     for e, hh in first.items():
         if hh is not None and hh >= (t_h or 0) - 48:
             events.append((hh, f"{e} engine crossed its threshold"))
     if s.first_l2_h >= 0:
         events.append((int(s.first_l2_h), "L2 micro-proof requested (OTP + supplier invoice)"))
     if s.first_l3_h >= 0:
-        events.append((int(s.first_l3_h), "L3 delta reserve and video KYC"))
+        events.append((int(s.first_l3_h), "L3 hold the surplus (delta reserve) and video KYC"))
     events = sorted(set(events))
-    held = float(reserves["S3"].held.sum()) if code == "HERO" and "S3" in reserves else None
+    held = float(reserves["S3"].held.sum()) if code == "HERO" else (float(reserves["S5"].held.sum()) if code == "S5" and "S5" in reserves else None)
     pp = pay[(pay.merchant_id == i)]
     win = pp[(pp.t_min >= (h_flag - 167) * 60) & (pp.t_min < (h_flag + 1) * 60)]
     refunds = win[win.kind == 1]
@@ -203,7 +207,7 @@ def evidence_pack(world, cal, cfg, F, p, lad, summ, reasons, reserves, art, code
         f"- **Case ID:** PULSE-{code}-{h_flag}",
         f"- **Merchant:** {name} (`{code}`), declared category: {r.category.replace('_', ' ')}, {r.city} (tier {r.tier})",
         f"- **Data source:** {r.data_source}",
-        f"- **Flag time:** {_fmt_day(cal, h_flag)}; calibrated probability {fmt_p(p[i, h_flag])}; engines agreeing: {int(F['n_engines'][i, h_flag])} of 4",
+        f"- **Flag time:** {_fmt_day(cal, h_flag)}; risk band **{band_of(lad['level'][i, h_flag])}** (model score {fmt_p(p[i, h_flag])}, uncalibrated until shadow mode on PayU data); engines agreeing: {int(F['n_engines'][i, h_flag])} of 4",
         f"- **Highest ladder level:** L{lvl}" + (" (L4/L5 recommendation requires analyst approval)" if lvl >= 4 else ""),
         "",
         "## Timeline",
@@ -240,8 +244,8 @@ def evidence_pack(world, cal, cfg, F, p, lad, summ, reasons, reserves, art, code
         "| Visible to the merchant | Hidden compliance track |",
         "|---|---|",
         "| L2: OTP re-verification and one recent supplier invoice | Case opened, analyst queue, evidence frozen |",
-        "| L3: video KYC; part of the day's settlement delayed for review | Only the fingerprinted surplus above Tolerated is held |",
-        "| (L4/L5 only after analyst approval) | STR draft prepared below; merchant is **not** informed (no tipping-off) |",
+        "| L3 Hold the surplus: video KYC; part of the day's settlement delayed for review | Only the fingerprinted surplus above Tolerated is held |",
+        "| (L4/L5 only after human review) | STR draft prepared below; merchant is **not** informed (no tipping-off) |",
         "",
         "## Draft STR narrative (template)",
         "",
@@ -271,7 +275,7 @@ def evidence_pack(world, cal, cfg, F, p, lad, summ, reasons, reserves, art, code
     h0 = max(0, h_flag - 36)
     hh = list(range(h0, min(cal.H, h_flag + 24)))
     f2 = go.Figure([go.Bar(x=[cal.hour_label(h) for h in hh], y=F["cnt"][i, hh], name="Payments per hour", marker_color="#00AD7D"),
-                    go.Scatter(x=[cal.hour_label(h) for h in hh], y=p[i, hh], name="Calibrated p", yaxis="y2", line=dict(color="#002124"))])
+                    go.Scatter(x=[cal.hour_label(h) for h in hh], y=p[i, hh], name="Model score", yaxis="y2", line=dict(color="#002124"))])
     f2.update_layout(title="Hours around the flag", yaxis2=dict(overlaying="y", side="right", range=[0, 1]), template="plotly_white",
                      height=320, margin=dict(l=40, r=40, t=50, b=80))
     body = md

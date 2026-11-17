@@ -7,7 +7,25 @@ import streamlit as st
 
 from .theme import DARK, GREY, JADE, LEVEL_COLORS
 
-LEVEL_NAMES = {0: "Watch", 1: "Silent check", 2: "Micro-proof", 3: "Delta reserve", 4: "Restrict", 5: "Exit + STR draft"}
+LEVEL_NAMES = {0: "Watch", 1: "Silent check", 2: "Micro-proof", 3: "Hold the surplus", 4: "Restrict", 5: "Exit after review + STR"}
+
+
+BAND_BG = {"Watch": "#FFFFFF", "Review": "#62CAC3", "Act": "#002124"}
+BAND_FG = {"Watch": "#002124", "Review": "#002124", "Act": "#00FE89"}
+
+
+def band_of(level: int) -> str:
+    """Risk band shown to people: Watch (L0-L1), Review (L2), Act (L3+)."""
+    return "Act" if int(level) >= 3 else ("Review" if int(level) == 2 else "Watch")
+
+
+def band_card(level: int, score: float, n_engines: int, when: str) -> str:
+    b = band_of(level)
+    sc = "> 0.99" if score >= 0.995 else f"{score:.2f}"
+    ladder = "".join(f"<span class='bstep{' on' if band_of(level) == x else ''}'>{x}</span>" for x in ["Watch", "Review", "Act"])
+    return (f"<div class='bandcard' style='background:{BAND_BG[b]};color:{BAND_FG[b]}'><div class='bwhen'>{html.escape(when)}</div>"
+            f"<div class='bbig'>{b.upper()}</div><div class='bladder'>{ladder}</div>"
+            f"<div class='bsub'>{n_engines} of 4 engines agree · model score {sc} (uncalibrated)</div></div>")
 
 
 def header() -> None:

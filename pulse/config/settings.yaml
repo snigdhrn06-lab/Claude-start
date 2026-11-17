@@ -1,4 +1,7 @@
 # Global settings. Everything here is a design parameter unless marked otherwise.
+team:
+  name: "Team PULSE"          # EDIT: your team name, shown in the app header
+  event: "Follow the Money: Innovation Challenge · Final, IIM Bangalore, 26 Nov 2026"
 seed: 42                       # one global seed; every random draw derives from it
 window:
   start: "2025-05-25"          # Sunday. Bread Basket starts Sun 2016-10-30; shift = 447 weeks (day-of-week preserved)

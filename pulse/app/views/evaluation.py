@@ -45,7 +45,7 @@ with c2:
                      go.Scatter(x=[r["mean_p"] for r in rel], y=[r["observed"] for r in rel], mode="lines+markers",
                                 marker=dict(size=[6 + 3 * np.log10(r["n"]) for r in rel], color=JADE, line=dict(color=DARK, width=1)),
                                 line=dict(color=JADE, width=3), name="Test merchant-days", hovertext=[f"n = {r['n']:,}" for r in rel])])
-    fig.update_layout(height=380, title="Reliability: predicted p vs observed front share", xaxis_title="Mean predicted p", yaxis_title="Observed share of front-days",
+    fig.update_layout(height=380, title="Score vs share of front-days (simulated; calibration claimed only after shadow mode)", xaxis_title="Mean model score", yaxis_title="Observed share of front-days",
                       xaxis=dict(range=[0, 1]), yaxis=dict(range=[0, 1]))
     st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
 
@@ -70,11 +70,11 @@ with c2:
                  [("d", "Dimension"), ("v", "Group"), ("n", "n"), ("l1", "Ever L1"), ("l2", "Ever L2"), ("l3", "Ever L3")])
     C.note("Small groups give unstable rates; indicative only.")
 
-st.markdown("### Stage A scorecard (shadow mode) vs Stage C model")
+st.markdown("### Stage A expert scorecard (day one, shadow mode) vs Stage B learned model")
 C.html_table([
     {"k": "Recall L2+", "c": f"{c['recall_l2']:.2f}", "a": f"{a['recall_l2']:.2f}"},
     {"k": "Merchant-day PR-AUC", "c": f"{c['merchant_day_pr_auc']:.3f}", "a": f"{a['merchant_day_pr_auc']:.3f}"},
     {"k": "False alarms L3+ / 1,000 merchant-months", "c": f"{c['false_alarms_l3_per_1000_merchant_months']:.1f}", "a": f"{a['false_alarms_l3_per_1000_merchant_months']:.1f}"},
     {"k": "Median hours to detect", "c": f"{c['detect_hours_median']:.0f}", "a": f"{a['detect_hours_median']:.0f}" if a["detect_hours_median"] is not None else "n/a"},
-], [("k", "Metric"), ("c", "Stage C: calibrated LightGBM"), ("a", "Stage A: expert scorecard (no labels)")])
+], [("k", "Metric"), ("c", "Stage B: monotone LightGBM (decides)"), ("a", "Stage A: expert scorecard (no labels)")])
 _ = (DARK_SOFT, EMERALD, GREY, NEON)

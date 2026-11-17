@@ -31,7 +31,7 @@
   {
    "betting_inr": 707300.0,
    "code": "S5",
-   "held_inr": 154581.65625,
+   "held_inr": 294256.330383,
    "merchant_id": 258,
    "settled_before_flag_inr": 0.0
   },
@@ -115,7 +115,7 @@
   {
    "betting_inr": 1196000.0,
    "code": "FX005",
-   "held_inr": 401112.242188,
+   "held_inr": 1036741.916626,
    "merchant_id": 274,
    "settled_before_flag_inr": 0.0
   },
@@ -129,7 +129,7 @@
   {
    "betting_inr": 336200.0,
    "code": "FX014",
-   "held_inr": 0.0,
+   "held_inr": 269141.57666,
    "merchant_id": 283,
    "settled_before_flag_inr": 85900.0
   },
@@ -150,7 +150,7 @@
   {
    "betting_inr": 811400.0,
    "code": "FX017",
-   "held_inr": 10186.382812,
+   "held_inr": 539762.86393,
    "merchant_id": 286,
    "settled_before_flag_inr": 140700.0
   },
@@ -171,7 +171,7 @@
   {
    "betting_inr": 1770800.0,
    "code": "FX027",
-   "held_inr": 0.0,
+   "held_inr": 672077.631439,
    "merchant_id": 296,
    "settled_before_flag_inr": 114000.0
   },
@@ -205,6 +205,6 @@
   }
  ],
  "total_betting_inr": 30913427.0,
- "total_held_inr": 11934078.552734,
+ "total_held_inr": 14180178.590523,
  "total_settled_before_flag_inr": 4700200.0
 }

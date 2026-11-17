@@ -557,6 +557,7 @@ def build_world(cfg: dict, cal: Calendar, root) -> dict:
     pay["t_min"] = pay["t_min"].astype(np.int32)
     pay["kind"] = pay["kind"].astype(np.int8)
     pay["is_bet"] = pay["is_bet"].astype(bool)
+    add_payment_fields(pay, payers, seed)
 
     # takeover time = first betting payment (truth)
     first_bet = pay[pay.is_bet & (pay.kind == KIND_PAYIN)].groupby("merchant_id").t_min.min()
@@ -571,6 +572,24 @@ def build_world(cfg: dict, cal: Calendar, root) -> dict:
     split_merchants(cfg, mdf)
     return {"merchants": mdf, "payments": pay, "payers": payers, "syndicates": synd, "banned": banned,
             "ingest_report": ingest_report, "bakery_how": bakery_how}
+
+
+def add_payment_fields(pay: pd.DataFrame, payers: pd.DataFrame, seed: int) -> None:
+    """Rich payment fields: type (payment / refund / payout), channel, payer city and T+1 settlement batch.
+    Uses its own random stream, so adding these changes no other number."""
+    rng_f = rng_for(seed, "payment-fields")
+    n = len(pay)
+    kind = pay["kind"].to_numpy()
+    bet = pay["is_bet"].to_numpy()
+    u = rng_f.random(n)
+    typ = np.where(kind == KIND_PAYIN, "payment", np.where(bet & (u < 0.3), "payout", "refund"))  # betting payouts are disguised as refunds or vendor payouts
+    ch_honest = np.where(u < 0.70, "QR", np.where(u < 0.90, "UPI collect", "Payment link"))
+    ch_bet = np.where(u < 0.55, "UPI collect", np.where(u < 0.90, "Payment link", "QR"))
+    channel = np.where(kind == KIND_PAYIN, np.where(bet, ch_bet, ch_honest), "UPI payout")
+    pay["type"] = pd.Categorical(typ, categories=["payment", "refund", "payout"])
+    pay["channel"] = pd.Categorical(channel, categories=["QR", "UPI collect", "Payment link", "UPI payout"])
+    pay["payer_city"] = pd.Categorical(payers.city.to_numpy()[pay.payer_id.to_numpy()])
+    pay["settlement_batch"] = (pay["t_min"].to_numpy() // MIN_PER_DAY + 1).astype(np.int16)   # settles T+1
 
 
 def split_merchants(cfg: dict, mdf: pd.DataFrame) -> None:

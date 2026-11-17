@@ -267,7 +267,7 @@
     "L3": {
      "compliance": "Only the fingerprinted surplus is held",
      "merchant_visible": "Video KYC; part of today's settlement delayed for review",
-     "name": "Delta reserve"
+     "name": "Hold the surplus"
     },
     "L4": {
      "compliance": "Requires analyst approval",
@@ -277,7 +277,7 @@
     "L5": {
      "compliance": "Requires analyst approval; STR drafted for compliance review",
      "merchant_visible": "Account closed",
-     "name": "Exit + STR draft"
+     "name": "Exit after human review + draft STR"
     }
    },
    "min_engines": {
@@ -286,6 +286,38 @@
     "L3": 2,
     "L4": 3,
     "L5": 3
+   },
+   "rollout": {
+    "stages": [
+     {
+      "exit": "All stop rules pass for 8 weeks",
+      "name": "Shadow",
+      "what": "Score every merchant-hour, log would-be actions, hold nothing"
+     },
+     {
+      "exit": "Honest friction complaints below agreed rate",
+      "name": "Pilot: checks only",
+      "what": "L1-L2 (silent check, micro-proof) on 5% of merchants"
+     },
+     {
+      "exit": "Release rate after review below agreed rate",
+      "name": "Pilot: hold the surplus",
+      "what": "L3 delta reserve on the pilot group, analyst review within 24 h"
+     },
+     {
+      "exit": "Quarterly re-validation",
+      "name": "Full",
+      "what": "All merchants; L4-L5 always after human review"
+     }
+    ],
+    "stop_rules": {
+     "analysts": 2,
+     "max_diwali_held_inr": 0,
+     "max_honest_act_per_1000_merchant_months": 2.0,
+     "max_median_detect_hours": 168,
+     "max_new_cases_per_analyst_day": 15,
+     "min_precision_at_10": 0.8
+    }
    }
   },
   "engines": {
@@ -1235,6 +1267,10 @@
    "seed": 42,
    "split": {
     "test_share": 0.3
+   },
+   "team": {
+    "event": "Follow the Money: Innovation Challenge \u00b7 Final, IIM Bangalore, 26 Nov 2026",
+    "name": "Team PULSE"
    },
    "window": {
     "baseline_days": 60,
