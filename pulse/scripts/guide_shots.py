@@ -71,11 +71,16 @@ SHOTS = [
                                      (4, "Payments per day"), (5, "Reasons"), (6, "Hourly zoom")], 2600),
     ("30_evaluation", "evaluation", [], [(1, "Recall (fronts reaching L2+)"), (2, "Scenario scorecard"), (3, "Ablation"),
                                          (4, "Time to detect"), (5, "Fairness")], 2800),
-    ("31_rollout_1", "rollout", [], [(1, "Shadow mode on the simulated"), (2, "Stop rule"), (3, "css:.jtile >> nth=0")], 1400),
+    ("30b_real_shops", "evaluation", [], [(1, "css:table:has-text('Real honest shops')"), (2, "What we learned"),
+                                          (3, "css:[data-testid='stSelectbox']")], 2800),
+    ("31_rollout_1", "rollout", [], [(1, "Shadow mode on the simulated"), (2, "css:table:has-text('Stop rule')"), (3, "css:.jtile >> nth=0")], 1400),
     ("32_rollout_2", "rollout", [("tab", "2 · Why not a rules engine?")], [(1, "HONEST SHOPS FLAGGED: RULE"), (2, "FRONTS CAUGHT: PULSE")], 1500),
     ("33_qa", "qa", [], [], 1800),
     ("34_data", "data", [], [(1, "Real data"), (2, "Scenario rules & sources"), (3, "Fixtures & festivals"), (4, "Design parameters")], 1800),
 ]
+
+# shots cropped to one section: name -> (text at the top of the section, height in px)
+CLIP = {"30b_real_shops": ("Real shops we didn't design", 1260)}
 
 JS_DRAW = """([boxes]) => {
   for (const [n, x, y, w, h] of boxes) {
@@ -165,7 +170,12 @@ def main():
                     else:
                         missing.append(n)
                 page.evaluate(JS_DRAW, [boxes])
-                page.screenshot(path=str(OUT / f"{name}.jpg"), type="jpeg", quality=80)
+                if name in CLIP:
+                    top = locate(page, CLIP[name][0]).bounding_box()["y"] - 40
+                    page.screenshot(path=str(OUT / f"{name}.jpg"), type="jpeg", quality=80,
+                                    clip={"x": 360, "y": max(0, top), "width": 1060, "height": CLIP[name][1]})
+                else:
+                    page.screenshot(path=str(OUT / f"{name}.jpg"), type="jpeg", quality=80)
                 print(f"{name}: {len(boxes)} callouts" + (f", MISSING {missing}" if missing else ""))
                 page.close()
             # phone

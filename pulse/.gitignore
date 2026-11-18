@@ -9,3 +9,5 @@ data/processed/
 # artifacts/ IS committed (about 11 MB): the hosted app serves these prebuilt files and never retrains.
 _guide_build.html
 _guide_imgs/
+data/raw/olist_*.csv
+data/raw/online_retail.csv

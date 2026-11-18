@@ -30,7 +30,7 @@ model, check them again on screen before you use them.
 | 1:30 | **Next →** Step 5 *Proportionate action* | "We don't freeze the shop. We hold only the **suspicious surplus**: on the takeover day ₹1,17,327 of ₹1,49,360 waited for review, and the bakery's real sales settled on time. This table shows exactly which payments were held and why." |
 | 1:50 | **Next →** Step 6 *Honest cases stay quiet* | "Diwali: every sweet shop jumps four or five times, so the gap to its peers stays near zero and we hold **₹0**. The sports bar is busy every match night, but its payers are locals and nobody gets paid back, so it stays at Watch." |
 | 2:10 | Sidebar → **Try to fool PULSE**. Preset **Careful front** | "Now you try to fool it. This is the same engine code on a fresh simulated city, and it runs in about a second. A careful front avoids round amounts and pays winners off-platform. PULSE still catches it on day 37, but more than half the money escapes first. That's a real blind spot, and we show it." |
-| 2:35 | Sidebar → **Evaluation** (scroll to the scorecard) | "On simulated test merchants, all **9 of 9** designed scenarios behave as expected, 28 of 29 fronts reach Review or Act, and no honest shop reaches Act. That's simulated. We claim nothing about PayU data until shadow mode." |
+| 2:35 | Sidebar → **Evaluation** (scorecard, then scroll to *Real shops we didn't design*) | "On simulated test merchants, all **9 of 9** scenarios behave as expected and 28 of 29 fronts are caught. But we wrote the fraud and the detector, so we also ran **112 real shops** we didn't design. The first run had 7 false Acts: small sellers having real surges. We fixed one rule and checked it on data we hadn't seen: **zero**." |
 | 2:50 | Sidebar → **Rules vs PULSE** (or back to Judge Mode) | "Rollout starts in shadow mode with written stop rules. We don't hunt for betting. We learn what every bakery is, and catch the day it stops being one." |
 
 ## The 60-second version
@@ -46,6 +46,7 @@ model, check them again on screen before you use them.
 
 | Question | Go to | Say |
 |---|---|---|
+| "Isn't this circular? You made the data." | **Evaluation → Real shops we didn't design** | Yes, partly, so we tested ourselves on 112 real honest shops (Olist sellers and a UK wholesaler with real refunds). First run: 7 of 57 at Act. Cause: drift and peers both just say "unlike normal". Fix: Act needs a betting-specific engine. Checked on a second period we hadn't looked at: 0 of 55 at Act (3 without the rule). Still 12 of 112 reach Review, an analyst cost we admit. |
 | "How many false alarms?" | **Engines lab → Peers** | A plain z > 3 rule gives about 1,350 alarms per million merchant-hours. Persistence (3 of 6 hours) plus the two-engine gate cut that down, and the funnel there is measured. |
 | "How fast is it?" | **PayU flow, API & ops → Scoring API** | One scoring call takes 0.32 ms at p50 and 0.63 ms at p95 on this laptop (single-threaded Python, 10,000 calls). That's a laptop benchmark, not a production claim. |
 | "Where does it sit in PayU?" | **PayU flow → Where PULSE plugs in** | Between payment capture and the T+1 settlement batch. That's the only point where money can still be held. |

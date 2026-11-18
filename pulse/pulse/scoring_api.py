@@ -107,7 +107,7 @@ def score_window(merchant: str, payments: list[dict], context: dict, cfg: dict =
     thr = level_thresholds(costs)
     level = 0
     for k, L in enumerate(["L1", "L2", "L3", "L4", "L5"], start=1):
-        if p > thr[L] and n_eng >= costs["min_engines"][L]:
+        if p > thr[L] and n_eng >= costs["min_engines"][L] and not (k >= 3 and costs.get("act_needs_betting_engine") and not (inv_fire or graph_fire)):
             level = k
     band = "Act" if level >= 3 else ("Review" if level == 2 else "Watch")
     reasons = []

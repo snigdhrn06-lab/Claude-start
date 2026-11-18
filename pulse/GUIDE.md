@@ -501,15 +501,29 @@ and settled per hour. At k = 3 the takeover day holds ₹1,17,327 of ₹1,49,360
 4. **Time to detect**: hours from the first bet to the first L2+. Median 163 h: loud fronts are caught on their first match night, quiet ones take days to weeks.
 5. **Fairness**: share of honest test merchants ever flagged, by city tier, category and size.
 
+**Real shops we didn't design** (below the scorecard; picture in 6.12a). Every result above comes from our own
+simulated world. This section runs PULSE on **112 real, honest shops**: Brazilian online sellers from Olist's public
+data and a UK gift wholesaler with real refunds. It shows how many reached Review or Act, before and after the one rule
+we changed because of this test. Pick any flagged shop in the dropdown to see its real daily payments and the level
+PULSE gave each day. Full story in section 7.9.
+
 Further down: score vs observed share of front-days (labelled "calibration claimed only after shadow mode"), and the
 day-one expert scorecard (Stage A) compared with the learned model (Stage B).
+
+#### 6.12a The real-shop test on screen
+
+![Real shops we didn't design](artifacts/guide/30b_real_shops.jpg)
+
+1. **The table**: two columns. The test slice (57 shops: Olist Sep 2017–Feb 2018 plus the UK wholesaler) and the holdout (55 shops: Olist Mar–Sep 2018, scored once). Rows: shops, merchant-months, how many reached Review, how many reached Act before and after the rule change, money held.
+2. **What we learned**: the paragraph under the table, in plain words.
+3. **See one real shop**: pick a flagged shop and the chart shows its real payments per day and its ladder level per day.
 
 ### 6.13 Rollout & rules vs PULSE (`/rollout`)
 
 ![Shadow mode](artifacts/guide/31_rollout_1.jpg)
 
 1. **Shadow mode, week by week**: what PULSE *would* have held (bars) vs what it actually held in shadow mode (₹0).
-2. **Stop rules**: six written rules with limits (design parameters from `config/costs.yaml`), each PASS/FAIL: honest merchants at Act ≤ 2 per 1,000 merchant-months (0.0); Diwali cohort held ≤ ₹0 (₹0); precision of the top 10 ≥ 0.8 (1.00); median hours to Review/Act ≤ 168 (163, only just passes); peak new cases per analyst per day ≤ 15 (2.5); designed scenarios passing: all (9/9).
+2. **Stop rules**: seven written rules with limits (design parameters from `config/costs.yaml`), each PASS/FAIL: honest merchants at Act ≤ 2 per 1,000 merchant-months (0.0); Diwali cohort held ≤ ₹0 (₹0); precision of the top 10 ≥ 0.8 (1.00); median hours to Review/Act ≤ 168 (163, only just passes); peak new cases per analyst per day ≤ 15 (2.5); designed scenarios passing: all (9/9); and, on real data, real honest shops at Act in the untouched holdout ≤ 2 per 1,000 merchant-months (0.0, 0 of 55).
 3. **Four rollout stages**: Shadow → Pilot (checks only) → Pilot (hold the surplus) → Full, each with "move on when".
 
 ![Rules vs PULSE](artifacts/guide/32_rollout_2.jpg)
@@ -524,8 +538,8 @@ PULSE asks different questions."
 
 ![Ask us anything](artifacts/guide/33_qa.jpg)
 
-Eleven hard questions with honest answers, each with a link to the page that proves it: evasion, Diwali, where labels
-come from, the cost of a false alarm, data PayU doesn't have, latency at scale, what the merchant sees and how they
+Twelve hard questions with honest answers, each with a link to the page that proves it: evasion, Diwali, "isn't this
+circular?" (the real-shop test), where labels come from, the cost of a false alarm, data PayU doesn't have, latency at scale, what the merchant sees and how they
 appeal, what's real, what we haven't solved, brand-new shells, and why not a rules engine. **Read this page before the stall.**
 
 ### 6.15 Data & assumptions (`/data`)
@@ -638,6 +652,12 @@ plain-English reasons, and every number in them is recomputed from the raw payme
 **The two-engine gate.** No merchant reaches Review or above unless **at least two engines** fire independently
 (three for L4–L5). One engine alone is never enough, because each engine alone has false alarms.
 
+**The Act rule (added after the real-shop test).** To reach **Act** (L3, where money is held), at least one of the
+engines that fire must be **betting-specific**: invariants (match clock or refund loop) or graph (known bettors, hard
+links). Drift and peers both only say "this shop is unlike normal", so the two of them agreeing is not independent
+evidence of betting. On their own they can reach Review at most, where an analyst looks and nothing is held. Section 7.9
+explains how we found this.
+
 **The decision rule.** Each level has a friction cost (the harm of bothering an honest shop) and there is a fraud cost.
 PULSE goes to level L only if
 
@@ -699,6 +719,35 @@ hidden, because telling a suspect about an STR is "tipping off", which PMLA forb
 **The honest limits.** The simulation is cleaner than real life, so these numbers show that the mechanism works; they
 don't estimate real performance. Small or quiet fronts take days to weeks. A careful front that pays winners
 off-platform loses PULSE most of its money first.
+
+### 7.9 The real-shop test: checking ourselves on data we didn't make
+
+**Why.** We wrote both the fraud and the detector, so a sharp judge can say "of course it catches what you planted."
+The fair answer is to run PULSE on real shops we never designed, where we know there's no betting, and count the false alarms.
+
+**The data** (both public, fetched with checksums by `make fetch-data`):
+
+- **Olist**: a Brazilian online marketplace published its real order data. Every seller with 100+ orders in the slice becomes one merchant: 56 sellers from Sep 2017 to Feb 2018 (Black Friday, Christmas and Carnival are inside).
+- **UCI Online Retail**: a UK gift wholesaler, Jun to Dec 2011: 10,029 invoices and **1,805 real cancellations**, which become refunds to the same customer. That's a hard test for the refund-loop engine, because betting payouts also look like refunds.
+
+**How they're plugged in.** The same way as the real bakery: dates shifted by whole weeks onto our calendar (day of
+week and time kept), amounts converted to rupees at a fixed rate, and each real customer mapped to one simulated payer
+(customers from the seller's own state or country come from the merchant's city, others from elsewhere). The shops join
+the city **as newcomers in a separate pass** and are scored by the **frozen** model. They are never used for training,
+never counted in the test metrics, and never used as peers for the simulated shops, so the main results don't move.
+
+**What happened, honestly:**
+
+1. **First run:** 7 of 57 real shops reached Act (34 per 1,000 merchant-months, against our own stop-rule limit of 2). ₹0 was held, because their payments carried no betting fingerprints, but an Act case is still a bad false alarm.
+2. **Why:** all 7 were small sellers (1 to 4.5 orders a day) having a genuine surge, for example 1 order a day jumping to 14. Drift and peers fired together. Invariants and graph never fired on any real shop.
+3. **The fix:** the Act rule above. Act needs a betting-specific engine.
+4. **The check:** the rule came from looking at those shops, so testing it on the same shops would prove nothing. We scored a **second Olist period** (Mar to Sep 2018, 55 sellers) that we hadn't looked at, **once**: without the rule 3 shops would have reached Act; with it, **0**.
+5. **Cost on the simulated city:** none measurable. Same recall (28 of 29), same money held, 9 of 9 scenarios.
+6. **The UK wholesaler**, with real refunds and a Christmas rush, never went above a silent check (L1).
+7. **What's still not great:** 12 of 112 real shops reach **Review**, far more than the 0 of 77 simulated honest shops. Review holds no money, but an analyst has to clear each case. Real life is messier than our simulation, and we say so.
+
+**What to say:** "We wrote the fraud and the detector, so we tested ourselves on 112 real shops we didn't design. The
+first run had false alarms. We found the cause, fixed one rule, and checked the fix on data we hadn't seen: zero Acts."
 
 ---
 
@@ -785,7 +834,7 @@ All simulated. Say "on simulated test merchants" every time.
 | E2 | Evasion: betting split across 10 small fronts | ✅ 10 of 10 flagged (median 400 h after their first bet) |
 | E3 | Evasion: winners paid off-platform | ✅ Flagged 1 h after the first bet |
 
-**Key metrics (test merchants: 29 fronts, 77 honest)**
+**Key metrics (simulated test merchants: 29 fronts, 77 honest)**
 
 | Metric | Value |
 |---|---|
@@ -798,6 +847,7 @@ All simulated. Say "on simulated test merchants" every time.
 | Money held at L3 | ₹1.42 crore of ₹3.09 crore betting; ₹47 lakh settled before the first flag |
 | Diwali cohort held | ₹0 |
 | Scoring API (laptop) | p50 0.32 ms, p95 0.63 ms per call |
+| **Real honest shops (Olist + UK wholesaler)** | 0 of 112 at Act with the rule (7 of 57 before it; holdout 0 of 55, 3 without it); 12 of 112 at Review; ₹0 held |
 | Rules engine vs PULSE | rule flags 21 of 77 honest shops and catches 16 of 29 fronts; PULSE 0 and 28 |
 
 **Hero bakery:** 58 payments a day, median bill ₹180, 334 regulars making 91% of payments. Day T: 185 payments, 69%
@@ -825,14 +875,15 @@ scorecard → close with the line about learning what every bakery is.
 
 | Question | Short answer | Show |
 |---|---|---|
-| False alarms? | Two engines must agree, and peers must stay abnormal for 3 of 6 hours. 0 honest test shops reached Act. | Engines lab → Peers |
+| False alarms? | Two engines must agree, and Act needs a betting-specific one. 0 of 77 simulated and 0 of 112 real honest shops reached Act. | Engines lab → Peers; Evaluation → real shops |
+| Isn't this circular? | Partly, so we ran 112 real shops we didn't design. First run: 7 false Acts. We fixed one rule, then checked it on unseen data: 0. | Evaluation → real shops |
 | Diwali or a wedding order? | Tolerated rises with the peer group, so a cohort spike holds ₹0. A one-off big order has no betting fingerprints. | Story step 6 |
 | Where do labels come from? | Day one runs the expert scorecard in shadow mode, which needs no labels. Analyst decisions and confirmed cases become labels later. | Evaluation (Stage A vs B) |
 | Data PayU doesn't have? | Everything except bank data uses fields PayU already has: time, amount, payer handle, refunds, merchant category. Bank data is only through voluntary consent. | Ask us anything |
 | How fast? | 0.32 ms per scoring call on a laptop (p50). | PayU flow → Scoring API |
 | New shell company? | Judged from day one against its declared business and the banned-front graph. S5: flagged 2 h after its first payment, money held day 1. | Network |
 | Why not rules? | Rules flag 21 of 77 honest shops and catch 16 of 29 fronts here. | Rules vs PULSE |
-| What haven't you solved? | Off-platform payouts plus spread-out bets: caught, but late; more than half the money escapes. And everything is simulated until shadow mode. | Sandbox → Careful front |
+| What haven't you solved? | Off-platform payouts plus spread-out bets: caught, but late; more than half the money escapes. On real shops, 12 of 112 still reach Review. And there's no PayU data until shadow mode. | Sandbox → Careful front |
 | What does the merchant see? | Routine checks only. The STR track is hidden by law. | Analyst → Merchant's view |
 | Is this accurate on PayU data? | We don't know yet. That's what shadow mode is for, with written stop rules. | Rollout |
 
@@ -872,13 +923,14 @@ scorecard → close with the line about learning what every bakery is.
 
 These came from sources the build machine couldn't reach, or are our own choices. Check them before 26 November.
 
-1. **Fixture dates** in `data/events/fixtures.csv`: every row marked "to be verified by team" (date, teams, start time). The story's *India v Pakistan, Sunday 14 Sep 2025 (Asia Cup)* is one of them.
-2. **The INR price list** in `config/price_list.yaml` (it sets the ₹180 median bill).
-3. **Festival dates and multipliers** in `data/events/festivals.csv` (Diwali week).
-4. **Public figures and citations** on the Data page and in `config/scenarios.yaml`: ED 1xBet (6,000+ mule accounts), ED/Parimatch (payouts disguised as refunds), DGGI (about ₹70,000 crore through about 750 shells, Jul 2026), iPaisa (200+ shells), CUTS (68.3% → 82.0%). Check the exact wording against the original reports.
-5. **The team name** in `config/settings.yaml` (`team.name`, currently the placeholder "Team PULSE"). It appears in every header.
-6. **Merchant-facing texts** for each level (`config/costs.yaml` and the Merchant's view): drafts, not PayU policy.
-7. **Stop-rule limits and analyst parameters** (`config/costs.yaml`): design parameters we chose.
-8. **The hosted `/present`** after every deploy, from a phone, by scanning the printed QR.
-9. **Poster figures** (₹4,12,000, 847 bettors) must say "dramatised".
-10. If a real partner bakery's data is ever added (`data/raw/partner_bakery.csv`), check consent and anonymisation, and never commit the file (it's ignored by git on purpose).
+1. **The real-shop datasets' licences and wording**: Olist's public data and UCI Online Retail are free for research; check the exact attribution you want on the poster.
+2. **Fixture dates** in `data/events/fixtures.csv`: every row marked "to be verified by team" (date, teams, start time). The story's *India v Pakistan, Sunday 14 Sep 2025 (Asia Cup)* is one of them.
+3. **The INR price list** in `config/price_list.yaml` (it sets the ₹180 median bill).
+4. **Festival dates and multipliers** in `data/events/festivals.csv` (Diwali week).
+5. **Public figures and citations** on the Data page and in `config/scenarios.yaml`: ED 1xBet (6,000+ mule accounts), ED/Parimatch (payouts disguised as refunds), DGGI (about ₹70,000 crore through about 750 shells, Jul 2026), iPaisa (200+ shells), CUTS (68.3% → 82.0%). Check the exact wording against the original reports.
+6. **The team name** in `config/settings.yaml` (`team.name`, now "Team Legacy"). It appears in every header; check the spelling.
+7. **Merchant-facing texts** for each level (`config/costs.yaml` and the Merchant's view): drafts, not PayU policy.
+8. **Stop-rule limits and analyst parameters** (`config/costs.yaml`): design parameters we chose.
+9. **The hosted `/present`** after every deploy, from a phone, by scanning the printed QR.
+10. **Poster figures** (₹4,12,000, 847 bettors) must say "dramatised".
+11. If a real partner bakery's data is ever added (`data/raw/partner_bakery.csv`), check consent and anonymisation, and never commit the file (it's ignored by git on purpose).

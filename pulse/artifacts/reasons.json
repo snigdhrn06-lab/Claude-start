@@ -9632,81 +9632,7 @@
   "code": "PHA017",
   "hour": 3302,
   "kind": "first_l2",
-  "level": 3,
-  "merchant_id": 208,
-  "n_engines": 2,
-  "p": 0.114286,
-  "reasons": [
-   {
-    "engine": "graph",
-    "numbers": {
-     "expected": 8.92432,
-     "front_bettors": 772,
-     "n_payers": 578,
-     "shared": 15
-    },
-    "shap": 1.832099,
-    "template": "graph",
-    "text": "15 of its 578 payers in the last 30 days also paid Skyline Tours & Travels, banned on 29 Aug (about 8.9 expected by chance)"
-   },
-   {
-    "engine": "invariants",
-    "numbers": {
-     "median_hours": 3.083333,
-     "n_refunds": 2,
-     "recipients_who_paid": 2,
-     "refund_inr_7d": 983.0
-    },
-    "shap": 0.061025,
-    "template": "loop",
-    "text": "Rs 983 paid out as 'refunds' to 2 earlier payers in the last 7 days, a median 3.1 hours after they paid"
-   },
-   {
-    "engine": "peers",
-    "numbers": {
-     "expected": 85.201935,
-     "n_last24": 147,
-     "peer_ratio": 1.064734,
-     "ratio": 1.716899
-    },
-    "shap": 0.000114,
-    "template": "peer",
-    "text": "Payments ran 1.7x its expected level over the last 24 h while its peer group ran 1.1x"
-   }
-  ],
-  "shap": {
-   "aa_score": -0.005394,
-   "burst_share_24h": -0.006589,
-   "cusum": 0.0,
-   "distant_excess_24h": -0.004608,
-   "drift_adj": 0.126622,
-   "fast_payout_share": 0.23497,
-   "graph_neglogp": 1.88871,
-   "hard_links": -0.0066,
-   "js_24h": 0.0,
-   "js_7d": -0.002508,
-   "js_declared": -0.004217,
-   "log_payout_to_payin": -0.036891,
-   "loop_ratio": 0.00762,
-   "match_beta": 0.942278,
-   "match_neglogp": -0.070876,
-   "match_share_24h": 0.0,
-   "match_share_excess": -0.153974,
-   "newdist_share_24h": -0.1393,
-   "payout_ratio": -0.103083,
-   "peer_persist": 0.0,
-   "peer_z": 0.000114,
-   "round_excess": -0.004169,
-   "shared_k": -0.051217,
-   "unmatched_share": -0.041592,
-   "wasserstein": 0.00194
-  }
- },
- {
-  "code": "PHA017",
-  "hour": 3302,
-  "kind": "first_l3",
-  "level": 3,
+  "level": 2,
   "merchant_id": 208,
   "n_engines": 2,
   "p": 0.114286,
@@ -11317,69 +11243,7 @@
   "code": "SPO015",
   "hour": 3360,
   "kind": "first_l2",
-  "level": 3,
-  "merchant_id": 236,
-  "n_engines": 2,
-  "p": 0.114286,
-  "reasons": [
-   {
-    "engine": "graph",
-    "numbers": {
-     "expected": 28.29292,
-     "front_bettors": 2102,
-     "n_payers": 673,
-     "shared": 35
-    },
-    "shap": 0.189744,
-    "template": "graph",
-    "text": "35 of its 673 payers in the last 30 days also paid QuickServ IT Solutions, banned on 12 Oct (about 28.3 expected by chance)"
-   },
-   {
-    "engine": "peers",
-    "numbers": {
-     "expected": 182.344879,
-     "n_last24": 335,
-     "peer_ratio": 0.942137,
-     "ratio": 1.832612
-    },
-    "shap": 0.000924,
-    "template": "peer",
-    "text": "Payments ran 1.8x its expected level over the last 24 h while its peer group ran 0.9x"
-   }
-  ],
-  "shap": {
-   "aa_score": 0.003624,
-   "burst_share_24h": -0.012666,
-   "cusum": 0.0,
-   "distant_excess_24h": -0.007331,
-   "drift_adj": 0.099092,
-   "fast_payout_share": 0.110197,
-   "graph_neglogp": -0.184785,
-   "hard_links": -0.008439,
-   "js_24h": 0.0,
-   "js_7d": -0.006203,
-   "js_declared": 0.002938,
-   "log_payout_to_payin": -0.06848,
-   "loop_ratio": 0.005038,
-   "match_beta": 1.967142,
-   "match_neglogp": 0.63714,
-   "match_share_24h": 0.0,
-   "match_share_excess": -0.028082,
-   "newdist_share_24h": -0.184909,
-   "payout_ratio": -0.085811,
-   "peer_persist": 0.0,
-   "peer_z": 0.000924,
-   "round_excess": -0.004312,
-   "shared_k": 0.370904,
-   "unmatched_share": -0.036088,
-   "wasserstein": -0.002667
-  }
- },
- {
-  "code": "SPO015",
-  "hour": 3360,
-  "kind": "first_l3",
-  "level": 3,
+  "level": 2,
   "merchant_id": 236,
   "n_engines": 2,
   "p": 0.114286,
@@ -16180,7 +16044,7 @@
   "code": "FX003",
   "hour": 3638,
   "kind": "peak",
-  "level": 3,
+  "level": 2,
   "merchant_id": 272,
   "n_engines": 2,
   "p": 1.0,
@@ -16250,7 +16114,7 @@
   "code": "FX003",
   "hour": 3637,
   "kind": "first_l2",
-  "level": 3,
+  "level": 2,
   "merchant_id": 272,
   "n_engines": 2,
   "p": 0.777778,
@@ -16318,72 +16182,72 @@
  },
  {
   "code": "FX003",
-  "hour": 3637,
+  "hour": 3641,
   "kind": "first_l3",
-  "level": 3,
+  "level": 5,
   "merchant_id": 272,
-  "n_engines": 2,
-  "p": 0.777778,
+  "n_engines": 3,
+  "p": 1.0,
   "reasons": [
    {
     "engine": "graph",
     "numbers": {
-     "expected": 19.67472,
+     "expected": 21.18816,
      "front_bettors": 2102,
-     "n_payers": 468,
-     "shared": 36
+     "n_payers": 504,
+     "shared": 48
     },
-    "shap": 3.16939,
+    "shap": 3.596509,
     "template": "graph",
-    "text": "36 of its 468 payers in the last 30 days also paid QuickServ IT Solutions, banned on 12 Oct (about 19.7 expected by chance)"
+    "text": "48 of its 504 payers in the last 30 days also paid QuickServ IT Solutions, banned on 12 Oct (about 21.2 expected by chance)"
    },
    {
     "engine": "invariants",
     "numbers": {
-     "payers": 27
-    },
-    "shap": 1.216986,
-    "template": "burst",
-    "text": "27 payers paid again within 10 minutes in the last 24 h"
-   },
-   {
-    "engine": "invariants",
-    "numbers": {
-     "n_last24": 173,
+     "n_last24": 247,
      "share_baseline": 0.157044,
-     "share_last24": 0.676301
+     "share_last24": 0.834008
     },
-    "shap": 1.078729,
+    "shap": 2.167141,
     "template": "match",
-    "text": "68% of payments in the last 24 h fell inside live-match windows vs 16% in its baseline"
+    "text": "83% of payments in the last 24 h fell inside live-match windows vs 16% in its baseline"
+   },
+   {
+    "engine": "invariants",
+    "numbers": {
+     "payers": 44
+    },
+    "shap": 0.952534,
+    "template": "burst",
+    "text": "44 payers paid again within 10 minutes in the last 24 h"
    }
   ],
   "shap": {
-   "aa_score": 0.030118,
-   "burst_share_24h": 1.216986,
+   "aa_score": 0.029028,
+   "burst_share_24h": 0.952534,
    "cusum": 0.0,
-   "distant_excess_24h": 0.160316,
-   "drift_adj": 0.142295,
-   "fast_payout_share": -0.01939,
-   "graph_neglogp": 2.73593,
-   "hard_links": -0.005884,
+   "distant_excess_24h": 0.141449,
+   "drift_adj": 0.136798,
+   "fast_payout_share": -0.017666,
+   "graph_neglogp": 3.210213,
+   "hard_links": -0.005855,
    "js_24h": 0.0,
-   "js_7d": -0.001378,
-   "js_declared": 0.002286,
-   "log_payout_to_payin": -0.013679,
-   "loop_ratio": -0.006188,
-   "match_beta": 1.119505,
-   "match_neglogp": -0.131188,
+   "js_7d": 0.052857,
+   "js_declared": 0.002663,
+   "log_payout_to_payin": -0.012532,
+   "loop_ratio": -0.005153,
+   "match_beta": 1.328549,
+   "match_neglogp": 0.707165,
    "match_share_24h": 0.0,
-   "match_share_excess": 0.090412,
-   "newdist_share_24h": 0.542575,
-   "payout_ratio": -0.114832,
+   "match_share_excess": 0.131427,
+   "newdist_share_24h": 0.583259,
+   "payout_ratio": -0.103735,
    "peer_persist": 0.0,
    "peer_z": 0.000924,
-   "round_excess": 0.086143,
-   "shared_k": 0.403342,
-   "unmatched_share": -0.049319,
-   "wasserstein": 0.007895
+   "round_excess": 0.085235,
+   "shared_k": 0.357268,
+   "unmatched_share": -0.042671,
+   "wasserstein": 0.009864
   }
  },
  {

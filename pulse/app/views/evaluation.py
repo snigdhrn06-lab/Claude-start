@@ -28,6 +28,54 @@ rows = [{"id": f"<b>{r['id']}</b>", "label": r["label"], "exp": r["expected"], "
          "why": r["explanation"]} for r in card]
 C.html_table(rows, [("id", "ID"), ("label", "Scenario"), ("exp", "Expected"), ("act", "Actual"), ("res", "Result"), ("why", "Why")], raw_cols=("id", "res"))
 
+# ---------------------------------------------------------------- real shops (out of sample)
+real = data.js("eval/real_shops.json") if (data.ART / "eval" / "real_shops.json").exists() else None
+if real:
+    st.markdown("### Real shops we didn't design: the false-alarm test")
+    dv, ho = real["dev"]["summary"], (real.get("holdout") or {}).get("summary")
+    st.markdown(
+        f"<div class='muted'>Every number above comes from a world we simulated. So we also ran PULSE on <b>real, honest shops</b> it was never "
+        f"built or trained on: {dv['by_source'].get('real (Olist, Brazil)', 0)} Brazilian online sellers from Olist's public data and a UK gift "
+        f"wholesaler (UCI Online Retail, {real['dev']['shops'][-1]['payments']:,} invoices and {dv['refunds']:,} real refunds). They join the city as "
+        "newcomers and are scored by the frozen model. None of them takes bets, so every Review or Act is a false alarm.</div>", unsafe_allow_html=True)
+    st.write("")
+    rows = [{"k": "Shops", "a": dv["shops"], "b": ho["shops"] if ho else "–"},
+            {"k": "Merchant-months scored", "a": dv["merchant_months"], "b": ho["merchant_months"] if ho else "–"},
+            {"k": "Reached Review (L2): analyst looks, nothing held", "a": dv["ever_l2"], "b": ho["ever_l2"] if ho else "–"},
+            {"k": "Reached Act (L3) <b>before</b> the rule change", "a": f"{dv['rule_off']['ever_l3']} ({dv['rule_off']['l3_per_1000_merchant_months']:.0f} per 1,000 merchant-months)",
+             "b": f"{ho['rule_off']['ever_l3']} ({ho['rule_off']['l3_per_1000_merchant_months']:.0f} per 1,000)" if ho else "–"},
+            {"k": "Reached Act (L3) <b>after</b> the rule change", "a": dv["ever_l3"], "b": ho["ever_l3"] if ho else "–"},
+            {"k": "Money held", "a": f"₹{dv['held_inr']:,}", "b": f"₹{ho['held_inr']:,}" if ho else "–"}]
+    C.html_table(rows, [("k", "Real honest shops"), ("a", "Test slice: Olist Sep 2017–Feb 2018 + UK wholesaler"),
+                        ("b", "Holdout: Olist Mar–Sep 2018, run once")], raw_cols=("k",))
+    C.note("What we learned: the first run put 7 of 57 real shops at Act. Every one was a small seller having a genuine surge, flagged by drift and "
+           "peers together. Both of those only say 'unlike normal', so two of them agreeing isn't independent evidence of betting. We changed one rule: "
+           "Act now also needs a betting-specific engine (invariants or graph); drift + peers alone can reach Review at most. Because the rule came from "
+           "that slice, we checked it on a second Olist period we had not looked at: 3 Acts without the rule, 0 with it. On the simulated city the rule "
+           "changed nothing measurable (same recall, same money held, 9 of 9 scenarios). The UK wholesaler, with real refunds and a Christmas rush, "
+           "never went above a silent check. Real shops still reach Review more often than simulated ones, which is a real analyst cost.")
+    st.write("")
+    rd = data.pq("real_daily.parquet")
+    shops = real["dev"]["shops"] + (real.get("holdout") or {}).get("shops", [])
+    flagged = [x for x in shops if x["max_level"] >= 2 or x["code"] == "R_UK01"]
+    pick = st.selectbox("See one real shop", [x["code"] for x in flagged],
+                        format_func=lambda c: next(f"{x['name']} · highest level L{x['max_level']} (L{x['max_level_rule_off']} without the rule)"
+                                                   for x in shops if x["code"] == c))
+    sh = next(x for x in shops if x["code"] == pick)
+    dd = rd[(rd.merchant_id == sh["merchant_id"]) & (rd.slice == ("holdout" if pick.startswith("R_HO") else "dev"))]
+    from plotly.subplots import make_subplots
+    f = make_subplots(rows=2, cols=1, shared_xaxes=True, row_heights=[0.7, 0.3], vertical_spacing=0.08,
+                      subplot_titles=("Payments per day (real data)", "Ladder level per day (dark = Review or above)"))
+    f.add_trace(go.Bar(x=dd.day + 1, y=dd.cnt, marker_color=JADE, name="Payments"), row=1, col=1)
+    f.add_trace(go.Bar(x=dd.day + 1, y=dd.level, marker_color=[DARK if v >= 2 else GREY for v in dd.level], name="Level"), row=2, col=1)
+    f.update_yaxes(range=[0, 3.3], tickvals=[0, 1, 2, 3], ticktext=["L0", "L1", "L2", "L3"], row=2, col=1)
+    f.update_layout(height=420, showlegend=False, margin=dict(t=40))
+    f.update_xaxes(title_text="Day of the 162-day window", row=2, col=1)
+    st.plotly_chart(f, use_container_width=True, config={"displayModeBar": False})
+    C.note(f"{sh['source']} · {sh['payments']:,} payments, {sh['refunds']:,} refunds · drift fired in {100 * sh['fire_share']['drift']:.1f}% of hours, "
+           f"peers {100 * sh['fire_share']['peer']:.1f}%, invariants {100 * sh['fire_share']['invariants']:.1f}%, graph {100 * sh['fire_share']['graph']:.1f}%. "
+           "Dates are shifted onto the simulation calendar (day of week kept); amounts converted to rupees at a fixed rate.")
+
 st.write("")
 c1, c2 = st.columns(2)
 with c1:

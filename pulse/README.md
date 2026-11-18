@@ -119,6 +119,16 @@ artifacts/     eval/*.json, screenshots/*.png, evidence/ case files (the rest is
 
 The app reads only precomputed artefacts (`st.cache_data`); pages load in about a second (`artifacts/screenshots/console_log.txt`).
 
+## Real shops we didn't design (out-of-sample false-alarm test)
+
+`make fetch-data` also downloads two public datasets of real, honest shops: Olist's marketplace orders (Brazil) and UCI
+Online Retail (a UK gift wholesaler with real refunds). `pulse/real_shops.py` turns each seller into a payment stream the
+same way as the hero bakery; `pipeline.real_shop_pass` adds them to the city as newcomers and scores them with the frozen
+model in a separate pass, so the main results don't change. Results go to `artifacts/eval/real_shops.json` and the
+Evaluation page. The first run put 7 of 57 at Act (drift + peers on genuine surges). That led to one rule change,
+`act_needs_betting_engine` in `config/costs.yaml`, which we checked once on an untouched second Olist period: 0 of 55 at
+Act (3 without the rule). 12 of 112 real shops still reach Review.
+
 ## Results (simulated)
 
 See [`REPORT.md`](REPORT.md) for the full tables. In short: all scenario checks S0–S5 pass, and E1–E3 are flagged. Of 29 test fronts,
@@ -134,10 +144,11 @@ numbers as a demonstration of the mechanism, not an estimate of real performance
 - `config/price_list.yaml`: the INR price list used to price the Bread Basket items (median bill about ₹180).
 - `data/events/festivals.csv`: Diwali and other festival dates and multipliers.
 - Citations in `config/scenarios.yaml` and the Data page (ED / DGGI / CUTS findings, as supplied in the brief).
-- `config/settings.yaml` `team.name`: shown in every header (currently the placeholder "Team PULSE").
+- `config/settings.yaml` `team.name`: shown in every header (now "Team Legacy"; check the spelling).
 - `config/costs.yaml`: stop-rule limits, analyst minutes per alert, and the merchant-facing wording at each level. These are design parameters, not PayU policy.
 - The hosted `/present` after each deploy, from a phone, by scanning the printed poster QR.
 - Any poster figures (₹4,12,000 night, 847 bettors) must carry "dramatised".
 - `data/raw/partner_bakery.csv`, if added: consent and anonymisation.
+- Attribution wording for the real-shop datasets (Olist public data; UCI Online Retail) on any poster or slide.
 
 **New to the app? Read [`PULSE_Guide.pdf`](PULSE_Guide.pdf)** (source: [`GUIDE.md`](GUIDE.md)): every screen with annotated screenshots, the maths in plain words, how it was built, and what to say. Rebuild it with `make guide`. See `ASSUMPTIONS.md` for every assumption, and `DEMO_SCRIPT.md` for the 2-minute narration.

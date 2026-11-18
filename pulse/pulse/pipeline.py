@@ -125,12 +125,81 @@ def anchor_ticket(F: dict, anchor: dict, mdf: pd.DataFrame, declared: dict) -> n
     return out
 
 
-def fit_and_score(F: dict, mdf: pd.DataFrame, Y: np.ndarray, cfg: dict, features: list[str], n_engines: np.ndarray):
+def make_reserve(F, ctx, mdf, pay, payers, lad, cal, cfg):
+    """Fingerprint every payment and return reserve(i) -> hourly delta-reserve table for merchant i."""
+    M, H, D = len(mdf), cal.H, cal.days
+    pay_fp = RS.fingerprint_flags(pay, cal, payers, mdf, cfg)
+    pin = pay_fp[(pay_fp.kind == 0) & pay_fp.fingerprinted]
+    fp_amt = np.bincount(pin.merchant_id.to_numpy().astype(np.int64) * H + pin.t_min.to_numpy() // 60, weights=pin.amount.to_numpy(),
+                         minlength=M * H).reshape(M, H)
+    ticket = anchor_ticket(F, ctx["anchor"], mdf, ctx["declared"])
+    lift_d = cohort_lift_daily(F, ctx["E"], ctx["groups"], ticket, D)
+    sigma = np.clip(ctx["anchor"]["daily_std"] / np.maximum(ctx["anchor"]["daily_mean"], 1), 0.1, 1.0)
+    ready_d = ctx["anchor"]["ready_h"] // 24
+
+    def reserve(i, force=False, k=None):
+        # merchants onboarded mid-window are judged against their declared hours until their own anchor exists
+        declared_days = (np.arange(D) < ready_d[i]) & (mdf.onboard_day.iloc[i] > 0)
+        df = RS.delta_reserve(F["cnt"][i], F["amt"][i], fp_amt[i], ctx["E"][i], ticket[i], lift_d[i], sigma[i],
+                              lad["level_auto"][i], cfg["costs"], k=k, force=force, declared_days=declared_days)
+        df["merchant_id"] = i
+        return df
+
+    return reserve, pay_fp, ticket, sigma, fp_amt, lift_d
+
+
+def real_shop_pass(world, cfg, cal, root, model, features, holdout=False):
+    """Second, scoring-only pass: the real shops join the city as newcomers and are scored by the FROZEN model."""
+    from .real_shops import build_real_world
+
+    wb = build_real_world(world, cfg, cal, root, holdout)
+    if wb is None:
+        return None, None
+    mdf_b = wb["merchants"]
+    Rb = run_engines(wb, cal, cfg)
+    Fb, ctxb = Rb["F"], Rb["ctx"]
+    pb = model.predict_grid(Fb)
+    ladb = RS.ladder(pb, Fb["n_engines"], Fb["active"], cfg["costs"], RS.betting_engines(Fb))
+    pAb = FU.scorecard(Fb, cfg)
+    ladAb = RS.ladder(pAb, Fb["n_engines"], Fb["active"], cfg["costs"], RS.betting_engines(Fb))
+    summ_b = EV.merchant_summary(mdf_b, Fb, pb, ladb, cal)
+    summA_b = EV.merchant_summary(mdf_b, Fb, pAb, ladAb, cal)
+    reserve_b, *_ = make_reserve(Fb, ctxb, mdf_b, wb["payments"], wb["payers"], ladb, cal, cfg)
+    report = EV.real_shops_report(mdf_b, summ_b, summA_b, Fb, wb["payments"], reserve_b, cal)
+    # the same shops with the Act rule switched off, so the effect of the rule is visible
+    lad_off = RS.ladder(pb, Fb["n_engines"], Fb["active"], cfg["costs"])
+    so = EV.merchant_summary(mdf_b, Fb, pb, lad_off, cal).set_index("merchant_id")
+    ids = [r["merchant_id"] for r in report["shops"]]
+    for r in report["shops"]:
+        r["max_level_rule_off"] = int(so.loc[r["merchant_id"], "max_level"])
+        r["max_level_auto_rule_off"] = int(so.loc[r["merchant_id"], "max_level_auto"])
+    months = report["summary"].get("merchant_months", 0) or 1e-9
+    n3 = int((so.loc[ids, "max_level_auto"] >= 3).sum())
+    report["summary"]["rule_off"] = {"ever_l2": int((so.loc[ids, "max_level"] >= 2).sum()), "ever_l3": n3,
+                                     "l3_per_1000_merchant_months": round(n3 / months * 1000, 1)}
+    report["summary"]["act_needs_betting_engine"] = bool(cfg["costs"].get("act_needs_betting_engine"))
+    report["summary"]["slice"] = ("Olist " + cfg["settings"]["real_shops"]["holdout"]["olist_slice_start"] + " (+162 days), holdout"
+                                  if holdout else "Olist " + cfg["settings"]["real_shops"]["olist"]["slice_start"] + " (+162 days) and UCI "
+                                  + cfg["settings"]["real_shops"]["uci"]["slice_start"] + " (+162 days)")
+    # daily rows for the real shops (same columns as artifacts/daily.parquet)
+    idx = np.where((mdf_b.split == "real").to_numpy())[0]
+    D = cal.days
+    cols = {"p": pb, "pA": pAb, "level": ladb["level"], "level_auto": ladb["level_auto"]}
+    out = {"merchant_id": np.repeat(idx, D), "day": np.tile(np.arange(D), len(idx))}
+    for key in ["p", "pA", "level", "level_auto", "n_engines", "drift_adj", "peers_score", "invariants_score", "graph_score",
+                "drift_fire", "peer_fire", "invariants_fire", "graph_fire", "cnt", "amt", "active"]:
+        a = cols.get(key, Fb.get(key))[idx].reshape(len(idx), D, 24)
+        v = a.sum(axis=2) if key in ("cnt", "amt") else (a.any(axis=2) if key == "active" else a.max(axis=2))
+        out[key] = v.reshape(-1).astype(np.float32 if v.dtype != bool else bool)
+    return report, pd.DataFrame(out)
+
+
+def fit_and_score(F: dict, mdf: pd.DataFrame, Y: np.ndarray, cfg: dict, features: list[str], n_engines: np.ndarray, drop: str | None = None):
     daily = FU.daily_table(F, mdf, Y, cols=features)
     calib = FU.calibration_merchants(mdf, cfg)
     model = FU.FusionModel(cfg, features).fit(daily, calib)
     p = model.predict_grid(F)
-    lad = RS.ladder(p, n_engines, F["active"], cfg["costs"])
+    lad = RS.ladder(p, n_engines, F["active"], cfg["costs"], RS.betting_engines(F, drop))
     return model, daily, p, lad
 
 
@@ -141,7 +210,7 @@ def run_ablation(F, mdf, Y, cfg, cal) -> list[dict]:
     for name, drop in variants:
         feats = [f for f in ALL_FEATURES if drop is None or f not in FEATURES[drop]]
         ne = sum(v.astype(np.int8) for k, v in fires.items() if k != drop)
-        model, daily, p, lad = fit_and_score(F, mdf, Y, cfg, feats, ne)
+        model, daily, p, lad = fit_and_score(F, mdf, Y, cfg, feats, ne, drop)
         summ = EV.merchant_summary(mdf, F, p, lad, cal)
         p_daily = p[daily.merchant_id.to_numpy(), daily.hour.to_numpy()]
         m = EV.core_metrics(mdf, summ, daily, lad, F, p_daily)
@@ -261,29 +330,13 @@ def stage_train(cfg: dict, root: pathlib.Path, proc: pathlib.Path, art: pathlib.
     p_daily = p[daily.merchant_id.to_numpy(), daily.hour.to_numpy()]
     metrics = EV.core_metrics(mdf, summ, daily, lad, F, p_daily)
     # Stage A scorecard measured the same way (shadow mode)
-    ladA = RS.ladder(pA, F["n_engines"], F["active"], cfg["costs"])
+    ladA = RS.ladder(pA, F["n_engines"], F["active"], cfg["costs"], RS.betting_engines(F))
     summA = EV.merchant_summary(mdf, F, pA, ladA, cal)
     mA = EV.core_metrics(mdf, summA, daily, ladA, F, pA[daily.merchant_id.to_numpy(), daily.hour.to_numpy()])
     log("metrics")
 
     # ---- fingerprints and delta reserve
-    pay_fp = RS.fingerprint_flags(pay, cal, world["payers"], mdf, cfg)
-    pin = pay_fp[(pay_fp.kind == 0) & pay_fp.fingerprinted]
-    fp_amt = np.bincount(pin.merchant_id.to_numpy().astype(np.int64) * H + pin.t_min.to_numpy() // 60, weights=pin.amount.to_numpy(),
-                         minlength=M * H).reshape(M, H)
-    ticket = anchor_ticket(F, ctx["anchor"], mdf, ctx["declared"])
-    lift_d = cohort_lift_daily(F, ctx["E"], ctx["groups"], ticket, D)
-    sigma = np.clip(ctx["anchor"]["daily_std"] / np.maximum(ctx["anchor"]["daily_mean"], 1), 0.1, 1.0)
-
-    ready_d = ctx["anchor"]["ready_h"] // 24
-
-    def reserve(i, force=False, k=None):
-        # merchants onboarded mid-window are judged against their declared hours until their own anchor exists
-        declared_days = (np.arange(D) < ready_d[i]) & (mdf.onboard_day.iloc[i] > 0)
-        df = RS.delta_reserve(F["cnt"][i], F["amt"][i], fp_amt[i], ctx["E"][i], ticket[i], lift_d[i], sigma[i],
-                              lad["level_auto"][i], cfg["costs"], k=k, force=force, declared_days=declared_days)
-        df["merchant_id"] = i
-        return df
+    reserve, pay_fp, ticket, sigma, fp_amt, lift_d = make_reserve(F, ctx, mdf, pay, world["payers"], lad, cal, cfg)
 
     code_i = dict(zip(mdf.code, mdf.merchant_id))
     reserves = {"S3": reserve(code_i["HERO"]), "S1": reserve(code_i["S1_SWEETS"]), "S5": reserve(code_i["S5"])}
@@ -301,6 +354,16 @@ def stage_train(cfg: dict, root: pathlib.Path, proc: pathlib.Path, art: pathlib.
     res_daily = pd.concat(res_daily, ignore_index=True)
     money = EV.money_contained(mdf, pay_fp, lad, res_daily)
     log("delta reserve")
+
+    real_shops = real_daily = None
+    if cfg["settings"].get("real_shops", {}).get("enabled"):
+        dev, dev_daily = real_shop_pass(world, cfg, cal, root, model, ALL_FEATURES)
+        ho, ho_daily = real_shop_pass(world, cfg, cal, root, model, ALL_FEATURES, holdout=True)
+        if dev:
+            real_shops = {"dev": dev, "holdout": ho}
+            real_daily = pd.concat([x.assign(slice=k) for k, x in [("dev", dev_daily), ("holdout", ho_daily)] if x is not None], ignore_index=True)
+            log(f"real shops dev: {dev['summary']}")
+            log(f"real shops holdout: {ho['summary'] if ho else None}")
 
     fair = EV.fairness(mdf, summ)
     card = scenario_scorecard(cfg, mdf, summ, F, lad, pay, reserves)
@@ -450,6 +513,9 @@ def stage_train(cfg: dict, root: pathlib.Path, proc: pathlib.Path, art: pathlib.
     write_json(ev / "ablation.json", abl)
     write_json(ev / "fairness.json", fair)
     write_json(ev / "reliability.json", {"test": rel.to_dict("records"), "calibration_fold": rel_cal.to_dict("records")})
+    if real_shops:
+        write_json(ev / "real_shops.json", real_shops)
+        write_parquet(real_daily, art / "real_daily.parquet")
     write_json(ev / "time_to_detect.json", summ.merge(mdf[["merchant_id", "code", "scenario", "split", "truth", "category"]], on="merchant_id")
                .query("split == 'test' and truth == 'front'")[["code", "scenario", "category", "detect_hours", "detect_hours_l3"]].to_dict("records"))
     write_json(ev / "money_contained.json", money)

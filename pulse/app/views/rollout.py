@@ -46,13 +46,19 @@ with tabs[0]:
              ("Peak new cases per analyst per day", f"{per_analyst:.1f}", f"≤ {sr['max_new_cases_per_analyst_day']} ({sr['analysts']} analysts)",
               per_analyst <= sr["max_new_cases_per_analyst_day"]),
              ("Designed scenarios passing (S0–S5, E1–E3)", f"{sum(r['pass'] for r in card)} / {len(card)}", "all", all(r["pass"] for r in card))]
+    if (data.ART / "eval" / "real_shops.json").exists():
+        rs = data.js("eval/real_shops.json")
+        ho = (rs.get("holdout") or rs["dev"])["summary"]
+        rules.append(("Real honest shops reaching Act, per 1,000 merchant-months (untouched holdout, real data)",
+                      f"{ho['l3_per_1000_merchant_months']:.1f} ({ho['ever_l3']} of {ho['shops']})",
+                      f"≤ {sr['max_honest_act_per_1000_merchant_months']}", ho["l3_per_1000_merchant_months"] <= sr["max_honest_act_per_1000_merchant_months"]))
     C.html_table([{"r": a, "v": b, "l": c, "ok": "<span class='pass'>✅ PASS</span>" if ok else "<span class='fail'>❌ FAIL</span>"} for a, b, c, ok in rules],
-                 [("r", "Stop rule"), ("v", "Simulated value"), ("l", "Limit (design parameter)"), ("ok", "Result")], raw_cols=("ok",))
+                 [("r", "Stop rule"), ("v", "Measured value"), ("l", "Limit (design parameter)"), ("ok", "Result")], raw_cols=("ok",))
     st.write("")
     cols = st.columns(len(ro["stages"]))
     for k, (c, s) in enumerate(zip(cols, ro["stages"])):
         c.markdown(f"<div class='jtile{' primary' if k == 0 else ''}' style='min-height:190px'><div class='jnum'>{k + 1}</div>"
-                   f"<div class='jtitle' style='font-size:20px'>{s['name']}</div><div class='jbody'>{s['what']}<br><b>Move on when:</b> {s['exit']}</div></div>",
+                   f"<div class='jtitle' style='font-size:20px;white-space:normal'>{s['name']}</div><div class='jbody'>{s['what']}<br><b>Move on when:</b> {s['exit']}</div></div>",
                    unsafe_allow_html=True)
     C.note("The median time to detect (163 h) only just passes its 168 h limit: small or quiet fronts take days to weeks. That's the honest weak spot.")
 

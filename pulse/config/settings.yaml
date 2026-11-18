@@ -1,6 +1,6 @@
 # Global settings. Everything here is a design parameter unless marked otherwise.
 team:
-  name: "Team PULSE"          # EDIT: your team name, shown in the app header
+  name: "Team Legacy"         # shown in the app header
   event: "Follow the Money: Innovation Challenge · Final, IIM Bangalore, 26 Nov 2026"
 seed: 42                       # one global seed; every random draw derives from it
 window:
@@ -29,6 +29,20 @@ hero:
   takeover_day_index: 112      # 2025-09-14, India v Pakistan, Asia Cup (S3)
 split:
   test_share: 0.30
+# Real honest shops from public datasets (out-of-sample false-alarm test). Fetched by scripts/fetch_data.py.
+# Never trained on and never part of the test metrics; reported on their own in artifacts/eval/real_shops.json.
+real_shops:
+  enabled: true
+  olist:
+    slice_start: "2017-09-03"    # Sunday; 162 days to 11 Feb 2018 (Black Friday, Christmas, Carnival inside)
+    min_orders: 100              # sellers with at least this many orders in the slice
+    inr_per_unit: 16             # BRL -> INR, fixed design rate
+  holdout:
+    # A second Olist period, scored ONCE after the Act rule was added (the rule came from the slice above).
+    olist_slice_start: "2018-03-25"   # Sunday; 162 days to 3 Sep 2018
+  uci:
+    slice_start: "2011-06-26"    # Sunday; 162 days to 4 Dec 2011 (pre-Christmas rush inside)
+    inr_per_unit: 105            # GBP -> INR, fixed design rate
 paths:
   raw: data/raw
   events: data/events

@@ -1,7 +1,7 @@
 # Round 2: audit and build result
 
 **Status on 17 Nov 2026: built.** The audit below (written before the build) lists what already existed. This first
-section says what was built and where, and what was skipped and why. Everything runs locally from `make demo`, and all 46
+section says what was built and where, and what was skipped and why. Everything runs locally from `make demo`, and all 50
 tests pass (`make test`). I couldn't reach the live Render URL from the build sandbox, so the team must check `/present` on it after
 deploying (see README, "Keep it warm").
 
@@ -35,6 +35,7 @@ deploying (see README, "Keep it warm").
 | 4 Mobile 390 px | BROKEN | sidebar starts collapsed on phones, tiles stack, header fits | `app/ui/theme.py`, `app/ui/layout.py` |
 | 6 Tests | PARTIAL | + sandbox presets (honest stay ≤ L1 and hold ₹0; fronts caught and held; deterministic) and `/present` 200 + no "Page not found" on all 15 routes; film e2e updated for `/film` | `tests/test_sandbox.py`, `tests/test_routes.py`, `scripts/test_presentation.py` |
 | 5 Poster lines | MISSING | both on Judge Mode | `app/views/judge_home.py` |
+| (added) Real-shop false-alarm test | n/a | 112 real honest shops (Olist + UCI Online Retail) scored by the frozen model in a separate pass; first run 7 of 57 at Act → new rule "Act needs a betting-specific engine" → untouched holdout 0 of 55 (3 without the rule); main results unchanged | `pulse/real_shops.py`, `pipeline.real_shop_pass`, Evaluation page, `artifacts/eval/real_shops.json` |
 
 ## What was skipped, and why
 

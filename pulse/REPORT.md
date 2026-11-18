@@ -42,7 +42,7 @@ Notes:
 | Recall: fronts reaching L3 (auto) | 0.97 | 0.97 |
 | PR-AUC, merchant level | 1.000 | 0.999 |
 | PR-AUC, merchant-day level (base rate 0.091) | 0.983 | 0.933 |
-| False alarms: honest L3+ episodes per 1,000 merchant-months | 0.0 | 3.2 |
+| False alarms: honest L3+ episodes per 1,000 merchant-months | 0.0 | 0.0 |
 | False alarms: honest L2+ episodes per 1,000 merchant-months | 0.0 | 3.2 |
 | Time to detect (first L2+), median hours | 163.0 | 163.0 |
 | Time to detect, 90th percentile hours | 786.1 | 786.1 |

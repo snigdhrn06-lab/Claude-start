@@ -225,7 +225,7 @@ def score_world(world: dict, cal: Calendar, cfg: dict) -> dict:
         R = run_engines(world, cal, cfg)
     F, ctx = R["F"], R["ctx"]
     p = FU.scorecard(F, cfg)
-    lad = RS.ladder(p, F["n_engines"], F["active"], cfg["costs"])
+    lad = RS.ladder(p, F["n_engines"], F["active"], cfg["costs"], RS.betting_engines(F))
     mdf, pay = world["merchants"], world["payments"]
     M, H, D = len(mdf), cal.H, cal.days
     pf = RS.fingerprint_flags(pay, cal, world["payers"], mdf, cfg)

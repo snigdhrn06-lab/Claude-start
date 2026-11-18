@@ -17,12 +17,18 @@ def level_thresholds(costs: dict) -> dict:
     return {L: c / (cf + c) for L, c in costs["c_friction"].items()}
 
 
-def decide_level(p: np.ndarray, n_engines: np.ndarray, costs: dict) -> np.ndarray:
-    """Highest level whose cost inequality holds AND whose corroboration requirement is met."""
+def decide_level(p: np.ndarray, n_engines: np.ndarray, costs: dict, betting: np.ndarray | None = None) -> np.ndarray:
+    """Highest level whose cost inequality holds AND whose corroboration requirement is met.
+
+    If costs['act_needs_betting_engine'] is on, L3 and above also need a betting-specific engine (invariants or graph):
+    drift and peers both only say 'unlike normal', so on their own they can reach Review (L2) at most."""
     thr = level_thresholds(costs)
     lvl = np.zeros(p.shape, np.int8)
+    gate = costs.get("act_needs_betting_engine", False) and betting is not None
     for k, L in enumerate(LEVELS[1:], start=1):
         ok = (p > thr[L]) & (n_engines >= costs["min_engines"][L])
+        if gate and k >= 3:
+            ok = ok & betting
         lvl = np.where(ok, k, lvl)
     return lvl
 
@@ -34,8 +40,14 @@ def hold(levels: np.ndarray, hours: int) -> np.ndarray:
     return maximum_filter1d(levels, size=hours, axis=-1, origin=(hours - 1) // 2, mode="constant", cval=0).astype(np.int8)
 
 
-def ladder(p: np.ndarray, n_engines: np.ndarray, active: np.ndarray, costs: dict) -> dict:
-    raw = decide_level(p, n_engines, costs) * active
+def betting_engines(F: dict, drop: str | None = None) -> np.ndarray:
+    """Hours where a betting-specific engine fires (invariants or graph, incl. hard links)."""
+    parts = [F[f"{e}_fire"] for e in ("invariants", "graph") if e != drop]
+    return np.logical_or.reduce(parts) if parts else np.zeros_like(F["drift_fire"])
+
+
+def ladder(p: np.ndarray, n_engines: np.ndarray, active: np.ndarray, costs: dict, betting: np.ndarray | None = None) -> dict:
+    raw = decide_level(p, n_engines, costs, betting) * active
     held = hold(raw, costs["hold_hours"]) * active
     auto = np.minimum(held, costs["auto_max_level"]).astype(np.int8)
     return {"level_raw": raw.astype(np.int8), "level": held, "level_auto": auto}

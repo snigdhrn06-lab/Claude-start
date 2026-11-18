@@ -9,6 +9,9 @@ c_friction:
   L3: 12     # delta reserve + video KYC
   L4: 40     # restrict
   L5: 120    # exit + STR draft
+# Added after the real-shop test (artifacts/eval/real_shops.json): drift and peers both only say "unlike normal", so
+# two of them agreeing is not independent evidence of betting. Act (L3+) also needs invariants or graph to fire.
+act_needs_betting_engine: true
 min_engines:                # corroboration: engines that must independently fire
   L1: 0
   L2: 2

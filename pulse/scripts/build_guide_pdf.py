@@ -15,7 +15,7 @@ import markdown
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 
 
-KEEP_SIDEBAR = {"01_judge_home.jpg", "02_story_1.jpg", "35_mobile.jpg", "11_film.jpg"}
+KEEP_SIDEBAR = {"01_judge_home.jpg", "02_story_1.jpg", "35_mobile.jpg", "11_film.jpg", "30b_real_shops.jpg"}
 
 
 def prepare_images(tmpdir: pathlib.Path) -> dict:
@@ -128,7 +128,7 @@ def main():
     words, how we built it, and what to say to a judge.</div>
     <div class='pill'>ALL RESULTS ARE ON SIMULATED DATA</div>
   </div>
-  <div class='meta'>CSITM, IIM Bangalore × PayU · Innovation Challenge final, 26 Nov 2026<br>Guide built {today} from the
+  <div class='meta'><b style='color:#fff;font-size:12pt'>Team Legacy</b><br>CSITM, IIM Bangalore × PayU · Innovation Challenge final, 26 Nov 2026<br>Guide built {today} from the
   app itself; every picture is a real screenshot.</div>
 </div>"""
     html = f"<!doctype html><html><head><meta charset='utf-8'><style>{CSS}</style></head><body>{cover}{body}</body></html>"

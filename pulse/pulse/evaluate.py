@@ -120,3 +120,51 @@ def fairness(mdf: pd.DataFrame, summ: pd.DataFrame) -> list[dict]:
             out.append({"dimension": dim, "value": str(v), "n": int(len(g)), "ever_l1": float((g.max_level >= 1).mean()),
                         "ever_l2": float((g.max_level >= 2).mean()), "ever_l3": float((g.max_level >= 3).mean())})
     return out
+
+
+def real_shops_report(mdf: pd.DataFrame, summ: pd.DataFrame, summA: pd.DataFrame, F: dict, pay: pd.DataFrame,
+                      reserve_fn, cal) -> dict:
+    """Out-of-sample false-alarm test on real honest shops (split == 'real'). Nothing here was used to train or tune."""
+    real = mdf[mdf.split == "real"]
+    if real.empty:
+        return {"summary": {"shops": 0}, "shops": []}
+    S, SA = summ.set_index("merchant_id"), summA.set_index("merchant_id")
+    cnt = pay.groupby(["merchant_id", "kind"]).size().unstack(fill_value=0)
+    rows = []
+    for r in real.itertuples():
+        i = int(r.merchant_id)
+        act = F["active"][i]
+        ah = int(act.sum())
+        fires = {k: float((F[f"{k}_fire"][i] & act).sum() / max(ah, 1)) for k in ("drift", "peer", "invariants", "graph")}
+        two = float(((F["n_engines"][i] >= 2) & act).sum() / max(ah, 1))
+        held = float(reserve_fn(i).held.sum()) if int(S.loc[i, "max_level_auto"]) >= 3 else 0.0
+        rows.append({
+            "merchant_id": i, "code": r.code, "name": r.name, "source": r.data_source, "city": r.city,
+            "payments": int(cnt.loc[i, 0]) if 0 in cnt.columns and i in cnt.index else 0,
+            "refunds": int(cnt.loc[i, 1]) if 1 in cnt.columns and i in cnt.index else 0,
+            "per_day": round(float(r.base_daily_tx), 2),
+            "scored_days": round(ah / 24, 1),
+            "max_level": int(S.loc[i, "max_level"]), "max_level_auto": int(S.loc[i, "max_level_auto"]),
+            "max_level_stage_a": int(SA.loc[i, "max_level"]),
+            "max_score": round(float(S.loc[i, "max_p"]), 4),
+            "first_l2": str((cal.start + pd.Timedelta(hours=int(S.loc[i, "first_l2_h"]))).date()) if S.loc[i, "first_l2_h"] >= 0 else None,
+            "fire_share": {k: round(v, 4) for k, v in fires.items()},
+            "two_engine_share": round(two, 4),
+            "held_inr": round(held),
+        })
+    df = pd.DataFrame(rows)
+    months = df.scored_days.sum() / 30.44
+    summary = {
+        "shops": int(len(df)),
+        "by_source": df.source.value_counts().to_dict(),
+        "payments": int(df.payments.sum()), "refunds": int(df.refunds.sum()),
+        "merchant_months": round(float(months), 1),
+        "ever_l1": int((df.max_level >= 1).sum()), "ever_l2": int((df.max_level >= 2).sum()),
+        "ever_l3": int((df.max_level_auto >= 3).sum()),
+        "ever_l2_stage_a": int((df.max_level_stage_a >= 2).sum()),
+        "l3_per_1000_merchant_months": round(float((df.max_level_auto >= 3).sum() / max(months, 1e-9) * 1000), 1),
+        "held_inr": round(float(df.held_inr.sum())),
+        "engine_fire_share": {k: round(float(np.mean([x[k] for x in df.fire_share])), 4) for k in ("drift", "peer", "invariants", "graph")},
+        "two_engine_share": round(float(df.two_engine_share.mean()), 4),
+    }
+    return {"summary": summary, "shops": rows}

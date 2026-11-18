@@ -51,10 +51,17 @@ QA = [
      "festival dates. Simulated: rupee prices, payer IDs, the other 313 merchants, all betting behaviour (each rule cites a public ED, DGGI, iPaisa or "
      "CUTS finding), and consented bank data. No PayU data is used.",
      [("pages/15_data.py", "Data & assumptions")]),
+    ("Isn't this circular? You wrote the fraud and the detector.",
+     "Partly, yes, which is why we also ran PULSE on 112 real honest shops it was never built or trained on: Brazilian online sellers from Olist's "
+     "public data and a UK gift wholesaler with 1,805 real refunds. The first run put 7 of 57 at Act: small sellers having real surges, flagged by "
+     "drift and peers together. We changed one rule (Act needs a betting-specific engine), then checked it on a second Olist period we hadn't looked "
+     "at: 0 of 55 at Act (3 without the rule). Real shops still reach Review more often than simulated ones (12 of 112), and that's a real analyst cost.",
+     [("pages/12_evaluation.py", "Evaluation: real shops")]),
     ("What haven't you solved?",
      "Small, quiet fronts take days to weeks (median 163 h from first bet to Review/Act). The peer engine adds nothing measurable in our simulation, "
      "possibly because the simulated cohorts are cleaner than real ones. Calibration can only be claimed after shadow mode on PayU data. The fixture "
-     "dates and the INR price list still need checking by hand. And the simulated region has far more fronts than real life.",
+     "dates and the INR price list still need checking by hand. The simulated region has far more fronts than real life. And on real shops, drift and "
+     "peers raise Review cases (12 of 112) that an analyst has to clear.",
      [("pages/12_evaluation.py", "Evaluation and ablation")]),
     ("A brand-new shell has no history. How can you judge it?",
      f"Against what it declared at KYB. The S5 'IT services' shell was judged against an IT firm's hours and bill sizes from its first payment; with "

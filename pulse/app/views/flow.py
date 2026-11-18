@@ -95,6 +95,9 @@ with tabs[2]:
                            value=0.057, help="0.057 is the configured Review threshold")
     mins = c1.slider("Analyst minutes per alert (design parameter)", 5, 60, 20)
     hours = c1.slider("Productive analyst hours per day (design parameter)", 4.0, 8.0, 6.5, 0.5)
+    sim_ids = Mi.index[Mi.split != "real"]          # the real-shop test merchants are reported on the Evaluation page
+    d = d[d.merchant_id.isin(sim_ids)]
+    Mi = Mi.loc[sim_ids]
     act = d[d.active.astype(bool)]
     fired = act[(act.p >= thr) & (act.n_engines >= 2)]
     new_alerts = fired.sort_values("day").drop_duplicates("merchant_id")

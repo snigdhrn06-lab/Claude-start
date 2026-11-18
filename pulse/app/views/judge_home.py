@@ -47,9 +47,15 @@ for k, (p, label, icon) in enumerate(links):
 
 st.write("")
 passed = sum(r["pass"] for r in card)
+real_sub = "simulated test shops"
+if (data.ART / "eval" / "real_shops.json").exists():
+    _rs = data.js("eval/real_shops.json")
+    _n = _rs["dev"]["summary"]["shops"] + ((_rs.get("holdout") or {}).get("summary", {}).get("shops", 0))
+    _a = _rs["dev"]["summary"]["ever_l3"] + ((_rs.get("holdout") or {}).get("summary", {}).get("ever_l3", 0))
+    real_sub = f"and {_a} of {_n} real shops"
 C.kpi_row([("Designed scenarios passed", f"{passed} / {len(card)}", "simulated test merchants"),
            ("Simulated fronts caught", f"{round(met['recall_l2'] * met['n_test_fronts'])} of {met['n_test_fronts']}", "reached Review or Act"),
-           ("Honest shops held", f"{round(met['honest_ever_l3_share'] * met['n_test_honest'])} of {met['n_test_honest']}", "never reached Act"),
+           ("Honest shops at Act", f"{round(met['honest_ever_l3_share'] * met['n_test_honest'])} of {met['n_test_honest']}", real_sub),
            ("Diwali rush held", f"₹{data.pq('reserve_S1.parquet').held.sum():,.0f}", "Tolerated rises with the cohort")])
 st.markdown(f"<div class='quote'>“We don't hunt for betting. We learn what every bakery is, and catch the day it stops being one.”</div>",
             unsafe_allow_html=True)

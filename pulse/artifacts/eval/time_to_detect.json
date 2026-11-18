@@ -108,7 +108,7 @@
   "category": "kirana",
   "code": "FX003",
   "detect_hours": 5.0,
-  "detect_hours_l3": 5.0,
+  "detect_hours_l3": 9.0,
   "scenario": "extra"
  },
  {
